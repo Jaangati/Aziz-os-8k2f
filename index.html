@@ -37,7 +37,7 @@ h2{font-size:12px;letter-spacing:2px;color:var(--muted);text-transform:uppercase
 #bellN{position:absolute;top:-5px;right:-5px;background:var(--acc);color:#fff;font-size:10px;font-weight:700;border-radius:999px;padding:2px 6px}
 #me{display:flex;align-items:center;gap:9px;background:var(--card);border-radius:999px;padding:6px 14px 6px 6px;box-shadow:var(--sh)}
 #me .av{width:32px;height:32px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
-#me b{font-size:13px}#me span{display:block;font-size:10.5px;color:var(--muted)}
+#me b{font-size:13px}#me span{display:block;font-size:10.5px}
 #greet{display:flex;align-items:flex-end;gap:14px;margin:24px 0 18px;flex-wrap:wrap}
 #greet h1{font-size:28px;font-weight:800;letter-spacing:-.5px}
 #greet p{color:var(--muted);font-size:13px;margin-top:4px}
@@ -108,6 +108,7 @@ textarea.rev{min-height:60px}
 #bnav button.on{color:var(--ink)}
 @media(max-width:1000px){#side{display:none}#bnav{display:flex}#main{padding:14px 14px 76px}.g4,.g3,.g23,.g2{grid-template-columns:1fr}}
 @media(min-width:1001px){.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:480px){#greet h1{font-size:22px}#greet p{font-size:12px}.stat b{font-size:20px}.card{padding:16px}#topbar{gap:8px}.pills button{padding:6px 10px;font-size:12px}#me{padding:4px 10px 4px 4px}#me .av{width:28px;height:28px;font-size:12px}#me b{font-size:12px}#me span{font-size:10px}#clock{font-size:11px}.icobtn{width:36px;height:36px}#bellN{font-size:9px;padding:1px 4px}#sync{padding:6px 10px;font-size:11px}}
 </style>
 </head>
 <body>
@@ -172,7 +173,7 @@ textarea.rev{min-height:60px}
         <div id="rows"></div>
         <div style="display:flex;height:14px;border-radius:7px;overflow:hidden;margin:14px 0 6px" id="stack"></div><div class="chips" style="gap:12px" id="legend"></div>
         <h2 style="margin-top:20px">REGISTER AN EXPENSE</h2>
-        <div class="prow" style="grid-template-columns:2fr 1fr 1.4fr auto"><input id="t_name" placeholder="What did you pay?"><input id="t_amt" type="number" placeholder="QAR"><select id="t_cat"></select><button class="btn g" onclick="addTx()">+ Add</button></div>
+        <div class="prow" style="grid-template-columns:1fr 1fr 1fr auto;gap:8px"><input id="t_name" placeholder="What did you pay?"><input id="t_amt" type="number" placeholder="QAR" inputmode="decimal"><select id="t_cat"></select><button class="btn g" onclick="addTx()">+ Add</button></div>
         <h2 style="margin-top:20px">RECENT TRANSACTIONS</h2>
         <div class="twrap"><table><thead><tr><th>Activity</th><th>Amount</th><th>Category</th><th>Date</th><th></th></tr></thead><tbody id="tx"></tbody></table></div>
       </div>
@@ -193,7 +194,7 @@ textarea.rev{min-height:60px}
   <section class="tab" id="tab-plans">
     <div class="g g23">
       <div class="card"><h2>BIG OBJECTIVES — TIMELINE</h2><div class="tl" id="planL"></div></div>
-      <div class="card"><h2>ADD OBJECTIVE</h2><input id="p_title" placeholder="Objective (e.g. Invest QAR 10k)"><label>Target date</label><input id="p_date" type="date"><label>Status</label><select id="p_st"><option>Planned</option><option>In progress</option><option>Done</option></select><div class="btns"><button class="btn g" onclick="addPlan()">+ Add to timeline</button></div></div>
+      <div class="card"><h2>ADD OBJECTIVE</h2><input id="p_title" placeholder="Objective (e.g. Invest QAR 10k)" style="margin-bottom:8px"><label>Target date</label><input id="p_date" type="date" style="margin-bottom:8px"><label>Status</label><select id="p_st" style="margin-bottom:12px"><option>Planned</option><option>In progress</option><option>Done</option></select><div class="btns"><button class="btn g" onclick="addPlan()">+ Add to timeline</button></div></div>
     </div>
   </section>
 
@@ -257,7 +258,7 @@ textarea.rev{min-height:60px}
   <button data-tab="money"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>Money</button>
   <button data-tab="docs"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>Docs</button>
   <button data-tab="plans"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 9h18"/></svg>Plans</button>
-  <button data-tab="review"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8"/></svg>Review</button>
+  <button data-tab="review"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Review</button>
   <button data-tab="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>Settings</button>
 </nav>
 <script>
@@ -289,9 +290,9 @@ function setTheme(t){document.body.dataset.theme=t;localStorage.setItem("azizThe
 function cycleTheme(){const i=THEMES.indexOf(document.body.dataset.theme||"classic");setTheme(THEMES[(i+1)%THEMES.length]);}
 const savedTh=localStorage.getItem("azizTheme");if(savedTh&&savedTh!=="classic")document.body.dataset.theme=savedTh;
 function setSync(t){document.getElementById("syncT").textContent={local:"Local only",sync:"Syncing…",ok:"Synced · Google",err:"Sync error"}[t];}
-function syncPush(){if(!SYNC_URL)return;setSync("sync");fetch(SYNC_URL,{method:"POST",body:JSON.stringify(DATA)}).then(()=>setSync("ok")).catch(()=>setSync("err"));}
-function syncPull(){if(!SYNC_URL)return setSync("local");setSync("sync");fetch(SYNC_URL).then(r=>r.json()).then(d=>{if(d&&d.salary){DATA=Object.assign(JSON.parse(JSON.stringify(DEFAULTS)),d);persist();init();}setSync("ok");}).catch(()=>setSync("err"));}
-function syncTest(){if(!SYNC_URL)return alert("SYNC_URL is empty — paste your Apps Script /exec URL in the code.");fetch(SYNC_URL).then(r=>r.text()).then(t=>{document.getElementById("syncMsg").textContent="✅ Connected. Server says: "+t.slice(0,80);}).catch(e=>{document.getElementById("syncMsg").textContent="❌ Failed. Check deployment: Execute as Me · Access: Anyone · URL ends /exec.";});}
+function syncPush(){if(!SYNC_URL)return;setSync("sync");fetch(SYNC_URL,{method:"POST",body:JSON.stringify(DATA),mode:"cors"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.text();}).then(()=>setSync("ok")).catch(e=>{console.error("Sync push failed:",e);setSync("err");});}
+function syncPull(){if(!SYNC_URL)return setSync("local");setSync("sync");fetch(SYNC_URL,{mode:"cors"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();}).then(d=>{if(d&&d.salary){DATA=Object.assign(JSON.parse(JSON.stringify(DEFAULTS)),d);persist();init();}setSync("ok");}).catch(e=>{console.error("Sync pull failed:",e);setSync("err");});}
+function syncTest(){if(!SYNC_URL)return alert("SYNC_URL is empty — paste your Apps Script /exec URL in the code.");fetch(SYNC_URL,{mode:"cors"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.text();}).then(t=>{document.getElementById("syncMsg").textContent="✅ Connected. Server says: "+t.slice(0,80);}).catch(e=>{console.error("Sync test failed:",e);document.getElementById("syncMsg").textContent="❌ Failed. Check deployment: Execute as Me · Access: Anyone · URL ends /exec.";});}
 setInterval(()=>{const n=new Date();document.getElementById("clock").textContent=n.toLocaleDateString("en-GB",{weekday:"short",day:"2-digit",month:"short"})+" • "+n.toLocaleTimeString("en-GB");const h=n.getHours();document.getElementById("hello").textContent=(h<12?"Good morning":h<17?"Good afternoon":"Good evening")+", Aziz";},1000);
 document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("on",x.dataset.tab===b.dataset.tab));document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.id==="tab-"+b.dataset.tab));});
 function toggleNotif(e){e.stopPropagation();document.getElementById("notif").classList.toggle("open");}
