@@ -7,7 +7,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f2f1ec;--card:#fff;--ink:#15181d;--muted:#8a8f98;--green:#1d5c43;--green2:#3f7a5e;--sage:#8aa897;--acc:#f4581c;--acc2:#ff8a4c;--red:#c03434;--amber:#e0a10c;--blue:#2f6fed;--track:#e6e2d8;--sh:0 4px 18px rgba(20,30,25,.08)}
-body.dark{--bg:#0e1114;--card:#171b21;--ink:#eef1f4;--muted:#96a0ab;--track:#2a3038;--sh:0 4px 18px rgba(0,0,0,.4)}
+body[data-theme="glass"]{--bg:#e8ecf7;--card:rgba(255,255,255,.55);--ink:#1a2130;--muted:#77809a;--track:#dfe3ee;--green:#4f46e5;--green2:#818cf8;--acc:#ec4899;--acc2:#f472b6;background:linear-gradient(130deg,#c7d6ff,#ffd9e8 45%,#d8ffe9);background-attachment:fixed}
+body[data-theme="glass"] .card,body[data-theme="glass"] .pills,body[data-theme="glass"] #me,body[data-theme="glass"] .icobtn{backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.65)}
+body[data-theme="midnight"]{--bg:#0b0f14;--card:#121a24;--ink:#e8f0f2;--muted:#8fa0ae;--track:#243140;--green:#0f766e;--green2:#2dd4bf;--sage:#155e59;--acc:#e11d48;--acc2:#fb7185;--sh:0 4px 18px rgba(0,0,0,.45)}
+body[data-theme="sidi"]{--bg:#f3f6fb;--card:#fff;--ink:#122a63;--muted:#6b7a99;--track:#dbe4f5;--green:#1d4ed8;--green2:#3b82f6;--sage:#93b4f5;--acc:#d96f4e;--acc2:#e9927a;--sh:0 4px 18px rgba(18,42,99,.1)}
 *{box-sizing:border-box;margin:0;padding:0;font-family:Inter,system-ui,sans-serif}
 body{background:var(--bg);color:var(--ink);transition:background .3s,color .3s}
 svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
@@ -16,7 +19,6 @@ svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-l
 .card{background:var(--card);border-radius:20px;padding:20px;box-shadow:var(--sh);animation:up .5s both}
 h2{font-size:12px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .mut{color:var(--muted);font-size:12px}
-/* layout */
 #app{display:flex;min-height:100vh}
 #side{width:76px;padding:18px 0;display:flex;flex-direction:column;align-items:center;gap:8px;position:sticky;top:0;height:100vh}
 #side .logo{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;margin-bottom:14px}
@@ -25,299 +27,342 @@ h2{font-size:12px;letter-spacing:2px;color:var(--muted);text-transform:uppercase
 #side button.on{background:var(--ink);color:var(--bg)}
 #side .sp{flex:1}
 #main{flex:1;padding:20px 26px;max-width:1400px}
-#topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.pills{display:flex;gap:4px;background:var(--card);border-radius:999px;padding:5px;box-shadow:var(--sh)}
-.pills button{border:0;background:transparent;color:var(--muted);padding:8px 16px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer}
+#topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.pills{display:flex;gap:4px;background:var(--card);border-radius:999px;padding:5px;box-shadow:var(--sh);overflow-x:auto;max-width:100%}
+.pills button{border:0;background:transparent;color:var(--muted);padding:8px 14px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
 .pills button.on{background:var(--ink);color:var(--bg)}
 #topbar .r{margin-left:auto;display:flex;align-items:center;gap:10px}
-#clock{font-size:13px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
+#clock{font-size:12.5px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
 .icobtn{width:40px;height:40px;border-radius:12px;border:0;background:var(--card);color:var(--ink);box-shadow:var(--sh);cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative}
 #bellN{position:absolute;top:-5px;right:-5px;background:var(--acc);color:#fff;font-size:10px;font-weight:700;border-radius:999px;padding:2px 6px}
 #me{display:flex;align-items:center;gap:9px;background:var(--card);border-radius:999px;padding:6px 14px 6px 6px;box-shadow:var(--sh)}
 #me .av{width:32px;height:32px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
 #me b{font-size:13px}#me span{display:block;font-size:10.5px;color:var(--muted)}
-#greet{display:flex;align-items:flex-end;gap:14px;margin:26px 0 20px;flex-wrap:wrap}
-#greet h1{font-size:30px;font-weight:800;letter-spacing:-.5px}
+#greet{display:flex;align-items:flex-end;gap:14px;margin:24px 0 18px;flex-wrap:wrap}
+#greet h1{font-size:28px;font-weight:800;letter-spacing:-.5px}
 #greet p{color:var(--muted);font-size:13px;margin-top:4px}
 #sync{margin-left:auto;display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--muted);background:var(--card);padding:8px 14px;border-radius:999px;box-shadow:var(--sh)}
-/* grids */
 .g{display:grid;gap:16px}
-.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g23{grid-template-columns:2fr 1fr}
+.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g23{grid-template-columns:2fr 1fr}.g2{grid-template-columns:1fr 1fr}
 .tab{display:none}.tab.on{display:block;animation:up .4s both}
-/* stat cards */
-.stat b{font-size:24px;font-weight:800;letter-spacing:-.5px;display:block;margin:6px 0 4px}
+.stat b{font-size:23px;font-weight:800;letter-spacing:-.5px;display:block;margin:6px 0 4px}
 .badge{font-size:11px;font-weight:700;border-radius:999px;padding:3px 9px}
 .b-up{background:rgba(63,122,94,.15);color:var(--green2)}.b-dn{background:rgba(192,52,52,.12);color:var(--red)}
 .grad{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff}
 .grad .mut{color:rgba(255,255,255,.8)}
-/* chart */
-#chart{display:flex;gap:14px;align-items:flex-end;height:150px;margin-top:12px}
+#chart{display:flex;gap:14px;align-items:flex-end;height:140px;margin-top:12px}
 .cm{flex:1;display:flex;gap:5px;align-items:flex-end;height:100%}
 .cm i{flex:1;border-radius:6px 6px 2px 2px;transition:height .8s cubic-bezier(.2,.8,.2,1)}
 .cm .in{background:var(--green2)}.cm .ex{background:linear-gradient(180deg,var(--acc2),var(--acc))}
 .cl{display:flex;gap:14px;margin-top:8px}.cl span{flex:1;text-align:center;font-size:11px;color:var(--muted)}
-/* bars/progress */
 .prog{height:8px;background:var(--track);border-radius:4px;overflow:hidden;margin:8px 0}
 .prog i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--green2),var(--green));transition:width 1s cubic-bezier(.2,.8,.2,1)}
-/* lists */
 li.act{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--track);font-size:13.5px;cursor:pointer;list-style:none}
 li.act:last-child{border:0}
 li.act .cb{width:20px;height:20px;border-radius:7px;border:2px solid var(--track);flex:none;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;transition:.2s}
 li.act.done .cb{background:var(--green);border-color:var(--green)}
-li.act.done span{ text-decoration:line-through;color:var(--muted)}
-/* table */
+li.act.done span{text-decoration:line-through;color:var(--muted)}
+.twrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{text-align:left;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:1px;padding:8px}
 td{padding:10px 8px;border-top:1px solid var(--track)}
-.pill{font-size:11px;font-weight:700;border-radius:999px;padding:3px 10px}
-.s-done{background:rgba(63,122,94,.15);color:var(--green2)}.s-pend{background:rgba(224,161,12,.15);color:var(--amber)}.s-prog{background:rgba(47,111,237,.12);color:var(--blue)}
-/* rings/stepper */
+.pill{font-size:11px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.s-done{background:rgba(63,122,94,.15);color:var(--green2)}.s-pend{background:rgba(224,161,12,.15);color:var(--amber)}.s-bad{background:rgba(192,52,52,.12);color:var(--red)}.s-prog{background:rgba(47,111,237,.12);color:var(--blue)}
 .rings{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
-.ring{text-align:center;width:96px}
-.ring svg{width:84px;height:84px}
-.ring p{font-size:11px;margin-top:5px;line-height:1.3}
+.ring{text-align:center;width:96px}.ring svg{width:84px;height:84px}.ring p{font-size:11px;margin-top:5px}
 #steps{display:flex;gap:6px;flex-wrap:wrap}
 #steps .st{font-size:12px;font-weight:600;padding:9px 14px;border-radius:999px;background:var(--track);color:var(--muted)}
 #steps .st.done{background:var(--green);color:#fff}
 #steps .st.now{background:var(--acc);color:#fff;animation:pulse 2s infinite}
-/* chips */
 .chips{display:flex;gap:10px;flex-wrap:wrap}
-.chip{background:linear-gradient(135deg,#c03434,#a02b2b);color:#fff;font-size:12.5px;font-weight:600;padding:10px 15px;border-radius:12px;box-shadow:0 4px 12px rgba(160,43,43,.3)}
-/* notif dropdown */
+.chip{background:linear-gradient(135deg,#c03434,#a02b2b);color:#fff;font-size:12.5px;font-weight:600;padding:10px 15px;border-radius:12px}
 #notif{position:absolute;right:0;top:48px;width:300px;background:var(--card);border-radius:16px;box-shadow:var(--sh);padding:14px;display:none;z-index:30}
 #notif.open{display:block;animation:up .25s both}
-#notif div{font-size:13px;padding:9px 6px;border-bottom:1px solid var(--track);display:flex;gap:8px}
+#notif div{font-size:13px;padding:9px 6px;border-bottom:1px solid var(--track)}
 #notif div:last-child{border:0}
-/* modal */
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-start;justify-content:center;overflow:auto;z-index:40;padding:26px 12px}
-.modal.open{display:flex}
-.modal .box{background:var(--card);border-radius:20px;padding:24px;width:600px;max-width:100%;animation:up .3s both}
-.modal label{display:block;font-size:10.5px;margin:10px 0 4px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
-.modal input,.modal textarea{width:100%;padding:9px;border:1px solid var(--track);border-radius:10px;font-size:14px;background:transparent;color:var(--ink)}
-.modal textarea{min-height:56px}
-.prow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tl{border-left:3px solid var(--track);margin-left:8px;padding-left:22px}
+.tl .it{position:relative;padding-bottom:20px}
+.tl .it::before{content:"";position:absolute;left:-30px;top:4px;width:13px;height:13px;border-radius:50%;background:var(--green2);box-shadow:0 0 0 4px var(--track)}
+.tl .it.now::before{background:var(--acc)}
+.cc{border-radius:16px;padding:16px;color:#fff;background:linear-gradient(135deg,#1a2b25,#0e1512);display:flex;flex-direction:column;gap:14px;min-width:230px;flex:1;max-width:320px}
+.cc.o{background:linear-gradient(135deg,var(--acc),var(--acc2))}
+.cc .top{display:flex;justify-content:space-between;font-size:12px;opacity:.85}
+.cc .num{font-size:17px;letter-spacing:2px;font-weight:700}
+.cc .row{display:flex;justify-content:space-between;font-size:11px;opacity:.85}
+.copyb{border:0;background:var(--track);color:var(--ink);border-radius:8px;padding:4px 9px;font-size:11px;font-weight:700;cursor:pointer}
+input,select,textarea{width:100%;padding:9px;border:1px solid var(--track);border-radius:10px;font-size:13.5px;background:transparent;color:var(--ink)}
+textarea{min-height:56px}
 .btn{border:0;border-radius:11px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer}
 .btn.g{background:var(--green);color:#fff}.btn.o{background:transparent;color:var(--ink);border:1px solid var(--track)}
-.btns{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
-/* lock */
+.btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.prow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:block;font-size:10.5px;margin:10px 0 4px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.thb{display:flex;align-items:center;gap:8px;border:2px solid var(--track);border-radius:14px;padding:10px 14px;cursor:pointer;background:transparent;color:var(--ink);font-weight:600;font-size:13px}
+.thb.on{border-color:var(--green)}
+.thb i{width:22px;height:22px;border-radius:50%;display:inline-block}
+textarea.rev{min-height:60px}
 #lock{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:50}
 #lock .box{text-align:center;width:320px}
-#lock input{width:100%;padding:12px;border:1px solid var(--track);border-radius:12px;margin:14px 0;font-size:15px;background:var(--card);color:var(--ink)}
-textarea.rev{width:100%;min-height:64px;padding:10px;border:1px solid var(--track);border-radius:12px;background:transparent;color:var(--ink);font-size:13px;margin-top:6px}
-@media(max-width:1000px){.g4{grid-template-columns:1fr 1fr}.g3,.g23{grid-template-columns:1fr}#side{display:none}}
-@media(max-width:600px){.g4{grid-template-columns:1fr}#main{padding:14px}}
+#bnav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--card);box-shadow:0 -4px 20px rgba(0,0,0,.1);z-index:25;justify-content:space-around;padding:7px 4px}
+#bnav button{border:0;background:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;font-size:9px;gap:3px;cursor:pointer}
+#bnav button.on{color:var(--ink)}
+@media(max-width:1000px){#side{display:none}#bnav{display:flex}#main{padding:14px 14px 76px}.g4,.g3,.g23,.g2{grid-template-columns:1fr}}
+@media(min-width:1001px){.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 <body>
 <div id="lock"><div class="box card">
   <div style="font-size:22px;font-weight:800">AZIZ OS</div>
   <p class="mut" style="letter-spacing:3px;margin-top:4px">PRIVATE — ENTER PASSWORD</p>
-  <input type="password" id="pw" placeholder="Password" autofocus>
+  <input type="password" id="pw" placeholder="Password" style="margin:14px 0">
   <button class="btn g" style="width:100%" onclick="unlock()">Unlock</button>
   <div id="err" style="color:var(--red);font-size:12px;margin-top:8px"></div>
 </div></div>
-
 <div id="app">
 <nav id="side">
   <div class="logo">A</div>
   <button data-tab="overview" class="on" title="Overview"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg></button>
-  <button data-tab="money" title="Money"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M16 13h4M2 10h20"/></svg></button>
-  <button data-tab="goals" title="Goals"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></button>
-  <button data-tab="review" title="Review"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></button>
+  <button data-tab="money" title="Money"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg></button>
+  <button data-tab="docs" title="Documents"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></button>
+  <button data-tab="plans" title="Planner"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 9h18"/></svg></button>
+  <button data-tab="archive" title="Archive"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="5" rx="2"/><path d="M4 9v11h16V9M10 13h4"/></svg></button>
+  <button data-tab="review" title="CEO Review"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></button>
+  <button data-tab="settings" title="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 5 12a7 7 0 0 0 .1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6A7 7 0 0 0 19 12z"/></svg></button>
   <div class="sp"></div>
-  <button onclick="toggleTheme()" id="thBtn" title="Theme"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg></button>
-  <button onclick="openPanel()" title="Edit data"><svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+  <button onclick="cycleTheme()" title="Theme"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg></button>
   <button onclick="relock()" title="Lock"><svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="3"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></button>
 </nav>
-
 <div id="main">
   <div id="topbar">
     <div class="pills">
-      <button data-tab="overview" class="on">Overview</button><button data-tab="money">Money</button><button data-tab="goals">Goals</button><button data-tab="review">CEO Review</button>
+      <button data-tab="overview" class="on">Overview</button><button data-tab="money">Money</button><button data-tab="docs">Documents</button><button data-tab="plans">Planner</button><button data-tab="archive">Archive</button><button data-tab="review">CEO Review</button><button data-tab="settings">Settings</button>
     </div>
     <div class="r">
       <span id="clock"></span>
-      <div class="icobtn" onclick="toggleNotif(event)"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg><span id="bellN">0</span>
-        <div id="notif"></div>
-      </div>
+      <div class="icobtn" onclick="toggleNotif(event)"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg><span id="bellN">0</span><div id="notif"></div></div>
       <div id="me"><div class="av">A</div><div><b>Aziz</b><span>Chief Executive</span></div></div>
     </div>
   </div>
-
   <div id="greet">
-    <div><h1 id="hello">Good morning, Aziz</h1><p>Stay on top of your money, goals and next move.</p></div>
+    <div><h1 id="hello">Good morning, Aziz</h1><p>One screen. Your whole life, under management.</p></div>
     <div id="sync"><svg viewBox="0 0 24 24"><path d="M17.5 19a4.5 4.5 0 1 0-.4-9A7 7 0 0 0 4 12.5 3.5 3.5 0 0 0 6.5 19z"/></svg><span id="syncT">Local only</span></div>
   </div>
 
-  <!-- OVERVIEW -->
-  <section class="tab on" id="tab-overview"><div class="g g4" style="margin-bottom:16px">
-    <div class="card grad stat"><span class="mut">AVAILABLE CASH</span><b id="s_cash">—</b><span class="badge" style="background:rgba(255,255,255,.25);color:#fff" id="s_cashB"></span></div>
-    <div class="card stat"><span class="mut">SAVINGS RATE</span><b id="s_rate">—</b><span class="badge b-up" id="s_rateB"></span></div>
-    <div class="card stat"><span class="mut">LEFT OVER THIS MONTH</span><b id="s_left">—</b><span class="badge b-up" id="s_leftB"></span></div>
-    <div class="card stat"><span class="mut">TOTAL SPEND / MONTH</span><b id="s_exp">—</b><span class="badge b-dn" id="s_expB"></span></div>
-  </div>
-  <div class="g g23" style="margin-bottom:16px">
-    <div class="card"><h2><svg viewBox="0 0 24 24"><path d="M3 3v18h18M8 17V9m5 8V5m5 12v-6"/></svg> CASHFLOW — LAST 6 MONTHS</h2>
-      <div id="chart"></div><div class="cl" id="chartL"></div>
-      <p class="mut" style="margin-top:10px">▮ Green = income &nbsp; ▮ Orange = spending</p>
+  <section class="tab on" id="tab-overview">
+    <div class="g g4" style="margin-bottom:16px">
+      <div class="card grad stat"><span class="mut">AVAILABLE CASH</span><b id="s_cash">—</b><span class="badge" style="background:rgba(255,255,255,.25);color:#fff">your capital</span></div>
+      <div class="card stat"><span class="mut">SAVINGS RATE</span><b id="s_rate">—</b><span class="badge b-up">target 25%</span></div>
+      <div class="card stat"><span class="mut">LEFT OVER (PLAN)</span><b id="s_left">—</b><span class="badge b-up">after everything</span></div>
+      <div class="card stat"><span class="mut">PLANNED SPEND / MO</span><b id="s_exp">—</b><span class="badge b-dn" id="s_expB"></span></div>
     </div>
-    <div class="card"><h2><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg> TODAY</h2>
-      <p class="mut">TOP PRIORITY</p><p id="prio" style="font-size:15px;font-weight:700;margin:4px 0 12px"></p>
-      <p class="mut">TOP 3 ACTIONS</p><ul id="acts"></ul>
+    <div class="g g23" style="margin-bottom:16px">
+      <div class="card"><h2>CASHFLOW — LAST 6 MONTHS</h2><div id="chart"></div><div class="cl" id="chartL"></div><p class="mut" style="margin-top:8px">Green = income · Orange = spending</p></div>
+      <div class="card"><h2>TODAY</h2><p class="mut">TOP PRIORITY</p><p id="prio" style="font-size:15px;font-weight:700;margin:4px 0 12px"></p><p class="mut">TOP 3 ACTIONS</p><ul id="acts"></ul></div>
     </div>
-  </div>
-  <div class="g g3">
-    <div class="card"><h2>EMERGENCY FUND</h2><b id="ef_t" style="font-size:18px"></b><div class="prog"><i id="ef_b"></i></div><p class="mut" id="ef_p"></p></div>
-    <div class="card"><h2>TUNISIA BUSINESS FUND</h2><b id="tf_t" style="font-size:18px"></b><div class="prog"><i id="tf_b"></i></div><p class="mut" id="tf_p"></p></div>
-    <div class="card"><h2 style="color:var(--red)">NEEDS ATTENTION</h2><div class="chips" id="chips"></div></div>
-  </div></section>
+    <div class="g g3">
+      <div class="card"><h2>EMERGENCY FUND</h2><b id="ef_t" style="font-size:18px"></b><div class="prog"><i id="ef_b"></i></div><p class="mut" id="ef_p"></p></div>
+      <div class="card"><h2>TUNISIA BUSINESS FUND</h2><b id="tf_t" style="font-size:18px"></b><div class="prog"><i id="tf_b"></i></div><p class="mut" id="tf_p"></p></div>
+      <div class="card"><h2 style="color:var(--red)">NEEDS ATTENTION</h2><div class="chips" id="chips"></div></div>
+    </div>
+  </section>
 
-  <!-- MONEY -->
-  <section class="tab" id="tab-money"><div class="g g23">
-    <div class="card"><h2><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg> FINANCIAL COMMAND CENTER</h2>
-      <div id="rows"></div>
-      <div style="display:flex;height:14px;border-radius:7px;overflow:hidden;margin:14px 0 6px" id="stack"></div>
-      <div class="chips" style="gap:12px" id="legend"></div>
-      <h2 style="margin-top:22px">RECENT ACTIVITY</h2>
-      <table><thead><tr><th>Activity</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead><tbody id="tx"></tbody></table>
+  <section class="tab" id="tab-money">
+    <div class="g g23">
+      <div class="card"><h2>FINANCIAL COMMAND CENTER</h2>
+        <div id="rows"></div>
+        <div style="display:flex;height:14px;border-radius:7px;overflow:hidden;margin:14px 0 6px" id="stack"></div><div class="chips" style="gap:12px" id="legend"></div>
+        <h2 style="margin-top:20px">REGISTER AN EXPENSE</h2>
+        <div class="prow" style="grid-template-columns:2fr 1fr 1.4fr auto"><input id="t_name" placeholder="What did you pay?"><input id="t_amt" type="number" placeholder="QAR"><select id="t_cat"></select><button class="btn g" onclick="addTx()">+ Add</button></div>
+        <h2 style="margin-top:20px">RECENT TRANSACTIONS</h2>
+        <div class="twrap"><table><thead><tr><th>Activity</th><th>Amount</th><th>Category</th><th>Date</th><th></th></tr></thead><tbody id="tx"></tbody></table></div>
+      </div>
+      <div class="card"><h2>ACTUAL VS BUDGET (THIS MONTH)</h2>
+        <b id="bud_t" style="font-size:18px"></b><div class="prog"><i id="bud_b" style="background:linear-gradient(90deg,var(--acc2),var(--acc))"></i></div><p class="mut" id="bud_p"></p>
+        <h2 style="margin-top:18px">BUDGET BY CATEGORY</h2><div id="cats"></div>
+      </div>
     </div>
-    <div class="card"><h2>MONTHLY SPENDING LIMIT</h2>
-      <b id="bud_t" style="font-size:18px"></b><div class="prog"><i id="bud_b" style="background:linear-gradient(90deg,var(--acc2),var(--acc))"></i></div><p class="mut" id="bud_p"></p>
-      <h2 style="margin-top:22px">WHERE IT GOES</h2><div id="cats"></div>
-    </div>
-  </div></section>
+  </section>
 
-  <!-- GOALS -->
-  <section class="tab" id="tab-goals"><div class="g g23">
-    <div class="card"><h2><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg> CURRENT OBJECTIVES</h2><div class="rings" id="rings"></div></div>
-    <div class="card"><h2>TUNISIA PROJECT PIPELINE</h2><div id="steps"></div><p class="mut" style="margin-top:14px">Goal → project → actions. Move one stage at a time.</p></div>
-  </div></section>
-
-  <!-- REVIEW -->
-  <section class="tab" id="tab-review"><div class="g g23">
-    <div class="card"><h2><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8"/></svg> WEEKLY CEO REVIEW <span class="badge b-up" id="revP"></span></h2><div id="revList"></div></div>
-    <div class="card"><h2>MONTHLY BOARD MEETING</h2>
-      <p class="mut">KEEP</p><textarea class="rev" id="rv_keep"></textarea>
-      <p class="mut" style="margin-top:8px">STOP</p><textarea class="rev" id="rv_stop"></textarea>
-      <p class="mut" style="margin-top:8px">START</p><textarea class="rev" id="rv_start"></textarea>
-      <p class="mut" style="margin-top:8px">CHANGE</p><textarea class="rev" id="rv_change"></textarea>
-      <div class="btns"><button class="btn g" onclick="saveReview()">Save review</button></div>
+  <section class="tab" id="tab-docs">
+    <div class="g g2">
+      <div class="card"><h2>OFFICIAL DOCUMENTS</h2><div class="twrap"><table><thead><tr><th>Document</th><th>Number</th><th>Expiry</th><th>Status</th><th></th></tr></thead><tbody id="docsL"></tbody></table></div><p class="mut" style="margin-top:10px">⚠ Documents expiring within 60 days automatically appear in your notifications.</p></div>
+      <div class="card"><h2>MY CARDS</h2><div style="display:flex;gap:14px;flex-wrap:wrap" id="cardsL"></div><p class="mut" style="margin-top:12px">Tap COPY to copy the full number from Settings data.</p></div>
     </div>
-  </div></section>
+  </section>
+
+  <section class="tab" id="tab-plans">
+    <div class="g g23">
+      <div class="card"><h2>BIG OBJECTIVES — TIMELINE</h2><div class="tl" id="planL"></div></div>
+      <div class="card"><h2>ADD OBJECTIVE</h2><input id="p_title" placeholder="Objective (e.g. Invest QAR 10k)"><label>Target date</label><input id="p_date" type="date"><label>Status</label><select id="p_st"><option>Planned</option><option>In progress</option><option>Done</option></select><div class="btns"><button class="btn g" onclick="addPlan()">+ Add to timeline</button></div></div>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-archive">
+    <div class="card"><h2>ARCHIVE — PAPER TRAIL</h2>
+      <div style="max-width:240px;margin-bottom:10px"><select id="archF" onchange="init()"><option value="">All types</option><option>Statement</option><option>Contract</option><option>Certificate</option><option>Other</option></select></div>
+      <div class="twrap"><table><thead><tr><th>Title</th><th>Type</th><th>Date</th><th>Note</th></tr></thead><tbody id="archL"></tbody></table></div>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-review">
+    <div class="g g23">
+      <div class="card"><h2>WEEKLY CEO REVIEW <span class="badge b-up" id="revP"></span></h2><div id="revList"></div></div>
+      <div class="card"><h2>MONTHLY BOARD MEETING</h2>
+        <p class="mut">KEEP</p><textarea class="rev" id="rv_keep"></textarea>
+        <p class="mut" style="margin-top:8px">STOP</p><textarea class="rev" id="rv_stop"></textarea>
+        <p class="mut" style="margin-top:8px">START</p><textarea class="rev" id="rv_start"></textarea>
+        <p class="mut" style="margin-top:8px">CHANGE</p><textarea class="rev" id="rv_change"></textarea>
+        <div class="btns"><button class="btn g" onclick="saveReview()">Save review</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-settings">
+    <div class="g g2">
+      <div class="card"><h2>APPEARANCE</h2>
+        <div class="chips" id="themeRow"></div>
+        <h2 style="margin-top:20px">SECURITY</h2>
+        <label>Change password</label><div class="prow" style="grid-template-columns:1fr auto"><input id="npass" type="password" placeholder="New password"><button class="btn g" onclick="savePass()">Save</button></div>
+        <h2 style="margin-top:20px"> SYNC</h2>
+        <p class="mut" id="syncMsg">Status shown top-right. URL lives in the code (SYNC_URL). Deployment must be: Execute as Me · Access: Anyone · ends with /exec.</p>
+        <div class="btns"><button class="btn o" onclick="syncTest()">Test connection</button></div>
+        <h2 style="margin-top:20px">DATA</h2>
+        <div class="btns"><button class="btn o" onclick="exportData()">⬇ Export backup</button><button class="btn o" onclick="document.getElementById('file').click()">⬆ Import</button><button class="btn o" onclick="resetData()">↺ Reset</button><input type="file" id="file" hidden accept=".json"></div>
+      </div>
+      <div class="card"><h2>EDIT EVERYTHING</h2>
+        <div class="prow"><div><label>Salary</label><input id="f_salary" type="number"></div><div><label>Rent</label><input id="f_rent" type="number"></div></div>
+        <div class="prow"><div><label>Savings/mo</label><input id="f_sav" type="number"></div><div><label>Investments/mo</label><input id="f_inv" type="number"></div></div>
+        <div class="prow"><div><label>Tunisia/mo</label><input id="f_tun" type="number"></div><div><label>Available cash</label><input id="f_cash" type="number"></div></div>
+        <div class="prow"><div><label>Spending limit/mo</label><input id="f_bud" type="number"></div><div><label>Tunisia stage 1-8</label><input id="f_stage" type="number"></div></div>
+        <div class="prow"><div><label>Emergency now</label><input id="f_ef" type="number"></div><div><label>Emergency target</label><input id="f_eft" type="number"></div></div>
+        <div class="prow"><div><label>Tunisia fund now</label><input id="f_tf" type="number"></div><div><label>Tunisia target</label><input id="f_tft" type="number"></div></div>
+        <label>Variable budget (Name, amount)</label><textarea id="f_var"></textarea>
+        <label>Chart history (Mon, spending)</label><textarea id="f_hist"></textarea>
+        <label>Objectives (Name, %)</label><textarea id="f_obj"></textarea>
+        <label>Needs attention (one/line)</label><textarea id="f_attn"></textarea>
+        <label>Top priority</label><input id="f_pri">
+        <label>Top 3 actions (one/line)</label><textarea id="f_act"></textarea>
+        <label>Documents (Name, Number, YYYY-MM-DD)</label><textarea id="f_docs"></textarea>
+        <label>Cards (Bank, FullNumber, Last4, MM/YY)</label><textarea id="f_cards"></textarea>
+        <label>Objectives timeline (Title, YYYY-MM-DD, Status)</label><textarea id="f_plans"></textarea>
+        <label>Archive (Title, Type, Date, Note)</label><textarea id="f_arch"></textarea>
+        <div class="btns"><button class="btn g" onclick="saveForm()">Save & Sync</button></div>
+      </div>
+    </div>
+  </section>
 </div>
 </div>
-
-<!-- EDIT MODAL -->
-<div class="modal" id="panel"><div class="box">
-  <h2 style="color:var(--ink)">EDIT DATA</h2>
-  <div class="prow"><div><label>Salary</label><input id="f_salary" type="number"></div><div><label>Rent</label><input id="f_rent" type="number"></div></div>
-  <div class="prow"><div><label>Savings/mo</label><input id="f_sav" type="number"></div><div><label>Investments/mo</label><input id="f_inv" type="number"></div></div>
-  <div class="prow"><div><label>Tunisia/mo</label><input id="f_tun" type="number"></div><div><label>Available cash</label><input id="f_cash" type="number"></div></div>
-  <div class="prow"><div><label>Spending limit/mo</label><input id="f_bud" type="number"></div><div><label>Tunisia stage (1-8)</label><input id="f_stage" type="number"></div></div>
-  <div class="prow"><div><label>Emergency fund now</label><input id="f_ef" type="number"></div><div><label>Emergency target</label><input id="f_eft" type="number"></div></div>
-  <div class="prow"><div><label>Tunisia fund now</label><input id="f_tf" type="number"></div><div><label>Tunisia target</label><input id="f_tft" type="number"></div></div>
-  <label>Variable expenses (Name, amount)</label><textarea id="f_var"></textarea>
-  <label>History for chart (Mon, spending)</label><textarea id="f_hist"></textarea>
-  <label>Activity (Name, amount, Status, Date)</label><textarea id="f_act2"></textarea>
-  <label>Top priority</label><input id="f_pri">
-  <label>Top 3 actions (one/line)</label><textarea id="f_act"></textarea>
-  <label>Objectives (Name, %)</label><textarea id="f_obj"></textarea>
-  <label>Needs attention (one/line)</label><textarea id="f_attn"></textarea>
-  <div class="btns"><button class="btn g" onclick="saveForm()">Save & Sync</button><button class="btn o" onclick="closePanel()">Cancel</button><button class="btn o" onclick="exportData()">Export backup</button></div>
-</div></div>
-
+<nav id="bnav">
+  <button data-tab="overview" class="on"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>Home</button>
+  <button data-tab="money"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>Money</button>
+  <button data-tab="docs"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>Docs</button>
+  <button data-tab="plans"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 9h18"/></svg>Plans</button>
+  <button data-tab="review"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8"/></svg>Review</button>
+  <button data-tab="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>Settings</button>
+</nav>
 <script>
-/* ===== SETTINGS ===== */
-const PASSWORD="aziz2026"; // ← change
-const SYNC_URL="https://script.google.com/macros/s/AKfycby5W9DL6iWgvW9bYFR3niMXnvB8cxDw4ELye1brVmAmW68jkqm42RTwYyqqzVLuZ50/exec"; // ← paste your Google Apps Script web app URL here
+const SYNC_URL="https://script.google.com/macros/s/AKfycby5W9DL6iWgvW9bYFR3niMXnvB8cxDw4ELye1brVmAmW68jkqm42RTwYyqqzVLuZ50/exec"; // ← paste Apps Script /exec URL
+const THEMES=["classic","glass","midnight","sidi"],TNAMES={classic:"Executive",glass:"Liquid Glass",midnight:"Midnight",sidi:"Sidi Blue"},TDOTS={classic:"#1d5c43",glass:"#818cf8",midnight:"#2dd4bf",sidi:"#1d4ed8"};
 const DEFAULTS={salary:19000,rent:5900,budget:17500,
- variable:{Groceries:2400,Transport:700,"Dining out":1100,Utilities:650,Personal:900,"Family support":1500},
- savings:3000,investments:1000,tunisia:800,cash:42310,
- funds:{emergency:[24600,30000],tunisia:[20500,50000]},
- priority:"Finalize Tunisia business pitch deck",
- actions:["Review Q2 savings report","Schedule mentor call","Update personal KPI tracker"],
- objectives:[["Emergency Fund",82],["Cut Expenses",65],["Tunisia Fund",41],["Career Goal",73],["Personal Goal",55]],
- attention:["Kahramaa bill — due Aug 12","Credit card payment — due Aug 15","Lease renewal decision","Pitch deck deadline — Aug 20","Tunisia research stalled"],
- history:[["Mar",15800],["Apr",16900],["May",16200],["Jun",17400],["Jul",16800]],
- activity:[["Grocery — Carrefour",420,"Completed","Aug 7"],["Fuel — Woqod",250,"Completed","Aug 6"],["Coffee & lunch",180,"Completed","Aug 6"],["Online course — Udemy",120,"Pending","Aug 5"],["Flight tickets — Tunisia",1450,"Pending","Aug 3"]],
- tStage:3,review:{checks:{},keep:"",stop:"",start:"",change:""}};
+variable:{Groceries:2400,Transport:700,"Dining out":1100,Utilities:650,Personal:900,"Family support":1500},
+savings:3000,investments:1000,tunisia:800,cash:42310,funds:{emergency:[24600,30000],tunisia:[20500,50000]},
+priority:"Finalize Tunisia business pitch deck",actions:["Review Q2 savings report","Schedule mentor call","Update personal KPI tracker"],
+objectives:[["Emergency Fund",82],["Cut Expenses",65],["Tunisia Fund",41],["Career Goal",73],["Personal Goal",55]],
+attention:["Kahramaa bill — due Aug 12","Credit card payment — due Aug 15","Lease renewal decision","Pitch deck deadline — Aug 20"],
+history:[["Mar",15800],["Apr",16900],["May",16200],["Jun",17400],["Jul",16800]],
+tx:[["Carrefour grocery",420,"Groceries","2026-08-07"],["Woqod fuel",250,"Transport","2026-08-06"],["Lunch with team",180,"Dining out","2026-08-06"]],
+docs:[["Qatar ID","28412345678","2027-03-15"],["Passport","T1234567","2029-11-02"],["Residence Permit","RP-554433","2026-09-30"],["Driving Licence","DL-991122","2028-05-20"]],
+cards:[["QNB Visa","4567890123456782","6782","09/29"],["CIB Mastercard","5123456789014356","4356","05/28"]],
+plans:[["Build QAR 30k emergency fund","2026-12-31","In progress"],["Tunisia research trip","2026-11-15","Planned"],["Invest first QAR 10k","2027-06-30","Planned"]],
+archive:[["Bank statement — QNB Q2","Statement","2026-07-01","PDF in Drive"],["Employment contract","Contract","2024-09-01","Signed copy"],["Salary certificate","Certificate","2026-05-10","HR portal"]],
+tStage:3,review:{checks:{},keep:"",stop:"",start:"",change:""}};
 let DATA=load();
 function load(){try{const d=JSON.parse(localStorage.getItem("azizData"));if(d&&d.salary)return d;}catch(e){}return JSON.parse(JSON.stringify(DEFAULTS));}
 function persist(){localStorage.setItem("azizData",JSON.stringify(DATA));}
-/* ===== SYNC ===== */
-function setSync(t){const m={local:["Local only"],sync:["Syncing…"],ok:["Synced · Google"],err:["Sync error"]};document.getElementById("syncT").textContent=m[t][0];}
-function syncPush(){if(!SYNC_URL)return;setSync("sync");fetch(SYNC_URL,{method:"POST",body:JSON.stringify(DATA)}).then(()=>setSync("ok")).catch(()=>setSync("err"));}
-function syncPull(){if(!SYNC_URL)return setSync("local");setSync("sync");fetch(SYNC_URL).then(r=>r.json()).then(d=>{if(d&&d.salary){DATA=Object.assign(JSON.parse(JSON.stringify(DEFAULTS)),d);persist();init();}setSync("ok");}).catch(()=>setSync("err"));}
-/* ===== LOCK / THEME ===== */
-function unlock(){if(document.getElementById("pw").value===PASSWORD){localStorage.setItem("azizUnlocked","1");document.getElementById("lock").remove();init();syncPull();}else document.getElementById("err").textContent="Wrong password";}
+const PASS=()=>localStorage.getItem("azizPass")||"aziz2026";
+function unlock(){if(document.getElementById("pw").value===PASS()){localStorage.setItem("azizUnlocked","1");document.getElementById("lock").remove();init();syncPull();}else document.getElementById("err").textContent="Wrong password";}
 function relock(){localStorage.removeItem("azizUnlocked");location.reload();}
 if(localStorage.getItem("azizUnlocked")==="1"){document.getElementById("lock").remove();init();syncPull();}
 else document.getElementById("pw").addEventListener("keydown",e=>{if(e.key==="Enter")unlock()});
-function toggleTheme(){document.body.classList.toggle("dark");localStorage.setItem("azizTheme",document.body.classList.contains("dark")?"1":"");}
-if(localStorage.getItem("azizTheme")==="1")document.body.classList.add("dark");
-/* ===== CLOCK ===== */
+function savePass(){const v=document.getElementById("npass").value.trim();if(v.length>=4){localStorage.setItem("azizPass",v);document.getElementById("npass").value="";alert("Password updated.");}else alert("Min 4 characters.");}
+function setTheme(t){document.body.dataset.theme=t;localStorage.setItem("azizTheme",t);init();}
+function cycleTheme(){const i=THEMES.indexOf(document.body.dataset.theme||"classic");setTheme(THEMES[(i+1)%THEMES.length]);}
+const savedTh=localStorage.getItem("azizTheme");if(savedTh&&savedTh!=="classic")document.body.dataset.theme=savedTh;
+function setSync(t){document.getElementById("syncT").textContent={local:"Local only",sync:"Syncing…",ok:"Synced · Google",err:"Sync error"}[t];}
+function syncPush(){if(!SYNC_URL)return;setSync("sync");fetch(SYNC_URL,{method:"POST",body:JSON.stringify(DATA)}).then(()=>setSync("ok")).catch(()=>setSync("err"));}
+function syncPull(){if(!SYNC_URL)return setSync("local");setSync("sync");fetch(SYNC_URL).then(r=>r.json()).then(d=>{if(d&&d.salary){DATA=Object.assign(JSON.parse(JSON.stringify(DEFAULTS)),d);persist();init();}setSync("ok");}).catch(()=>setSync("err"));}
+function syncTest(){if(!SYNC_URL)return alert("SYNC_URL is empty — paste your Apps Script /exec URL in the code.");fetch(SYNC_URL).then(r=>r.text()).then(t=>{document.getElementById("syncMsg").textContent="✅ Connected. Server says: "+t.slice(0,80);}).catch(e=>{document.getElementById("syncMsg").textContent="❌ Failed. Check deployment: Execute as Me · Access: Anyone · URL ends /exec.";});}
 setInterval(()=>{const n=new Date();document.getElementById("clock").textContent=n.toLocaleDateString("en-GB",{weekday:"short",day:"2-digit",month:"short"})+" • "+n.toLocaleTimeString("en-GB");const h=n.getHours();document.getElementById("hello").textContent=(h<12?"Good morning":h<17?"Good afternoon":"Good evening")+", Aziz";},1000);
-/* ===== TABS / NOTIF ===== */
 document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("on",x.dataset.tab===b.dataset.tab));document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.id==="tab-"+b.dataset.tab));});
 function toggleNotif(e){e.stopPropagation();document.getElementById("notif").classList.toggle("open");}
 document.addEventListener("click",()=>document.getElementById("notif").classList.remove("open"));
-/* ===== HELPERS ===== */
-const q=s=>document.querySelector(s),fmt=n=>"QAR "+Math.round(n).toLocaleString();
-const g=id=>document.getElementById(id),num=id=>parseFloat(g(id).value)||0;
-const lines=id=>g(id).value.split("\n").map(s=>s.trim()).filter(Boolean);
+const q=s=>document.querySelector(s),g=id=>document.getElementById(id),fmt=n=>"QAR "+Math.round(n).toLocaleString();
+const num=id=>parseFloat(g(id).value)||0,lines=id=>g(id).value.split("\n").map(s=>s.trim()).filter(Boolean);
+const csv=(id,n)=>lines(id).map(l=>l.split(",").map(s=>s.trim()).slice(0,n));
 function anim(el,val,pre){const t0=performance.now();(function f(t){const p=Math.min((t-t0)/800,1);el.textContent=pre+Math.round(val*p*(2-p)).toLocaleString();if(p<1)requestAnimationFrame(f);})(t0);}
-function ring(o){const r=30,c=2*Math.PI*r;return `<div class="ring"><svg viewBox="0 0 76 76"><circle cx="38" cy="38" r="${r}" fill="none" stroke="var(--track)" stroke-width="8"/><circle cx="38" cy="38" r="${r}" fill="none" stroke="var(--green)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c*o[1]/100} ${c}" transform="rotate(-90 38 38)"/><text x="38" y="43" text-anchor="middle" font-size="16" font-weight="800" fill="currentColor">${o[1]}%</text></svg><p>${o[0]}</p></div>`;}
-/* ===== RENDER ===== */
+function copyTxt(t,b){navigator.clipboard.writeText(t);const o=b.textContent;b.textContent="✓ Copied";setTimeout(()=>b.textContent=o,1200);}
+function expSt(d){const days=Math.ceil((new Date(d)-new Date())/864e5);if(days<0)return["Expired","s-bad"];if(days<=60)return["Expires in "+days+"d","s-pend"];return["Valid","s-done"];}
+const YM=()=>new Date().toISOString().slice(0,7);
 function init(){
 const varT=Object.values(DATA.variable).reduce((a,b)=>a+b,0),saved=DATA.savings+DATA.investments+DATA.tunisia,spend=DATA.rent+varT,left=DATA.salary-spend-saved,rate=saved/DATA.salary*100;
-anim(q("#s_cash"),DATA.cash,"QAR ");q("#s_cashB").textContent="your capital";
-q("#s_rate").textContent=rate.toFixed(1)+"%";q("#s_rateB").textContent="target 25%";
-anim(q("#s_left"),Math.max(left,0),"QAR ");q("#s_leftB").textContent="after everything";
-anim(q("#s_exp"),spend,"QAR ");q("#s_expB").textContent=Math.round(spend/DATA.salary*100)+"% of salary";
-const hist=[...DATA.history,["Aug",spend]],mx=Math.max(...hist.map(h=>h[1]),DATA.salary);
+anim(q("#s_cash"),DATA.cash,"QAR ");q("#s_rate").textContent=rate.toFixed(1)+"%";anim(q("#s_left"),Math.max(left,0),"QAR ");anim(q("#s_exp"),spend,"QAR ");q("#s_expB").textContent=Math.round(spend/DATA.salary*100)+"% of salary";
+const hist=[...DATA.history,["Now",spend]],mx=Math.max(...hist.map(h=>h[1]),DATA.salary);
 q("#chart").innerHTML=hist.map(h=>`<div class="cm"><i class="in" style="height:${DATA.salary/mx*100}%"></i><i class="ex" style="height:${h[1]/mx*100}%"></i></div>`).join("");
 q("#chartL").innerHTML=hist.map(h=>`<span>${h[0]}</span>`).join("");
 q("#prio").textContent=DATA.priority;
 q("#acts").innerHTML=DATA.actions.map((a,i)=>`<li class="act ${DATA.review["a"+i]?"done":""}" onclick="tickAct(${i})"><span class="cb">✓</span><span>${a}</span></li>`).join("");
 const ef=DATA.funds.emergency,tf=DATA.funds.tunisia;
-q("#ef_t").textContent=fmt(ef[0]);q("#ef_b").style.width=(ef[0]/ef[1]*100)+"%";q("#ef_p").textContent=`${Math.round(ef[0]/ef[1]*100)}% of ${fmt(ef[1])}`;
-q("#tf_t").textContent=fmt(tf[0]);q("#tf_b").style.width=(tf[0]/tf[1]*100)+"%";q("#tf_p").textContent=`${Math.round(tf[0]/tf[1]*100)}% of ${fmt(tf[1])}`;
-q("#chips").innerHTML=DATA.attention.map(a=>`<div class="chip">${a}</div>`).join("");
-q("#bellN").textContent=DATA.attention.length;
-q("#notif").innerHTML=DATA.attention.map(a=>`<div>🔴 <span>${a}</span></div>`).join("");
-q("#rows").innerHTML=[["Salary",DATA.salary],["Rent",DATA.rent],["Variable expenses",varT],["Savings + Invest + Tunisia",saved],["Left over",left]].map(r=>`<div style="display:flex;justify-content:space-between;font-size:14px;padding:8px 0;border-bottom:1px solid var(--track)"><span>${r[0]}</span><b>${fmt(r[1])}</b></div>`).join("");
+q("#ef_t").textContent=fmt(ef[0]);q("#ef_b").style.width=Math.min(ef[0]/ef[1]*100,100)+"%";q("#ef_p").textContent=Math.round(ef[0]/ef[1]*100)+"% of "+fmt(ef[1]);
+q("#tf_t").textContent=fmt(tf[0]);q("#tf_b").style.width=Math.min(tf[0]/tf[1]*100,100)+"%";q("#tf_p").textContent=Math.round(tf[0]/tf[1]*100)+"% of "+fmt(tf[1]);
+const expDocs=DATA.docs.filter(d=>{const s=expSt(d[2]);return s[0]!=="Valid";}).map(d=>d[0]+" — "+expSt(d[2])[0]);
+const attnAll=[...DATA.attention,...expDocs];
+q("#chips").innerHTML=attnAll.map(a=>`<div class="chip">${a}</div>`).join("");
+q("#bellN").textContent=attnAll.length;q("#notif").innerHTML=attnAll.map(a=>`<div>🔔 ${a}</div>`).join("");
+q("#rows").innerHTML=[["Salary",DATA.salary],["Rent",DATA.rent],["Variable budget",varT],["Savings + Invest + Tunisia",saved],["Left over (plan)",left]].map(r=>`<div style="display:flex;justify-content:space-between;font-size:14px;padding:8px 0;border-bottom:1px solid var(--track)"><span>${r[0]}</span><b>${fmt(r[1])}</b></div>`).join("");
 q("#stack").innerHTML=[["Rent",DATA.rent,"var(--green)"],["Variable",varT,"var(--sage)"],["Saved",saved,"var(--green2)"],["Left",Math.max(left,0),"var(--track)"]].map(s=>`<i style="width:${Math.max(s[1]/DATA.salary*100,0)}%;background:${s[2]}" title="${s[0]}"></i>`).join("");
 q("#legend").innerHTML=[["Rent","var(--green)"],["Variable","var(--sage)"],["Saved","var(--green2)"]].map(l=>`<span class="mut"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${l[1]};margin-right:5px"></span>${l[0]}</span>`).join("");
-q("#tx").innerHTML=DATA.activity.map(a=>`<tr><td>${a[0]}</td><td><b>${fmt(a[1])}</b></td><td><span class="pill ${a[2]==="Completed"?"s-done":a[2]==="Pending"?"s-pend":"s-prog"}">${a[2]}</span></td><td class="mut">${a[3]}</td></tr>`).join("");
-q("#bud_t").textContent=fmt(spend);q("#bud_b").style.width=Math.min(spend/DATA.budget*100,100)+"%";q("#bud_p").textContent=`spent of ${fmt(DATA.budget)} monthly limit`;
-q("#cats").innerHTML=Object.entries(DATA.variable).sort((a,b)=>b[1]-a[1]).map(c=>`<p class="mut" style="margin:4px 0">${c[0]}</p><div class="prog"><i style="width:${c[1]/varT*100}%"></i></div>`).join("");
-q("#rings").innerHTML=DATA.objectives.map(ring).join("");
+const logged=DATA.tx.filter(t=>(t[3]||"").slice(0,7)===YM()).reduce((a,t)=>a+(+t[1]||0),0)+DATA.rent;
+q("#bud_t").textContent=fmt(logged);q("#bud_b").style.width=Math.min(logged/DATA.budget*100,100)+"%";q("#bud_p").textContent="logged spend of "+fmt(DATA.budget)+" monthly limit";
+const byCat={};DATA.tx.filter(t=>(t[3]||"").slice(0,7)===YM()).forEach(t=>byCat[t[2]]=(byCat[t[2]]||0)+ +t[1]);
+q("#cats").innerHTML=Object.entries(DATA.variable).map(c=>`<p class="mut" style="margin:4px 0">${c[0]} — logged ${fmt(byCat[c[0]]||0)} of ${fmt(c[1])}</p><div class="prog"><i style="width:${Math.min((byCat[c[0]]||0)/c[1]*100,100)}%"></i></div>`).join("");
+q("#t_cat").innerHTML=Object.keys(DATA.variable).map(c=>`<option>${c}</option>`).join("");
+q("#tx").innerHTML=DATA.tx.slice().reverse().map((t,ri)=>{const i=DATA.tx.length-1-ri;return `<tr><td>${t[0]}</td><td><b>${fmt(t[1])}</b></td><td class="mut">${t[2]}</td><td class="mut">${t[3]}</td><td><button class="copyb" onclick="delTx(${i})">✕</button></td></tr>`;}).join("");
+q("#docsL").innerHTML=DATA.docs.map((d,i)=>{const s=expSt(d[2]);return `<tr><td><b>${d[0]}</b></td><td class="mut">••• ${String(d[1]).slice(-4)}</td><td class="mut">${d[2]}</td><td><span class="pill ${s[1]}">${s[0]}</span></td><td><button class="copyb" onclick="copyTxt('${d[1]}',this)">Copy</button></td></tr>`;}).join("");
+q("#cardsL").innerHTML=DATA.cards.map((c,i)=>`<div class="cc ${i%2?"o":""}"><div class="top"><span>${c[0]}</span><span>●●</span></div><div class="num">•••• •••• •••• ${c[2]}</div><div class="row"><span>EXP ${c[3]}</span><button class="copyb" onclick="copyTxt('${c[1]}',this)">Copy number</button></div></div>`).join("");
+q("#planL").innerHTML=DATA.plans.slice().sort((a,b)=>a[1]<b[1]?-1:1).map(p=>`<div class="it ${p[2]==="In progress"?"now":""}"><b>${p[0]}</b><br><span class="mut">${p[1]}</span> <span class="pill ${p[2]==="Done"?"s-done":p[2]==="In progress"?"s-prog":"s-pend"}">${p[2]}</span></div>`).join("");
+const af=q("#archF").value;
+q("#archL").innerHTML=DATA.archive.filter(a=>!af||a[1]===af).map(a=>`<tr><td><b>${a[0]}</b></td><td><span class="pill s-prog">${a[1]}</span></td><td class="mut">${a[2]}</td><td class="mut">${a[3]||""}</td></tr>`).join("");
 const ST=["Research","Shortlist","Validate","Estimate capital","Choose","Plan","Fund","Launch"];
-q("#steps").innerHTML=ST.map((s,i)=>`<span class="st ${i<DATA.tStage-1?"done":i===DATA.tStage-1?"now":""}">${i<DATA.tStage-1?"✓ ":""}${s}</span>`).join("");
 const RV=[["Financial",["Reviewed this week's spending","Confirmed savings transfer","Checked upcoming bills"]],["Work",["Noted what moved forward","Noted what's stuck","Identified one opportunity"]],["Personal",["Contacted someone I've been neglecting","Planned one personal moment"]],["Goals",["Checked objective progress","Set 3 priorities for next week"]]];
 let html="",tot=0,done=0;RV.forEach(s=>{html+=`<p class="mut" style="margin:12px 0 4px;font-weight:700">${s[0].toUpperCase()}</p>`;s[1].forEach((it,i)=>{const k=s[0]+i;tot++;if(DATA.review.checks[k])done++;html+=`<li class="act ${DATA.review.checks[k]?"done":""}" onclick="tickRev('${k}')"><span class="cb">✓</span><span>${it}</span></li>`;});});
 q("#revList").innerHTML=html;q("#revP").textContent=done+"/"+tot;
 ["keep","stop","start","change"].forEach(k=>g("rv_"+k).value=DATA.review[k]||"");
-document.querySelectorAll(".card").forEach((c,i)=>c.style.animationDelay=(i*0.05)+"s");
+q("#themeRow").innerHTML=THEMES.map(t=>`<button class="thb ${(document.body.dataset.theme||"classic")===t?"on":""}" onclick="setTheme('${t}')"><i style="background:${TDOTS[t]}"></i>${TNAMES[t]}</button>`).join("");
+if(document.querySelector("#tab-settings").classList.contains("on"))fillSet();
+document.querySelectorAll(".card").forEach((c,i)=>c.style.animationDelay=(i*0.04)+"s");
 }
-function tickAct(i){DATA.review["a"+i]=!DATA.review["a"+i];persist();syncPush();init();}
-function tickRev(k){DATA.review.checks[k]=!DATA.review.checks[k];persist();syncPush();init();}
-function saveReview(){["keep","stop","start","change"].forEach(k=>DATA.review[k]=g("rv_"+k).value);persist();syncPush();init();}
-/* ===== EDIT PANEL ===== */
-function openPanel(){g("f_salary").value=DATA.salary;g("f_rent").value=DATA.rent;g("f_sav").value=DATA.savings;g("f_inv").value=DATA.investments;g("f_tun").value=DATA.tunisia;g("f_cash").value=DATA.cash;g("f_bud").value=DATA.budget;g("f_stage").value=DATA.tStage;g("f_ef").value=DATA.funds.emergency[0];g("f_eft").value=DATA.funds.emergency[1];g("f_tf").value=DATA.funds.tunisia[0];g("f_tft").value=DATA.funds.tunisia[1];
-g("f_var").value=Object.entries(DATA.variable).map(e=>e[0]+", "+e[1]).join("\n");g("f_hist").value=DATA.history.map(h=>h[0]+", "+h[1]).join("\n");
-g("f_act2").value=DATA.activity.map(a=>a.join(", ")).join("\n");g("f_pri").value=DATA.priority;g("f_act").value=DATA.actions.join("\n");
-g("f_obj").value=DATA.objectives.map(o=>o.join(", ")).join("\n");g("f_attn").value=DATA.attention.join("\n");g("panel").classList.add("open");}
-function closePanel(){g("panel").classList.remove("open");}
+function fillSet(){g("f_salary").value=DATA.salary;g("f_rent").value=DATA.rent;g("f_sav").value=DATA.savings;g("f_inv").value=DATA.investments;g("f_tun").value=DATA.tunisia;g("f_cash").value=DATA.cash;g("f_bud").value=DATA.budget;g("f_stage").value=DATA.tStage;g("f_ef").value=DATA.funds.emergency[0];g("f_eft").value=DATA.funds.emergency[1];g("f_tf").value=DATA.funds.tunisia[0];g("f_tft").value=DATA.funds.tunisia[1];
+g("f_var").value=Object.entries(DATA.variable).map(e=>e[0]+", "+e[1]).join("\n");g("f_hist").value=DATA.history.map(h=>h.join(", ")).join("\n");
+g("f_obj").value=DATA.objectives.map(o=>o.join(", ")).join("\n");g("f_attn").value=DATA.attention.join("\n");g("f_pri").value=DATA.priority;g("f_act").value=DATA.actions.join("\n");
+g("f_docs").value=DATA.docs.map(d=>d.join(", ")).join("\n");g("f_cards").value=DATA.cards.map(c=>c.join(", ")).join("\n");
+g("f_plans").value=DATA.plans.map(p=>p.join(", ")).join("\n");g("f_arch").value=DATA.archive.map(a=>a.join(", ")).join("\n");}
 function pObj(t){const o={};t.split("\n").filter(Boolean).forEach(l=>{l=l.replace(":",",");const i=l.lastIndexOf(",");if(i>0){const k=l.slice(0,i).trim(),v=parseFloat(l.slice(i+1));if(k&&!isNaN(v))o[k]=v;}});return o;}
 function pArr(t){const a=[];t.split("\n").filter(Boolean).forEach(l=>{l=l.replace(":",",");const i=l.lastIndexOf(",");if(i>0){const k=l.slice(0,i).trim(),v=parseFloat(l.slice(i+1));if(k&&!isNaN(v))a.push([k,v]);}});return a;}
 function saveForm(){DATA.salary=num("f_salary");DATA.rent=num("f_rent");DATA.savings=num("f_sav");DATA.investments=num("f_inv");DATA.tunisia=num("f_tun");DATA.cash=num("f_cash");DATA.budget=num("f_bud");DATA.tStage=Math.min(Math.max(num("f_stage"),1),8);
 DATA.funds.emergency=[num("f_ef"),num("f_eft")];DATA.funds.tunisia=[num("f_tf"),num("f_tft")];
-DATA.variable=pObj(g("f_var").value);DATA.history=pArr(g("f_hist").value);
-DATA.activity=lines("f_act2").map(l=>{const p=l.split(",").map(s=>s.trim());return [p[0],parseFloat(p[1])||0,p[2]||"Completed",p[3]||""];});
-DATA.priority=g("f_pri").value.trim()||DATA.priority;DATA.actions=lines("f_act");DATA.objectives=pArr(g("f_obj").value);DATA.attention=lines("f_attn");
-persist();syncPush();closePanel();init();}
+DATA.variable=pObj(g("f_var").value);DATA.history=pArr(g("f_hist").value);DATA.objectives=pArr(g("f_obj").value);DATA.attention=lines("f_attn");
+DATA.priority=g("f_pri").value.trim()||DATA.priority;DATA.actions=lines("f_act");
+DATA.docs=csv("f_docs",3);DATA.cards=csv("f_cards",4);DATA.plans=csv("f_plans",3);DATA.archive=csv("f_arch",4);
+persist();syncPush();init();alert("Saved.");}
+function addTx(){const n=g("t_name").value.trim(),a=parseFloat(g("t_amt").value);if(!n||!a)return;DATA.tx.push([n,a,g("t_cat").value,new Date().toISOString().slice(0,10)]);g("t_name").value="";g("t_amt").value="";persist();syncPush();init();}
+function delTx(i){DATA.tx.splice(i,1);persist();syncPush();init();}
+function addPlan(){const t=g("p_title").value.trim(),d=g("p_date").value;if(!t||!d)return;DATA.plans.push([t,d,g("p_st").value]);g("p_title").value="";persist();syncPush();init();}
+function tickAct(i){DATA.review["a"+i]=!DATA.review["a"+i];persist();syncPush();init();}
+function tickRev(k){DATA.review.checks[k]=!DATA.review.checks[k];persist();syncPush();init();}
+function saveReview(){["keep","stop","start","change"].forEach(k=>DATA.review[k]=g("rv_"+k).value);persist();syncPush();init();}
 function exportData(){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(DATA,null,1)],{type:"application/json"}));a.download="aziz-os-backup.json";a.click();}
+function resetData(){if(confirm("Reset ALL data to dummy?")){localStorage.removeItem("azizData");DATA=JSON.parse(JSON.stringify(DEFAULTS));persist();init();}}
+g("file").addEventListener("change",e=>{const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(d&&d.salary){DATA=d;persist();syncPush();init();}}catch(_){alert("Invalid file")}};r.readAsText(e.target.files[0]);e.target.value="";});
 </script>
 </body>
 </html>
