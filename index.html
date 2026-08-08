@@ -8,9 +8,12 @@
 :root{--bg:#f5f3ef;--card:#fff;--cream:#efe8db;--ink:#13291f;--green:#1d5c43;--sage:#8aa897;--red:#a02b2b;--muted:#7a7a72;--track:#ddd6c8}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);padding:28px 16px;max-width:1180px;margin:auto}
-header{text-align:center;margin-bottom:24px}
+header{text-align:center;margin-bottom:20px}
 h1{font-size:26px}
 .sub{color:var(--muted);letter-spacing:3px;font-size:11px;text-transform:uppercase;margin-top:4px}
+#top{display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+button.t{background:var(--green);color:#fff;border:0;padding:8px 14px;border-radius:8px;font-size:12.5px;cursor:pointer}
+button.ghost{background:transparent;color:var(--green);border:1px solid var(--green)}
 .grid{display:grid;gap:14px;grid-template-columns:repeat(12,1fr)}
 .card{border-radius:16px;padding:20px;box-shadow:0 2px 12px rgba(20,40,30,.07)}
 .cream{background:var(--cream)}.white{background:var(--card)}
@@ -34,9 +37,17 @@ li.done{text-decoration:line-through;color:var(--muted)}
 #lock{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:10}
 #lock .box{background:var(--card);padding:32px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.12);text-align:center;width:300px}
 #lock input{width:100%;padding:10px;border:1px solid var(--track);border-radius:8px;margin:12px 0;font-size:15px}
-#lock button{background:var(--green);color:#fff;border:0;padding:10px 18px;border-radius:8px;font-size:14px;cursor:pointer}
 #lock .err{color:var(--red);font-size:12px;margin-top:8px;min-height:14px}
+#panel{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:flex-start;justify-content:center;overflow:auto;z-index:20;padding:24px 12px}
+#panel.open{display:flex}
+#panel .box{background:var(--card);border-radius:16px;padding:22px;width:560px;max-width:100%}
+#panel label{display:block;font-size:11px;margin:10px 0 4px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+#panel input,#panel textarea{width:100%;padding:8px;border:1px solid var(--track);border-radius:8px;font-size:14px;font-family:inherit}
+#panel textarea{min-height:60px}
+.prow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pbtns{display:flex;gap:8px;margin-top:16px}
 @media(max-width:900px){#today,#money,#obj{grid-column:span 12}}
+@media(max-width:560px){.prow{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -44,9 +55,43 @@ li.done{text-decoration:line-through;color:var(--muted)}
   <h1 style="font-size:20px">AZIZ OS</h1>
   <p class="sub">Private — enter password</p>
   <input type="password" id="pw" placeholder="Password" autofocus>
-  <button onclick="unlock()">Unlock</button>
+  <button class="t" onclick="unlock()">Unlock</button>
   <div class="err" id="err"></div>
 </div></div>
+
+<div id="top">
+  <button class="t" onclick="openPanel()">✎ Edit</button>
+  <button class="t ghost" onclick="exportData()">⬇ Export</button>
+  <button class="t ghost" onclick="document.getElementById('file').click()">⬆ Import</button>
+  <button class="t ghost" onclick="resetData()">↺ Reset</button>
+  <input type="file" id="file" hidden accept=".json">
+</div>
+
+<div id="panel"><div class="box">
+  <h2>EDIT DATA</h2>
+  <div class="prow">
+    <div><label>Salary</label><input id="f_salary" type="number"></div>
+    <div><label>Rent</label><input id="f_rent" type="number"></div>
+  </div>
+  <div class="prow">
+    <div><label>Savings / month</label><input id="f_sav" type="number"></div>
+    <div><label>Investments / month</label><input id="f_inv" type="number"></div>
+  </div>
+  <div class="prow">
+    <div><label>Tunisia fund / month</label><input id="f_tun" type="number"></div>
+    <div><label>Total available cash</label><input id="f_cash" type="number"></div>
+  </div>
+  <label>Variable expenses (Name, amount)</label><textarea id="f_var"></textarea>
+  <label>Top priority</label><input id="f_pri">
+  <label>Top 3 actions (one per line)</label><textarea id="f_act"></textarea>
+  <label>Objectives (Name, %)</label><textarea id="f_obj"></textarea>
+  <label>Needs attention (one per line)</label><textarea id="f_attn"></textarea>
+  <div class="pbtns">
+    <button class="t" onclick="saveForm()">Save</button>
+    <button class="t ghost" onclick="closePanel()">Cancel</button>
+  </div>
+</div></div>
+
 <header>
   <h1>AZIZ OS — The CEO of My Life</h1>
   <p class="sub" id="date"></p>
@@ -75,28 +120,53 @@ li.done{text-decoration:line-through;color:var(--muted)}
   </section>
 </div>
 <script>
-/* ========== YOUR SETTINGS ========== */
-const PASSWORD="aziz2026"; // ← change to your own password
-const DATA = {
-  salary: 19000,
-  rent: 5900,
-  variable: { Groceries:2400, Transport:700, "Dining out":1100, Utilities:650, Personal:900, "Family support":1500 },
-  savings: 3000, investments: 1000, tunisia: 800,
-  cash: 42310,
-  priority: "Finalize Tunisia business pitch deck",
-  actions: ["Review Q2 savings report","Schedule mentor call","Update personal KPI tracker"],
-  objectives: [["Emergency Fund",82],["Cut Expenses",65],["Tunisia Fund",41],["Career Goal",73],["Personal Goal",55]],
-  attention: ["Kahramaa bill due Aug 12","Credit card payment","Lease renewal decision","Pitch deck deadline Aug 20","Tunisia research stalled"]
+/* ========== SETTINGS ========== */
+const PASSWORD="aziz2026"; // ← change me
+const DEFAULTS={
+  salary:50000, rent:5900,
+  variable:{Groceries:2400,Transport:700,"Dining out":1100,Utilities:650,Personal:900,"Family support":1500},
+  savings:3000, investments:1000, tunisia:800, cash:42310,
+  priority:"Finalize Tunisia business pitch deck",
+  actions:["Review Q2 savings report","Schedule mentor call","Update personal KPI tracker"],
+  objectives:[["Emergency Fund",82],["Cut Expenses",65],["Tunisia Fund",41],["Career Goal",73],["Personal Goal",55]],
+  attention:["Kahramaa bill due Aug 12","Credit card payment","Lease renewal decision","Pitch deck deadline Aug 20","Tunisia research stalled"]
 };
+let DATA=load();
+function load(){try{const d=JSON.parse(localStorage.getItem("azizData"));if(d&&d.salary)return d;}catch(e){}return JSON.parse(JSON.stringify(DEFAULTS));}
+function persist(){localStorage.setItem("azizData",JSON.stringify(DATA));}
 /* ========== LOCK ========== */
 function unlock(){
-  if(document.getElementById("pw").value===PASSWORD){
-    localStorage.setItem("azizUnlocked","1");
-    document.getElementById("lock").remove(); init();
-  } else document.getElementById("err").textContent="Wrong password";
+  if(document.getElementById("pw").value===PASSWORD){localStorage.setItem("azizUnlocked","1");document.getElementById("lock").remove();init();}
+  else document.getElementById("err").textContent="Wrong password";
 }
 if(localStorage.getItem("azizUnlocked")==="1"){document.getElementById("lock").remove();init();}
 else document.getElementById("pw").addEventListener("keydown",e=>{if(e.key==="Enter")unlock()});
+/* ========== EDIT PANEL ========== */
+const g=id=>document.getElementById(id), num=id=>parseFloat(g(id).value)||0;
+const lines=id=>g(id).value.split("\n").map(s=>s.trim()).filter(Boolean);
+function pairsObj(t){const o={};t.split("\n").map(s=>s.trim()).filter(Boolean).forEach(l=>{l=l.replace(":",",");const i=l.lastIndexOf(",");if(i<0)return;const k=l.slice(0,i).trim(),v=parseFloat(l.slice(i+1));if(k&&!isNaN(v))o[k]=v;});return o;}
+function pairsArr(t){const a=[];t.split("\n").map(s=>s.trim()).filter(Boolean).forEach(l=>{l=l.replace(":",",");const i=l.lastIndexOf(",");if(i<0)return;const k=l.slice(0,i).trim(),v=parseFloat(l.slice(i+1));if(k&&!isNaN(v))a.push([k,v]);});return a;}
+function openPanel(){
+  g("f_salary").value=DATA.salary;g("f_rent").value=DATA.rent;g("f_sav").value=DATA.savings;
+  g("f_inv").value=DATA.investments;g("f_tun").value=DATA.tunisia;g("f_cash").value=DATA.cash;
+  g("f_var").value=Object.entries(DATA.variable).map(e=>e[0]+", "+e[1]).join("\n");
+  g("f_pri").value=DATA.priority; g("f_act").value=DATA.actions.join("\n");
+  g("f_obj").value=DATA.objectives.map(o=>o[0]+", "+o[1]).join("\n");
+  g("f_attn").value=DATA.attention.join("\n");
+  g("panel").classList.add("open");
+}
+function closePanel(){g("panel").classList.remove("open");}
+function saveForm(){
+  DATA.salary=num("f_salary");DATA.rent=num("f_rent");DATA.savings=num("f_sav");
+  DATA.investments=num("f_inv");DATA.tunisia=num("f_tun");DATA.cash=num("f_cash");
+  DATA.variable=pairsObj(g("f_var").value);
+  DATA.priority=g("f_pri").value.trim()||DATA.priority;
+  DATA.actions=lines("f_act"); DATA.objectives=pairsArr(g("f_obj").value); DATA.attention=lines("f_attn");
+  persist(); closePanel(); init();
+}
+function exportData(){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(DATA,null,1)],{type:"application/json"}));a.download="aziz-os-backup.json";a.click();}
+function resetData(){if(confirm("Reset to dummy data?")){localStorage.removeItem("azizData");DATA=JSON.parse(JSON.stringify(DEFAULTS));init();}}
+g("file").addEventListener("change",e=>{const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(d&&d.salary){DATA=d;persist();init();}}catch(_){alert("Invalid backup file")}};r.readAsText(e.target.files[0]);e.target.value="";});
 /* ========== ENGINE ========== */
 function init(){
 const q=s=>document.querySelector(s), fmt=n=>"QAR "+n.toLocaleString();
@@ -114,7 +184,7 @@ q("#rows").innerHTML=[
  ["Total available cash",fmt(DATA.cash)],["Savings rate",rate+"%",rate]
 ].map(r=>`<div class="row"><span>${r[0]}:</span><b>${r[1]}</b></div>${r[2]?`<div class="bar"><i style="width:${r[2]}%"></i></div>`:""}`).join("");
 q("#stack").innerHTML=[["Rent",DATA.rent,"#1d5c43"],["Variable",varTotal,"#8aa897"],["Saved",saved,"#3f7a5e"],["Left",left,"#ddd6c8"]]
- .map(s=>`<i style="width:${s[1]/DATA.salary*100}%;background:${s[2]}" title="${s[0]}"></i>`).join("");
+ .map(s=>`<i style="width:${Math.max(s[1]/DATA.salary*100,0)}%;background:${s[2]}" title="${s[0]}"></i>`).join("");
 q("#legend").innerHTML=[["Rent","#1d5c43"],["Variable","#8aa897"],["Saved","#3f7a5e"],["Left over","#ddd6c8"]]
  .map(l=>`<span><span class="dot" style="background:${l[1]}"></span>${l[0]}</span>`).join("");
 q("#rings").innerHTML=DATA.objectives.map(o=>{const r=26,c=2*Math.PI*r;
