@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aziz OS</title>
+<style>
+:root{--bg:#f5f3ef;--card:#fff;--cream:#efe8db;--ink:#13291f;--green:#1d5c43;--sage:#8aa897;--red:#a02b2b;--muted:#7a7a72;--track:#ddd6c8}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);padding:28px 16px;max-width:1180px;margin:auto}
+header{text-align:center;margin-bottom:24px}
+h1{font-size:26px}
+.sub{color:var(--muted);letter-spacing:3px;font-size:11px;text-transform:uppercase;margin-top:4px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(12,1fr)}
+.card{border-radius:16px;padding:20px;box-shadow:0 2px 12px rgba(20,40,30,.07)}
+.cream{background:var(--cream)}.white{background:var(--card)}
+#today{grid-column:span 3}#money{grid-column:span 6}#obj{grid-column:span 3}#attn{grid-column:span 12}
+h2{font-size:13px;letter-spacing:2px;margin-bottom:14px}
+h3{font-size:12px;margin:12px 0 6px;color:var(--green)}
+li{list-style:none;font-size:14px;margin:6px 0;cursor:pointer}
+li.done{text-decoration:line-through;color:var(--muted)}
+.row{display:flex;justify-content:space-between;font-size:14px;margin:9px 0;gap:8px}
+.bar{height:6px;background:var(--track);border-radius:3px;margin:2px 0 10px}
+.bar i{display:block;height:100%;border-radius:3px;background:var(--green)}
+.stack{display:flex;height:14px;border-radius:7px;overflow:hidden;margin:14px 0 6px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--muted)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
+.rings{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.ring{text-align:center;width:76px}
+.ring svg{width:64px;height:64px}
+.ring p{font-size:10.5px;margin-top:4px;line-height:1.25}
+.chips{display:flex;gap:10px;flex-wrap:wrap}
+.chip{background:var(--red);color:#fff;font-size:12.5px;padding:10px 14px;border-radius:10px;box-shadow:0 3px 8px rgba(160,43,43,.35)}
+#lock{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:10}
+#lock .box{background:var(--card);padding:32px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.12);text-align:center;width:300px}
+#lock input{width:100%;padding:10px;border:1px solid var(--track);border-radius:8px;margin:12px 0;font-size:15px}
+#lock button{background:var(--green);color:#fff;border:0;padding:10px 18px;border-radius:8px;font-size:14px;cursor:pointer}
+#lock .err{color:var(--red);font-size:12px;margin-top:8px;min-height:14px}
+@media(max-width:900px){#today,#money,#obj{grid-column:span 12}}
+</style>
+</head>
+<body>
+<div id="lock"><div class="box">
+  <h1 style="font-size:20px">AZIZ OS</h1>
+  <p class="sub">Private — enter password</p>
+  <input type="password" id="pw" placeholder="Password" autofocus>
+  <button onclick="unlock()">Unlock</button>
+  <div class="err" id="err"></div>
+</div></div>
+<header>
+  <h1>AZIZ OS — The CEO of My Life</h1>
+  <p class="sub" id="date"></p>
+</header>
+<div class="grid">
+  <section class="card cream" id="today">
+    <h2>TODAY</h2>
+    <h3>Top Priority</h3>
+    <p id="priority" style="font-size:14px"></p>
+    <h3>Top 3 Actions</h3>
+    <ul id="actions"></ul>
+  </section>
+  <section class="card white" id="money">
+    <h2>FINANCIAL COMMAND CENTER</h2>
+    <div id="rows"></div>
+    <div class="stack" id="stack"></div>
+    <div class="legend" id="legend"></div>
+  </section>
+  <section class="card cream" id="obj">
+    <h2>CURRENT OBJECTIVES</h2>
+    <div class="rings" id="rings"></div>
+  </section>
+  <section class="card white" id="attn">
+    <h2 style="color:var(--red)">NEEDS ATTENTION</h2>
+    <div class="chips" id="chips"></div>
+  </section>
+</div>
+<script>
+/* ========== YOUR SETTINGS ========== */
+const PASSWORD="aziz2026"; // ← change to your own password
+const DATA = {
+  salary: 19000,
+  rent: 5900,
+  variable: { Groceries:2400, Transport:700, "Dining out":1100, Utilities:650, Personal:900, "Family support":1500 },
+  savings: 3000, investments: 1000, tunisia: 800,
+  cash: 42310,
+  priority: "Finalize Tunisia business pitch deck",
+  actions: ["Review Q2 savings report","Schedule mentor call","Update personal KPI tracker"],
+  objectives: [["Emergency Fund",82],["Cut Expenses",65],["Tunisia Fund",41],["Career Goal",73],["Personal Goal",55]],
+  attention: ["Kahramaa bill due Aug 12","Credit card payment","Lease renewal decision","Pitch deck deadline Aug 20","Tunisia research stalled"]
+};
+/* ========== LOCK ========== */
+function unlock(){
+  if(document.getElementById("pw").value===PASSWORD){
+    localStorage.setItem("azizUnlocked","1");
+    document.getElementById("lock").remove(); init();
+  } else document.getElementById("err").textContent="Wrong password";
+}
+if(localStorage.getItem("azizUnlocked")==="1"){document.getElementById("lock").remove();init();}
+else document.getElementById("pw").addEventListener("keydown",e=>{if(e.key==="Enter")unlock()});
+/* ========== ENGINE ========== */
+function init(){
+const q=s=>document.querySelector(s), fmt=n=>"QAR "+n.toLocaleString();
+q("#date").textContent=new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"}).toUpperCase();
+q("#priority").textContent=DATA.priority;
+q("#actions").innerHTML=DATA.actions.map(a=>`<li>○ ${a}</li>`).join("");
+q("#actions").onclick=e=>{if(e.target.tagName==="LI"){e.target.classList.toggle("done");e.target.textContent=(e.target.classList.contains("done")?"✓ ":"○ ")+e.target.textContent.slice(2);}};
+const varTotal=Object.values(DATA.variable).reduce((a,b)=>a+b,0);
+const saved=DATA.savings+DATA.investments+DATA.tunisia;
+const left=DATA.salary-DATA.rent-varTotal-saved;
+const rate=(saved/DATA.salary*100).toFixed(1);
+q("#rows").innerHTML=[
+ ["Salary",fmt(DATA.salary),100],["Rent",fmt(DATA.rent)],["Variable expenses",fmt(varTotal)],
+ ["Savings + Investments + Tunisia",fmt(saved)],["Left over this month",fmt(left)],
+ ["Total available cash",fmt(DATA.cash)],["Savings rate",rate+"%",rate]
+].map(r=>`<div class="row"><span>${r[0]}:</span><b>${r[1]}</b></div>${r[2]?`<div class="bar"><i style="width:${r[2]}%"></i></div>`:""}`).join("");
+q("#stack").innerHTML=[["Rent",DATA.rent,"#1d5c43"],["Variable",varTotal,"#8aa897"],["Saved",saved,"#3f7a5e"],["Left",left,"#ddd6c8"]]
+ .map(s=>`<i style="width:${s[1]/DATA.salary*100}%;background:${s[2]}" title="${s[0]}"></i>`).join("");
+q("#legend").innerHTML=[["Rent","#1d5c43"],["Variable","#8aa897"],["Saved","#3f7a5e"],["Left over","#ddd6c8"]]
+ .map(l=>`<span><span class="dot" style="background:${l[1]}"></span>${l[0]}</span>`).join("");
+q("#rings").innerHTML=DATA.objectives.map(o=>{const r=26,c=2*Math.PI*r;
+ return `<div class="ring"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="${r}" fill="none" stroke="#d8d2c4" stroke-width="7"/><circle cx="32" cy="32" r="${r}" fill="none" stroke="#1d5c43" stroke-width="7" stroke-linecap="round" stroke-dasharray="${c*o[1]/100} ${c}" transform="rotate(-90 32 32)"/><text x="32" y="37" text-anchor="middle" font-size="14" font-weight="700" fill="#13291f">${o[1]}%</text></svg><p>${o[0]}</p></div>`}).join("");
+q("#chips").innerHTML=DATA.attention.map(a=>`<div class="chip">${a}</div>`).join("");
+}
+</script>
+</body>
+</html>
