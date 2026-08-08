@@ -108,6 +108,7 @@ textarea.rev{min-height:60px}
 #bnav button.on{color:var(--ink)}
 @media(max-width:1000px){#side{display:none}#bnav{display:flex}#main{padding:14px 14px 76px}.g4,.g3,.g23,.g2{grid-template-columns:1fr}}
 @media(min-width:1001px){.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:480px){#greet h1{font-size:22px}#greet p{font-size:12px}.stat b{font-size:20px}.card{padding:16px}#topbar{gap:8px}.pills button{padding:6px 10px;font-size:12px}#me{padding:4px 10px 4px 4px}#me .av{width:28px;height:28px;font-size:12px}#me b{font-size:12px}#me span{font-size:10px}#clock{font-size:11px}.icobtn{width:36px;height:36px}#bellN{font-size:9px;padding:1px 4px}#sync{padding:6px 10px;font-size:11px}}
 </style>
 </head>
 <body>
@@ -172,7 +173,7 @@ textarea.rev{min-height:60px}
         <div id="rows"></div>
         <div style="display:flex;height:14px;border-radius:7px;overflow:hidden;margin:14px 0 6px" id="stack"></div><div class="chips" style="gap:12px" id="legend"></div>
         <h2 style="margin-top:20px">REGISTER AN EXPENSE</h2>
-        <div class="prow" style="grid-template-columns:2fr 1fr 1.4fr auto"><input id="t_name" placeholder="What did you pay?"><input id="t_amt" type="number" placeholder="QAR"><select id="t_cat"></select><button class="btn g" onclick="addTx()">+ Add</button></div>
+        <div class="prow" style="grid-template-columns:1fr 1fr 1fr auto;gap:8px"><input id="t_name" placeholder="What did you pay?"><input id="t_amt" type="number" placeholder="QAR" inputmode="decimal"><select id="t_cat"></select><button class="btn g" onclick="addTx()">+ Add</button></div>
         <h2 style="margin-top:20px">RECENT TRANSACTIONS</h2>
         <div class="twrap"><table><thead><tr><th>Activity</th><th>Amount</th><th>Category</th><th>Date</th><th></th></tr></thead><tbody id="tx"></tbody></table></div>
       </div>
