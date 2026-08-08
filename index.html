@@ -12,14 +12,16 @@ body[data-theme="glass"] .card,body[data-theme="glass"] .pills,body[data-theme="
 body[data-theme="midnight"]{--bg:#0b0f14;--card:#121a24;--ink:#e8f0f2;--muted:#8fa0ae;--track:#243140;--green:#0f766e;--green2:#2dd4bf;--sage:#155e59;--acc:#e11d48;--acc2:#fb7185;--sh:0 4px 18px rgba(0,0,0,.45)}
 body[data-theme="sidi"]{--bg:#f3f6fb;--card:#fff;--ink:#122a63;--muted:#6b7a99;--track:#dbe4f5;--green:#1d4ed8;--green2:#3b82f6;--sage:#93b4f5;--acc:#d96f4e;--acc2:#e9927a;--sh:0 4px 18px rgba(18,42,99,.1)}
 *{box-sizing:border-box;margin:0;padding:0;font-family:Inter,system-ui,sans-serif}
-body{background:var(--bg);color:var(--ink);transition:background .3s,color .3s}
+body{background:var(--bg);color:var(--ink);transition:background .3s,color .3s;overflow-x:hidden}
 svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 @keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(244,88,28,.4)}50%{box-shadow:0 0 0 8px rgba(244,88,28,0)}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
 .card{background:var(--card);border-radius:20px;padding:20px;box-shadow:var(--sh);animation:up .5s both}
 h2{font-size:12px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .mut{color:var(--muted);font-size:12px}
-#app{display:flex;min-height:100vh}
+#app{display:flex;min-height:100vh;opacity:0;transition:opacity .5s}
+#app.visible{opacity:1}
 #side{width:76px;padding:18px 0;display:flex;flex-direction:column;align-items:center;gap:8px;position:sticky;top:0;height:100vh}
 #side .logo{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;margin-bottom:14px}
 #side button{width:44px;height:44px;border:0;border-radius:14px;background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
@@ -101,8 +103,17 @@ label{display:block;font-size:10.5px;margin:10px 0 4px;color:var(--muted);text-t
 .thb.on{border-color:var(--green)}
 .thb i{width:22px;height:22px;border-radius:50%;display:inline-block}
 textarea.rev{min-height:60px}
-#lock{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:50}
-#lock .box{text-align:center;width:320px}
+
+/* LOCK SCREEN STYLES */
+#lock{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity .5s}
+#lock.hidden{opacity:0;pointer-events:none}
+#lock .box{width:100%;max-width:380px;padding:40px 30px;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,.15);border:1px solid rgba(255,255,255,.4);backdrop-filter:blur(20px);animation:up .6s cubic-bezier(.2,.8,.2,1)}
+#lock h1{font-size:24px;font-weight:800;letter-spacing:-.5px;margin-bottom:8px}
+#lock p{color:var(--muted);font-size:13px;letter-spacing:1px;text-transform:uppercase}
+#lock input{margin:24px 0;text-align:center;font-size:16px;letter-spacing:4px;font-weight:600;padding:12px}
+#lock .btn{width:100%;padding:14px;font-size:14px}
+#lock .err{color:var(--red);font-size:12px;margin-top:12px;height:18px;font-weight:600}
+
 #bnav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--card);box-shadow:0 -4px 20px rgba(0,0,0,.1);z-index:25;justify-content:space-around;padding:7px 4px}
 #bnav button{border:0;background:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;font-size:9px;gap:3px;cursor:pointer}
 #bnav button.on{color:var(--ink)}
@@ -112,13 +123,18 @@ textarea.rev{min-height:60px}
 </style>
 </head>
 <body>
-<div id="lock"><div class="box card">
-  <div style="font-size:22px;font-weight:800">AZIZ OS</div>
-  <p class="mut" style="letter-spacing:3px;margin-top:4px">PRIVATE — ENTER PASSWORD</p>
-  <input type="password" id="pw" placeholder="Password" style="margin:14px 0">
-  <button class="btn g" style="width:100%" onclick="unlock()">Unlock</button>
-  <div id="err" style="color:var(--red);font-size:12px;margin-top:8px"></div>
-</div></div>
+<!-- LOCK SCREEN -->
+<div id="lock">
+  <div class="box card">
+    <div style="font-size:32px;font-weight:800;margin-bottom:4px">AZIZ OS</div>
+    <p>Private Access Required</p>
+    <input type="password" id="pw" placeholder="••••" autocomplete="off">
+    <button class="btn g" onclick="unlock()">Unlock Dashboard</button>
+    <div id="err" class="err"></div>
+  </div>
+</div>
+
+<!-- MAIN APP (Hidden by default) -->
 <div id="app">
 <nav id="side">
   <div class="logo">A</div>
@@ -262,7 +278,7 @@ textarea.rev{min-height:60px}
   <button data-tab="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>Settings</button>
 </nav>
 <script>
-const SYNC_URL="https://script.google.com/macros/s/AKfycby5W9DL6iWgvW9bYFR3niMXnvB8cxDw4ELye1brVmAmW68jkqm42RTwYyqqzVLuZ50/exec"; // ← paste Apps Script /exec URL
+const SYNC_URL="https://script.google.com/macros/s/AKfycby5W9DL6iWgvW9bYFR3niMXnvB8cxDw4ELye1brVmAmW68jkqm42RTwYyqqzVLuZ50/exec";
 const THEMES=["classic","glass","midnight","sidi"],TNAMES={classic:"Executive",glass:"Liquid Glass",midnight:"Midnight",sidi:"Sidi Blue"},TDOTS={classic:"#1d5c43",glass:"#818cf8",midnight:"#2dd4bf",sidi:"#1d4ed8"};
 const DEFAULTS={salary:19000,rent:5900,budget:17500,
 variable:{Groceries:2400,Transport:700,"Dining out":1100,Utilities:650,Personal:900,"Family support":1500},
@@ -281,22 +297,58 @@ let DATA=load();
 function load(){try{const d=JSON.parse(localStorage.getItem("azizData"));if(d&&d.salary)return d;}catch(e){}return JSON.parse(JSON.stringify(DEFAULTS));}
 function persist(){localStorage.setItem("azizData",JSON.stringify(DATA));}
 const PASS=()=>localStorage.getItem("azizPass")||"aziz2026";
-function unlock(){if(document.getElementById("pw").value===PASS()){localStorage.setItem("azizUnlocked","1");document.getElementById("lock").remove();init();syncPull();}else document.getElementById("err").textContent="Wrong password";}
-function relock(){localStorage.removeItem("azizUnlocked");location.reload();}
-if(localStorage.getItem("azizUnlocked")==="1"){document.getElementById("lock").remove();init();syncPull();}
-else document.getElementById("pw").addEventListener("keydown",e=>{if(e.key==="Enter")unlock()});
-function savePass(){const v=document.getElementById("npass").value.trim();if(v.length>=4){localStorage.setItem("azizPass",v);document.getElementById("npass").value="";alert("Password updated.");}else alert("Min 4 characters.");}
+
+// LOCK SYSTEM
+function unlock(){
+  const input=document.getElementById("pw");
+  const err=document.getElementById("err");
+  if(input.value===PASS()){
+    // Success: Hide lock, Show app, Load data
+    document.getElementById("lock").classList.add("hidden");
+    setTimeout(()=>{document.getElementById("lock").style.display="none";},500);
+    document.getElementById("app").classList.add("visible");
+    init();
+    syncPull(); // Fetch latest data from Google Sheets
+    input.value="";
+    err.textContent="";
+  }else{
+    err.textContent="Incorrect password";
+    input.value="";
+    input.focus();
+  }
+}
+function relock(){location.reload();}
+
+// Initialize Clock & Greeting immediately (runs behind lock)
+setInterval(()=>{
+  const n=new Date();
+  document.getElementById("clock").textContent=n.toLocaleDateString("en-GB",{weekday:"short",day:"2-digit",month:"short"})+" • "+n.toLocaleTimeString("en-GB");
+  const h=n.getHours();
+  document.getElementById("hello").textContent=(h<12?"Good morning":h<17?"Good afternoon":"Good evening")+", Aziz";
+},1000);
+
+// Theme Setup
+const savedTh=localStorage.getItem("azizTheme");if(savedTh&&savedTh!=="classic")document.body.dataset.theme=savedTh;
 function setTheme(t){document.body.dataset.theme=t;localStorage.setItem("azizTheme",t);init();}
 function cycleTheme(){const i=THEMES.indexOf(document.body.dataset.theme||"classic");setTheme(THEMES[(i+1)%THEMES.length]);}
-const savedTh=localStorage.getItem("azizTheme");if(savedTh&&savedTh!=="classic")document.body.dataset.theme=savedTh;
+function savePass(){const v=document.getElementById("npass").value.trim();if(v.length>=4){localStorage.setItem("azizPass",v);document.getElementById("npass").value="";alert("Password updated. Remember it!");}else alert("Min 4 characters.");}
+
+// SYNC FUNCTIONS
 function setSync(t){document.getElementById("syncT").textContent={local:"Local only",sync:"Syncing…",ok:"Synced · Google",err:"Sync error"}[t];}
 function syncPush(){if(!SYNC_URL)return;setSync("sync");fetch(SYNC_URL,{method:"POST",body:JSON.stringify(DATA),mode:"cors"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.text();}).then(()=>setSync("ok")).catch(e=>{console.error("Sync push failed:",e);setSync("err");});}
 function syncPull(){if(!SYNC_URL)return setSync("local");setSync("sync");fetch(SYNC_URL,{mode:"cors"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();}).then(d=>{if(d&&d.salary){DATA=Object.assign(JSON.parse(JSON.stringify(DEFAULTS)),d);persist();init();}setSync("ok");}).catch(e=>{console.error("Sync pull failed:",e);setSync("err");});}
-function syncTest(){if(!SYNC_URL)return alert("SYNC_URL is empty — paste your Apps Script /exec URL in the code.");fetch(SYNC_URL,{mode:"cors"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.text();}).then(t=>{document.getElementById("syncMsg").textContent="✅ Connected. Server says: "+t.slice(0,80);}).catch(e=>{console.error("Sync test failed:",e);document.getElementById("syncMsg").textContent="❌ Failed. Check deployment: Execute as Me · Access: Anyone · URL ends /exec.";});}
-setInterval(()=>{const n=new Date();document.getElementById("clock").textContent=n.toLocaleDateString("en-GB",{weekday:"short",day:"2-digit",month:"short"})+" • "+n.toLocaleTimeString("en-GB");const h=n.getHours();document.getElementById("hello").textContent=(h<12?"Good morning":h<17?"Good afternoon":"Good evening")+", Aziz";},1000);
-document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("on",x.dataset.tab===b.dataset.tab));document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.id==="tab-"+b.dataset.tab));});
+function syncTest(){if(!SYNC_URL)return alert("SYNC_URL is empty.");fetch(SYNC_URL,{mode:"cors"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.text();}).then(t=>{document.getElementById("syncMsg").textContent="✅ Connected. Server says: "+t.slice(0,80);}).catch(e=>{document.getElementById("syncMsg").textContent="❌ Failed. Check deployment.";});}
+
+// NAVIGATION
+document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("on",x.dataset.tab===b.dataset.tab));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.id==="tab-"+b.dataset.tab));
+  if(b.dataset.tab==="settings")fillSet();
+});
 function toggleNotif(e){e.stopPropagation();document.getElementById("notif").classList.toggle("open");}
 document.addEventListener("click",()=>document.getElementById("notif").classList.remove("open"));
+
+// UTILS
 const q=s=>document.querySelector(s),g=id=>document.getElementById(id),fmt=n=>"QAR "+Math.round(n).toLocaleString();
 const num=id=>parseFloat(g(id).value)||0,lines=id=>g(id).value.split("\n").map(s=>s.trim()).filter(Boolean);
 const csv=(id,n)=>lines(id).map(l=>l.split(",").map(s=>s.trim()).slice(0,n));
@@ -304,6 +356,8 @@ function anim(el,val,pre){const t0=performance.now();(function f(t){const p=Math
 function copyTxt(t,b){navigator.clipboard.writeText(t);const o=b.textContent;b.textContent="✓ Copied";setTimeout(()=>b.textContent=o,1200);}
 function expSt(d){const days=Math.ceil((new Date(d)-new Date())/864e5);if(days<0)return["Expired","s-bad"];if(days<=60)return["Expires in "+days+"d","s-pend"];return["Valid","s-done"];}
 const YM=()=>new Date().toISOString().slice(0,7);
+
+// MAIN RENDER
 function init(){
 const varT=Object.values(DATA.variable).reduce((a,b)=>a+b,0),saved=DATA.savings+DATA.investments+DATA.tunisia,spend=DATA.rent+varT,left=DATA.salary-spend-saved,rate=saved/DATA.salary*100;
 anim(q("#s_cash"),DATA.cash,"QAR ");q("#s_rate").textContent=rate.toFixed(1)+"%";anim(q("#s_left"),Math.max(left,0),"QAR ");anim(q("#s_exp"),spend,"QAR ");q("#s_expB").textContent=Math.round(spend/DATA.salary*100)+"% of salary";
@@ -342,6 +396,7 @@ q("#themeRow").innerHTML=THEMES.map(t=>`<button class="thb ${(document.body.data
 if(document.querySelector("#tab-settings").classList.contains("on"))fillSet();
 document.querySelectorAll(".card").forEach((c,i)=>c.style.animationDelay=(i*0.04)+"s");
 }
+
 function fillSet(){g("f_salary").value=DATA.salary;g("f_rent").value=DATA.rent;g("f_sav").value=DATA.savings;g("f_inv").value=DATA.investments;g("f_tun").value=DATA.tunisia;g("f_cash").value=DATA.cash;g("f_bud").value=DATA.budget;g("f_stage").value=DATA.tStage;g("f_ef").value=DATA.funds.emergency[0];g("f_eft").value=DATA.funds.emergency[1];g("f_tf").value=DATA.funds.tunisia[0];g("f_tft").value=DATA.funds.tunisia[1];
 g("f_var").value=Object.entries(DATA.variable).map(e=>e[0]+", "+e[1]).join("\n");g("f_hist").value=DATA.history.map(h=>h.join(", ")).join("\n");
 g("f_obj").value=DATA.objectives.map(o=>o.join(", ")).join("\n");g("f_attn").value=DATA.attention.join("\n");g("f_pri").value=DATA.priority;g("f_act").value=DATA.actions.join("\n");
@@ -364,6 +419,9 @@ function saveReview(){["keep","stop","start","change"].forEach(k=>DATA.review[k]
 function exportData(){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(DATA,null,1)],{type:"application/json"}));a.download="aziz-os-backup.json";a.click();}
 function resetData(){if(confirm("Reset ALL data to dummy?")){localStorage.removeItem("azizData");DATA=JSON.parse(JSON.stringify(DEFAULTS));persist();init();}}
 g("file").addEventListener("change",e=>{const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(d&&d.salary){DATA=d;persist();syncPush();init();}}catch(_){alert("Invalid file")}};r.readAsText(e.target.files[0]);e.target.value="";});
+
+// Handle Enter key on lock screen
+document.getElementById("pw").addEventListener("keydown",e=>{if(e.key==="Enter")unlock()});
 </script>
 </body>
 </html>
