@@ -330,276 +330,306 @@ textarea.rev{min-height:60px}
   <button data-tab="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>Settings</button>
 </nav>
 <script>
-/* AZIZ OS V2.0 ENGINE */
-const SYNC_URL = "https://script.google.com/macros/s/AKfycby5W9DL6iWgvW9bYFR3niMXnvB8cxDw4ELye1brVmAmW68jkqm42RTwYyqqzVLuZ50/exec"; 
-const THEMES = ["classic","glass","midnight","sidi"];
-
-// DEFAULT STATE
+/* --- 1. CONFIG & DATA --- */
+const SYNC_URL = "https://script.google.com/macros/s/AKfycby5W9DL6iWgvW9bYFR3niMXnvB8cxDw4ELye1brVmAmW68jkqm42RTwYyqqzVLuZ50/exec";
+const THEMES = ["classic", "glass", "midnight", "sidi"];
 const DEFAULTS = {
-  config: { budget: 17500, cats: "Groceries,Transport,Dining,Utilities,Shopping,Health,Other" },
-  accounts: [ // Assets (+) and Liabilities (-)
-    {name:"Cash on Hand", type:"cash", balance: 2000},
-    {name:"CBQ Current", type:"bank", balance: 15000},
-    {name:"CBQ Savings", type:"bank", balance: 10000},
-    {name:"Credit Card", type:"debt", balance: -4500},
-    {name:"Car Loan", type:"debt", balance: -60000}
-  ],
-  transactions: [], // {id, date, desc, cat, amount, month}
-  funds: [], // {name, target, current} e.g. Emergency Fund
-  loans: [], // {name, total, paid, monthly, nextDue}
-  docs: [], // {name, type, expiry, link}
-  plans: [],
-  theme: "classic",
-  lastSalaryMonth: "" // e.g. "2024-05"
+  salary: 19000, rent: 5900, budget: 17500,
+  variable: { "Groceries": 2400, "Transport": 700, "Dining out": 1100, "Utilities": 650, "Personal": 900, "Family support": 1500 },
+  savings: 3000, investments: 1000, tunisia: 800, cash: 42310,
+  funds: { emergency: [24600, 30000], tunisia: [20500, 50000] },
+  priority: "Finalize Tunisia business pitch deck",
+  actions: ["Review Q2 savings report", "Schedule mentor call", "Update personal KPI tracker"],
+  objectives: [["Emergency Fund", 82], ["Cut Expenses", 65], ["Tunisia Fund", 41]],
+  attention: ["Kahramaa bill — due Aug 12", "Credit card payment — due Aug 15"],
+  history: [["Mar", 15800], ["Apr", 16900], ["May", 16200], ["Jun", 17400], ["Jul", 16800]],
+  tx: [["Carrefour grocery", 420, "Groceries", "2026-08-07"], ["Woqod fuel", 250, "Transport", "2026-08-06"]],
+  docs: [["Qatar ID", "28412345678", "2027-03-15"], ["Passport", "T1234567", "2029-11-02"]],
+  cards: [["QNB Visa", "4567890123456782", "6782", "09/29"]],
+  plans: [["Build QAR 30k emergency fund", "2026-12-31", "In progress"]],
+  archive: [["Bank statement — QNB Q2", "Statement", "2026-07-01", "PDF in Drive"]],
+  tStage: 3,
+  review: { checks: {}, keep: "", stop: "", start: "", change: "" }
 };
 
-let DB = loadDB();
+let DATA = load();
 
-// --- CORE FUNCTIONS ---
-function loadDB() {
-  try { return JSON.parse(localStorage.getItem("azizDataV2")) || JSON.parse(JSON.stringify(DEFAULTS)); } 
-  catch(e) { return JSON.parse(JSON.stringify(DEFAULTS)); }
-}
-function saveDB() { localStorage.setItem("azizDataV2", JSON.stringify(DB)); syncPush(); init(); }
-function syncPush() { if(!SYNC_URL) return; fetch(SYNC_URL, {method:"POST", body:JSON.stringify(DB), mode:"cors"}).catch(console.error); }
-function syncPull() { if(!SYNC_URL) return; fetch(SYNC_URL, {mode:"cors"}).then(r=>r.json()).then(d=>{if(d.config) DB=d; saveDB();}).catch(console.error); }
-
-// --- INITIALIZATION ---
-function init() {
-  renderAccountsEditor();
-  renderMoney();
-  renderSettings();
-  setupTheme();
-  checkLock(); // Ensure lock screen logic runs
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem("azizData"));
+    if (d && d.salary) return d;
+  } catch (e) { console.error("Load error", e); }
+  return JSON.parse(JSON.stringify(DEFAULTS));
 }
 
-// --- MONEY LOGIC ---
-function getTotals() {
-  let assets = 0, debts = 0;
-  DB.accounts.forEach(a => {
-    if(a.type === 'debt') debts += Math.abs(a.balance);
-    else assets += a.balance;
-  });
-  // Add Safe Funds
-  DB.funds.forEach(f => assets += f.current);
+function persist() {
+  localStorage.setItem("azizData", JSON.stringify(DATA));
+}
+
+/* --- 2. LOCK SYSTEM --- */
+const getPass = () => localStorage.getItem("azizPass") || "aziz2026";
+
+function runUnlock() {
+  const pwInput = document.getElementById('pw');
+  const errDiv = document.getElementById('err');
+  const lockScreen = document.getElementById('lock');
   
-  // Current Month Stats
-  const now = new Date().toISOString().slice(0,7); // "2024-05"
-  const monthTx = DB.transactions.filter(t => t.month === now);
-  const spent = monthTx.reduce((sum, t) => sum + t.amount, 0);
-  
-  return { assets, debts, net: assets - debts, spent, month: now };
-}
+  if (!pwInput || !lockScreen) return;
 
-function renderMoney() {
-  const t = getTotals();
-  document.getElementById('net_worth').textContent = fmt(t.net);
-  document.getElementById('cash_hand').textContent = fmt(DB.accounts.find(a=>a.type==='cash')?.balance || 0);
-  const banks = DB.accounts.filter(a=>a.type==='bank').reduce((s,a)=>s+a.balance,0);
-  document.getElementById('bank_total').textContent = fmt(banks);
-  document.getElementById('bank_count').textContent = DB.accounts.filter(a=>a.type==='bank').length + " Accts";
-  document.getElementById('total_debt').textContent = fmt(t.debts);
-  
-  // Month Status
-  const statusTxt = DB.lastSalaryMonth === t.month ? "Salary Received ✅" : "Waiting for Salary ⏳";
-  document.getElementById('status_text').textContent = statusTxt;
-  document.getElementById('status_text').style.color = DB.lastSalaryMonth === t.month ? "var(--green)" : "var(--orange)";
-  
-  document.getElementById('spent_amt').textContent = fmt(t.spent);
-  document.getElementById('budget_amt').textContent = fmt(DB.config.budget);
-  const pct = Math.min((t.spent / DB.config.budget) * 100, 100);
-  document.getElementById('month_prog').style.width = pct + "%";
-  document.getElementById('month_prog').style.background = pct > 90 ? "var(--red)" : (pct > 70 ? "var(--amber)" : "var(--green)");
-
-  // Transactions List
-  const txList = document.getElementById('tx_list');
-  txList.innerHTML = DB.transactions.slice().reverse().slice(0,10).map(tx => `
-    <tr>
-      <td><b>${tx.desc}</b><br><span class="mut" style="font-size:10px">${tx.month}</span></td>
-      <td><span class="pill s-prog">${tx.cat}</span></td>
-      <td style="color:var(--red);font-weight:700">-${fmt(tx.amount)}</td>
-      <td class="mut">${tx.date}</td>
-      <td><button class="copyb" onclick="delTx(${tx.id})">×</button></td>
-    </tr>
-  `).join("");
-  if(DB.transactions.length===0) txList.innerHTML = "<tr><td colspan='5' class='mut'>No expenses yet.</td></tr>";
-
-  // Loans
-  const loansDiv = document.getElementById('loans_list');
-  loansDiv.innerHTML = DB.loans.map((l, i) => {
-    const remaining = l.total - l.paid;
-    const monthsLeft = Math.ceil(remaining / l.monthly);
-    return `<div style="background:var(--track);padding:10px;border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
-      <div><b>${l.name}</b><br><span class="mut" style="font-size:11px">${monthsLeft} months left • ${fmt(l.monthly)}/mo</span></div>
-      <div style="text-align:right"><b style="color:var(--red)">${fmt(remaining)}</b><br><button class="badge" style="border:0;background:var(--green);color:#fff;font-size:9px;cursor:pointer" onclick="payLoan(${i})">Paid Month</button></div>
-    </div>`;
-  }).join("");
-  if(DB.loans.length===0) loansDiv.innerHTML = "<p class='mut'>No active loans.</p>";
-
-  // Funds
-  const fundsDiv = document.getElementById('funds_list');
-  fundsDiv.innerHTML = DB.funds.map((f, i) => {
-    const pct = Math.round((f.current / f.target) * 100);
-    return `<div style="margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700"><span>${f.name}</span><span>${fmt(f.current)} / ${fmt(f.target)}</span></div>
-      <div class="prog"><i style="width:${pct}%"></i></div>
-      <button class="badge" style="border:0;background:transparent;color:var(--acc);padding:0;cursor:pointer;font-size:10px" onclick="addFundVal(${i})">+ Add Cash</button>
-    </div>`;
-  }).join("");
-  if(DB.funds.length===0) fundsDiv.innerHTML = "<p class='mut'>No safe funds tracked.</p>";
-
-  // Populate Categories
-  const catSelect = document.getElementById('t_cat');
-  if(catSelect.options.length <= 1) {
-    catSelect.innerHTML = DB.config.cats.split(',').map(c => `<option value="${c.trim()}">${c.trim()}</option>`).join("");
-  }
-}
-
-// --- ACTIONS ---
-function addTx() {
-  const desc = document.getElementById('t_name').value.trim();
-  const amt = parseFloat(document.getElementById('t_amt').value);
-  const cat = document.getElementById('t_cat').value;
-  if(!desc || !amt || !cat) return alert("Fill all fields");
-  
-  const now = new Date();
-  DB.transactions.push({
-    id: Date.now(),
-    date: now.toISOString().slice(0,10),
-    month: now.toISOString().slice(0,7),
-    desc, amount: amt, cat
-  });
-  
-  // Auto-deduct from Cash on Hand (Simple Logic)
-  const cashAcc = DB.accounts.find(a => a.type === 'cash');
-  if(cashAcc) cashAcc.balance -= amt;
-  
-  document.getElementById('t_name').value = "";
-  document.getElementById('t_amt').value = "";
-  saveDB();
-}
-
-function delTx(id) {
-  const tx = DB.transactions.find(t => t.id === id);
-  if(tx) {
-    // Refund cash
-    const cashAcc = DB.accounts.find(a => a.type === 'cash');
-    if(cashAcc) cashAcc.balance += tx.amount;
-    DB.transactions = DB.transactions.filter(t => t.id !== id);
-    saveDB();
-  }
-}
-
-function toggleSalaryModal() { document.getElementById('salary_modal').style.display = 'flex'; }
-function confirmSalary() {
-  const amt = parseFloat(document.getElementById('salary_input').value);
-  if(!amt) return;
-  const now = new Date().toISOString().slice(0,7);
-  DB.lastSalaryMonth = now;
-  // Add to Cash or Bank? Let's add to Cash on Hand for simplicity, user can move later
-  const cashAcc = DB.accounts.find(a => a.type === 'cash') || DB.accounts[0];
-  cashAcc.balance += amt;
-  document.getElementById('salary_modal').style.display = 'none';
-  document.getElementById('salary_input').value = '';
-  saveDB();
-}
-
-function addLoanPrompt() {
-  const name = prompt("Loan Name (e.g. Car Loan):");
-  if(!name) return;
-  const total = parseFloat(prompt("Total Loan Amount:"));
-  const monthly = parseFloat(prompt("Monthly Installment:"));
-  DB.loans.push({name, total, paid:0, monthly, nextDue: new Date().toISOString().slice(0,10)});
-  // Add corresponding debt account if not exists
-  if(!DB.accounts.find(a=>a.name===name)) DB.accounts.push({name, type:'debt', balance:-total});
-  saveDB();
-}
-
-function payLoan(idx) {
-  const l = DB.loans[idx];
-  if(confirm(`Mark ${fmt(l.monthly)} as paid for ${l.name}?`)) {
-    l.paid += l.monthly;
-    // Update debt account balance
-    const acc = DB.accounts.find(a=>a.name===l.name);
-    if(acc) acc.balance = -(l.total - l.paid);
-    saveDB();
-  }
-}
-
-function addFundPrompt() {
-  const name = prompt("Fund Name (e.g. Emergency):");
-  if(!name) return;
-  const target = parseFloat(prompt("Target Amount:"));
-  DB.funds.push({name, target, current:0});
-  saveDB();
-}
-
-function addFundVal(idx) {
-  const val = parseFloat(prompt(`Add amount to ${DB.funds[idx].name}:`));
-  if(val) { DB.funds[idx].current += val; saveDB(); }
-}
-
-// --- SETTINGS & ACCOUNTS ---
-function renderSettings() {
-  document.getElementById('set_budget').value = DB.config.budget;
-  document.getElementById('set_cats').value = DB.config.cats;
-}
-
-function saveConfig() {
-  DB.config.budget = parseFloat(document.getElementById('set_budget').value) || 0;
-  DB.config.cats = document.getElementById('set_cats').value;
-  saveDB();
-}
-
-function renderAccountsEditor() {
-  const div = document.getElementById('accounts_editor');
-  div.innerHTML = DB.accounts.map((a, i) => `
-    <div style="display:flex;gap:5px;margin-bottom:8px;align-items:center">
-      <select onchange="DB.accounts[${i}].type=this.value;saveDB()" style="width:80px;font-size:11px">
-        <option value="cash" ${a.type==='cash'?'selected':''}>Cash</option>
-        <option value="bank" ${a.type==='bank'?'selected':''}>Bank</option>
-        <option value="debt" ${a.type==='debt'?'selected':''}>Debt</option>
-      </select>
-      <input value="${a.name}" onchange="DB.accounts[${i}].name=this.value;saveDB()" placeholder="Name" style="flex:1;font-size:12px">
-      <input type="number" value="${a.balance}" onchange="DB.accounts[${i}].balance=parseFloat(this.value);saveDB()" placeholder="Bal" style="width:80px;font-size:12px">
-      <button class="copyb" onclick="DB.accounts.splice(${i},1);saveDB()">×</button>
-    </div>
-  `).join("");
-}
-
-function addAccountRow() {
-  DB.accounts.push({name:"New Account", type:"bank", balance:0});
-  saveDB();
-}
-
-// --- UTILS ---
-function fmt(n) { return "QAR " + Math.round(n).toLocaleString(); }
-function setupTheme() { document.body.dataset.theme = DB.theme; }
-function hardReset() { if(confirm("DELETE EVERYTHING?")) { localStorage.removeItem("azizDataV2"); location.reload(); } }
-function exportData() { const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(DB)],{type:'application/json'})); a.download='aziz_backup.json'; a.click(); }
-document.getElementById('file').addEventListener('change', e=>{ const r=new FileReader(); r.onload=()=>{try{DB=JSON.parse(r.result);saveDB();}catch(err){alert('Invalid file')}}; r.readAsText(e.target.files[0]); });
-
-// --- LOCK SCREEN LOGIC (Preserved from before) ---
-const PASS = () => localStorage.getItem("azizPass") || "aziz2026";
-const lockScreen = document.getElementById('lock');
-function checkLock() {
-  if(!lockScreen) return;
-  body.classList.add('locked');
-  lockScreen.style.display = 'flex';
-}
-function unlock() {
-  if(document.getElementById('pw').value === PASS()) {
-    lockScreen.style.display = 'none';
-    body.classList.remove('locked');
-    init();
-    syncPull();
+  if (pwInput.value.trim() === getPass()) {
+    if(errDiv) errDiv.textContent = '';
+    lockScreen.style.transition = 'opacity 0.4s ease';
+    lockScreen.style.opacity = '0';
+    
+    setTimeout(() => {
+      lockScreen.style.display = 'none';
+      document.body.classList.remove('locked');
+      init(); // Draw Dashboard
+      syncPull(); // Sync Data
+    }, 400);
   } else {
-    document.getElementById('err').textContent = "Wrong password";
+    if(errDiv) errDiv.textContent = "Incorrect password.";
+    pwInput.value = '';
+    pwInput.focus();
+    const box = lockScreen.querySelector('.box');
+    if(box) {
+      box.animate([
+        { transform: 'translateX(0)' }, { transform: 'translateX(-8px)' },
+        { transform: 'translateX(8px)' }, { transform: 'translateX(0)' }
+      ], { duration: 250 });
+    }
   }
 }
-document.getElementById('pw')?.addEventListener('keydown', e=>{if(e.key==="Enter")unlock()});
-const body = document.body;
 
+function relock() { location.reload(); }
+
+window.addEventListener('load', () => {
+  const lockScreen = document.getElementById('lock');
+  const pwInput = document.getElementById('pw');
+  if (lockScreen) {
+    lockScreen.style.display = 'flex';
+    document.body.classList.add('locked');
+    if(pwInput) {
+      pwInput.value = '';
+      pwInput.focus();
+      pwInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') runUnlock(); });
+    }
+  }
+});
+
+/* --- 3. DASHBOARD LOGIC --- */
+function syncPull() {
+  if(!SYNC_URL) return;
+  fetch(SYNC_URL, {mode:"cors"}).then(r=>r.json()).then(d=>{
+    if(d && d.salary) { DATA = Object.assign(DEFAULTS, d); persist(); init(); }
+  }).catch(e=>console.log("Sync offline"));
+}
+
+function syncPush() {
+  if(!SYNC_URL) return;
+  fetch(SYNC_URL, {method:"POST", body:JSON.stringify(DATA), mode:"cors"}).catch(e=>console.log("Sync failed"));
+}
+
+const fmt = n => "QAR " + Math.round(n).toLocaleString();
+const q = s => document.querySelector(s);
+const g = id => document.getElementById(id);
+
+function init() {
+  console.log("Dashboard Initializing...");
+  
+  // Calculate Totals
+  const varT = Object.values(DATA.variable).reduce((a,b)=>a+b, 0);
+  const savedTotal = DATA.savings + DATA.investments + DATA.tunisia;
+  const spend = DATA.rent + varT;
+  const left = DATA.salary - spend - savedTotal;
+  
+  // Update Overview Stats
+  if(g("s_cash")) g("s_cash").textContent = fmt(DATA.cash);
+  if(g("s_rate")) g("s_rate").textContent = (savedTotal/DATA.salary*100).toFixed(1) + "%";
+  if(g("s_left")) g("s_left").textContent = fmt(Math.max(left, 0));
+  if(g("s_exp")) g("s_exp").textContent = fmt(spend);
+  
+  // Update Chart
+  const hist = [...DATA.history, ["Now", spend]];
+  const mx = Math.max(...hist.map(h=>h[1]), DATA.salary);
+  if(g("chart")) {
+    g("chart").innerHTML = hist.map(h=>`<div class="cm"><i class="in" style="height:${DATA.salary/mx*100}%"></i><i class="ex" style="height:${h[1]/mx*100}%"></i></div>`).join("");
+    g("chartL").innerHTML = hist.map(h=>`<span>${h[0]}</span>`).join("");
+  }
+  
+  // Update Priority & Actions
+  if(g("prio")) g("prio").textContent = DATA.priority;
+  if(g("acts")) {
+    g("acts").innerHTML = DATA.actions.map((a,i)=>`
+      <li class="act ${DATA.review["a"+i]?"done":""}" onclick="tickAct(${i})">
+        <span class="cb">✓</span><span>${a}</span>
+      </li>`).join("");
+  }
+  
+  // Update Funds
+  const ef = DATA.funds.emergency;
+  const tf = DATA.funds.tunisia;
+  if(g("ef_t")) g("ef_t").textContent = fmt(ef[0]);
+  if(g("ef_b")) g("ef_b").style.width = Math.min(ef[0]/ef[1]*100, 100) + "%";
+  if(g("tf_t")) g("tf_t").textContent = fmt(tf[0]);
+  if(g("tf_b")) g("tf_b").style.width = Math.min(tf[0]/tf[1]*100, 100) + "%";
+  
+  // Update Notifications
+  const attn = DATA.attention;
+  if(g("bellN")) g("bellN").textContent = attn.length;
+  if(g("notif")) g("notif").innerHTML = attn.map(a=>`<div>🔔 ${a}</div>`).join("");
+  if(g("chips")) g("chips").innerHTML = attn.map(a=>`<div class="chip">${a}</div>`).join("");
+  
+  // Money Section
+  if(g("rows")) {
+    g("rows").innerHTML = [
+      ["Salary", DATA.salary], ["Rent", DATA.rent], ["Variable", varT], 
+      ["Saved", savedTotal], ["Left", Math.max(left,0)]
+    ].map(r=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--track)">
+      <span>${r[0]}</span><b>${fmt(r[1])}</b></div>`).join("");
+  }
+  
+  // Transactions
+  if(g("tx")) {
+    g("tx").innerHTML = DATA.tx.slice().reverse().map((t,i)=>`
+      <tr><td>${t[0]}</td><td><b>${fmt(t[1])}</b></td><td class="mut">${t[2]}</td>
+      <td class="mut">${t[3]}</td><td><button class="copyb" onclick="delTx(${DATA.tx.length-1-i})">✕</button></td></tr>
+    `).join("");
+  }
+  
+  // Categories Dropdown
+  if(g("t_cat")) {
+    g("t_cat").innerHTML = Object.keys(DATA.variable).map(c=>`<option>${c}</option>`).join("");
+  }
+  
+  // Documents
+  if(g("docsL")) {
+    g("docsL").innerHTML = DATA.docs.map(d=>`
+      <tr><td><b>${d[0]}</b></td><td class="mut">••• ${String(d[1]).slice(-4)}</td>
+      <td class="mut">${d[2]}</td><td><span class="pill s-done">Valid</span></td>
+      <td><button class="copyb" onclick="navigator.clipboard.writeText('${d[1]}');alert('Copied')">Copy</button></td></tr>
+    `).join("");
+  }
+  
+  // Plans
+  if(g("planL")) {
+    g("planL").innerHTML = DATA.plans.map(p=>`
+      <div class="it"><b>${p[0]}</b><br><span class="mut">${p[1]}</span> 
+      <span class="pill s-prog">${p[2]}</span></div>
+    `).join("");
+  }
+  
+  // Review
+  if(g("revList")) {
+    const RV = [["Financial", ["Reviewed spending", "Confirmed savings"]], ["Work", ["Noted progress", "Identified opportunity"]]];
+    let html = "";
+    RV.forEach(s=>{
+      html += `<p class="mut" style="margin:12px 0 4px;font-weight:700">${s[0]}</p>`;
+      s[1].forEach((it,i)=>{
+        const k = s[0]+i;
+        html += `<li class="act ${DATA.review.checks[k]?"done":""}" onclick="tickRev('${k}')">
+          <span class="cb">✓</span><span>${it}</span></li>`;
+      });
+    });
+    g("revList").innerHTML = html;
+  }
+  
+  // Settings Form
+  if(g("f_salary")) {
+    g("f_salary").value = DATA.salary; g("f_rent").value = DATA.rent;
+    g("f_sav").value = DATA.savings; g("f_cash").value = DATA.cash;
+    g("f_var").value = Object.entries(DATA.variable).map(e=>e[0]+", "+e[1]).join("\n");
+    g("f_act").value = DATA.actions.join("\n");
+    g("f_docs").value = DATA.docs.map(d=>d.join(", ")).join("\n");
+    g("f_plans").value = DATA.plans.map(p=>p.join(", ")).join("\n");
+  }
+  
+  console.log("Dashboard Ready.");
+}
+
+// Actions
+function addTx() {
+  const n = g("t_name").value.trim();
+  const a = parseFloat(g("t_amt").value);
+  const c = g("t_cat").value;
+  if(!n || !a) return alert("Enter name and amount");
+  
+  DATA.tx.push([n, a, c, new Date().toISOString().slice(0,10)]);
+  DATA.cash -= a; // Deduct from cash immediately
+  persist(); syncPush(); init();
+  g("t_name").value = ""; g("t_amt").value = "";
+}
+
+function delTx(i) {
+  if(confirm("Delete this?")) {
+    DATA.tx.splice(i, 1);
+    persist(); syncPush(); init();
+  }
+}
+
+function tickAct(i) {
+  DATA.review["a"+i] = !DATA.review["a"+i];
+  persist(); init();
+}
+
+function tickRev(k) {
+  DATA.review.checks[k] = !DATA.review.checks[k];
+  persist(); init();
+}
+
+function saveForm() {
+  DATA.salary = parseFloat(g("f_salary").value) || 0;
+  DATA.rent = parseFloat(g("f_rent").value) || 0;
+  DATA.savings = parseFloat(g("f_sav").value) || 0;
+  DATA.cash = parseFloat(g("f_cash").value) || 0;
+  
+  // Parse Variable Budget
+  const varObj = {};
+  g("f_var").value.split("\n").forEach(l=>{
+    const parts = l.split(",");
+    if(parts.length>=2) varObj[parts[0].trim()] = parseFloat(parts[1])||0;
+  });
+  DATA.variable = varObj;
+  
+  // Parse Actions
+  DATA.actions = g("f_act").value.split("\n").filter(x=>x.trim());
+  
+  // Parse Docs
+  DATA.docs = g("f_docs").value.split("\n").filter(x=>x.trim()).map(l=>l.split(",").map(s=>s.trim()));
+  
+  // Parse Plans
+  DATA.plans = g("f_plans").value.split("\n").filter(x=>x.trim()).map(l=>l.split(",").map(s=>s.trim()));
+  
+  persist(); syncPush(); init();
+  alert("Saved & Synced!");
+}
+
+// Theme Toggle
+function cycleTheme() {
+  const i = THEMES.indexOf(document.body.dataset.theme || "classic");
+  document.body.dataset.theme = THEMES[(i+1)%THEMES.length];
+  localStorage.setItem("azizTheme", document.body.dataset.theme);
+}
+const savedTh = localStorage.getItem("azizTheme");
+if(savedTh) document.body.dataset.theme = savedTh;
+
+// Clock
+setInterval(()=>{
+  const n = new Date();
+  const h = n.getHours();
+  const greet = (h<12?"Good morning":h<17?"Good afternoon":"Good evening");
+  if(g("hello")) g("hello").textContent = `${greet}, Aziz`;
+  if(g("clock")) g("clock").textContent = n.toLocaleDateString("en-GB", {weekday:"short",day:"2-digit",month:"short"}) + " • " + n.toLocaleTimeString("en-GB", {hour:"2-digit",minute:"2-digit"});
+}, 1000);
+
+// Tabs
+document.querySelectorAll("[data-tab]").forEach(b=>{
+  b.onclick = () => {
+    document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("on", x.dataset.tab===b.dataset.tab));
+    document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on", t.id==="tab-"+b.dataset.tab));
+    if(b.dataset.tab === "settings") init(); // Refresh form when opening settings
+  };
+});
 </script>
 </body>
 </html>
