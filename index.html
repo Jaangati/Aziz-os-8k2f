@@ -123,6 +123,34 @@ textarea.rev{min-height:60px}
 @media(max-width:1000px){#side{display:none}#bnav{display:flex}#main{padding:14px 14px 76px}.g4,.g3,.g23,.g2{grid-template-columns:1fr}}
 @media(min-width:1001px){.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:480px){#greet h1{font-size:22px}#greet p{font-size:12px}.stat b{font-size:20px}.card{padding:16px}#topbar{gap:8px}.pills button{padding:6px 10px;font-size:12px}#me{padding:4px 10px 4px 4px}#me .av{width:28px;height:28px;font-size:12px}#me b{font-size:12px}#me span{font-size:10px}#clock{font-size:11px}.icobtn{width:36px;height:36px}#bellN{font-size:9px;padding:1px 4px}#sync{padding:6px 10px;font-size:11px}}
+/* --- ENHANCED MODAL STYLES --- */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6); 
+  z-index: 3000; display: none; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px); animation: fadein 0.2s ease;
+}
+.modal-overlay.active { display: flex; }
+.modal-card {
+  background: var(--card); width: 90%; max-width: 450px; 
+  border-radius: 20px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  animation: up 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  max-height: 90vh; overflow-y: auto;
+}
+.modal-header { font-size: 18px; font-weight: 800; margin-bottom: 5px; }
+.modal-sub { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+.modal-body { display: flex; flex-direction: column; gap: 12px; }
+.modal-footer { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+/* Breakdown Lists */
+.breakdown-list { margin-top: 8px; font-size: 12px; background: var(--bg); border-radius: 8px; padding: 8px; }
+.breakdown-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--track); }
+.breakdown-item:last-child { border: 0; }
+.breakdown-item span:first-child { color: var(--muted); }
+.breakdown-item span:last-child { font-weight: 700; }
+/* Transaction Form */
+.tx-form-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr auto; gap: 8px; }
+@media(max-width: 600px) { .tx-form-grid { grid-template-columns: 1fr 1fr; } .tx-form-grid button { grid-column: span 2; } }
+
+  
 </style>
 </head>
 <body>
@@ -188,65 +216,151 @@ textarea.rev{min-height:60px}
     </div>
   </section>
 
-  <!-- MONEY TAB -->
-  <section class="tab" id="tab-money">
-    <div class="g g4" style="margin-bottom:20px">
-      <div class="card grad stat"><span class="mut">NET WORTH</span><b id="net_worth">—</b><span class="badge" style="background:rgba(255,255,255,.2)">Assets - Debts</span></div>
-      <div class="card stat"><span class="mut">LIQUID CASH</span><b id="cash_hand">—</b><button class="badge" style="border:0;background:transparent;color:var(--acc);cursor:pointer" onclick="quickAdjust('cash')">✎</button></div>
-      <div class="card stat" style="position:relative">
-        <span class="mut">BANK TOTAL</span><b id="bank_total">—</b>
-        <div id="bank_breakdown" style="position:absolute;top:60px;left:20px;right:20px;background:var(--bg);padding:10px;border-radius:8px;font-size:11px;display:none;z-index:10;box-shadow:var(--sh)"></div>
-        <button class="badge b-up" style="border:0;cursor:pointer" onclick="toggleBreakdown('bank')">▼ Details</button>
-      </div>
-      <div class="card stat" style="border-left:4px solid var(--red);position:relative">
-        <span class="mut">TOTAL DEBT</span><b id="total_debt" style="color:var(--red)">—</b>
-        <div id="debt_breakdown" style="position:absolute;top:60px;left:20px;right:20px;background:var(--bg);padding:10px;border-radius:8px;font-size:11px;display:none;z-index:10;box-shadow:var(--sh)"></div>
-        <button class="badge b-dn" style="border:0;cursor:pointer" onclick="toggleBreakdown('debt')">▼ Details</button>
-      </div>
+<!-- MONEY TAB -->
+<section class="tab" id="tab-money">
+  <!-- TOP ROW: NET WORTH & BREAKDOWNS -->
+  <div class="g g4" style="margin-bottom:20px">
+    <div class="card grad stat"><span class="mut">NET WORTH</span><b id="net_worth">—</b><span class="badge" style="background:rgba(255,255,255,.2)">Assets - Debts</span></div>
+    <div class="card stat"><span class="mut">LIQUID CASH</span><b id="cash_hand">—</b><button class="badge" style="border:0;background:transparent;color:var(--acc);cursor:pointer" onclick="openModal('edit_cash_modal')">✎</button></div>
+    
+    <!-- Bank Breakdown (Always Visible) -->
+    <div class="card stat" style="display:block">
+      <span class="mut">BANK TOTAL</span><b id="bank_total">—</b>
+      <div id="bank_breakdown" class="breakdown-list"></div>
     </div>
-    <div class="g g23">
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
-          <h2>COMMAND CENTER</h2>
-          <div style="display:flex;gap:8px">
-            <button class="btn o" style="font-size:11px;padding:6px 10px" onclick="toggleModal('income_modal')">💰 Income</button>
-            <button class="btn g" style="font-size:11px;padding:6px 10px" onclick="toggleModal('salary_modal')">🏦 Salary</button>
-          </div>
-        </div>
-        <div id="month_status" class="card" style="background:var(--track);padding:15px;border-radius:12px;margin-bottom:20px">
-          <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700"><span>Status:</span> <span id="status_text">Waiting...</span></div>
-          <div class="prog" style="margin-top:8px"><i id="month_prog" style="width:0%"></i></div>
-          <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:11px;color:var(--muted)">
-            <span>Spent: <b id="spent_amt">0</b></span>
-            <span>Budget: <b id="budget_amt">0</b></span>
-          </div>
-        </div>
-        <h2>REGISTER TRANSACTION</h2>
-        <div class="prow" style="grid-template-columns:1.5fr 1fr 1fr auto;gap:8px">
-          <input id="t_name" placeholder="What? (e.g. Dinner / Refund)" inputmode="text">
-          <input id="t_amt" type="number" placeholder="QAR" inputmode="decimal">
-          <select id="t_type" onchange="toggleCatSelect()">
-            <option value="expense">Expense (-)</option>
-            <option value="income">Income (+)</option>
-          </select>
-          <select id="t_cat"><option value="">Category</option></select>
-          <button class="btn g" onclick="addTx()">Add</button>
-        </div>
-        <h2 style="margin-top:20px">RECENT ACTIVITY</h2>
-        <div class="twrap"><table><thead><tr><th>Type</th><th>Item</th><th>Amount</th><th>Date</th><th></th></tr></thead><tbody id="tx_list"></tbody></table></div>
-      </div>
-      <div class="card">
-        <h2>🔴 LIABILITIES</h2>
-        <div id="loans_list" style="margin-bottom:15px;max-height:200px;overflow-y:auto"></div>
-        <button class="btn o" style="width:100%;font-size:11px" onclick="openLoanWizard()">+ Add Loan / Debt</button>
-        <h2 style="margin-top:20px">🟢 SAFE FUNDS</h2>
-        <div id="funds_list" style="margin-bottom:15px"></div>
-        <button class="btn o" style="width:100%;font-size:11px" onclick="addFundPrompt()">+ Add Fund</button>
-        <h2 style="margin-top:20px">📅 UPCOMING CHEQUES</h2>
-        <div id="cheque_list" style="font-size:12px"></div>
-      </div>
+    
+    <!-- Debt Breakdown (Always Visible) -->
+    <div class="card stat" style="border-left:4px solid var(--red); display:block">
+      <span class="mut">TOTAL DEBT</span><b id="total_debt" style="color:var(--red)">—</b>
+      <div id="debt_breakdown" class="breakdown-list"></div>
     </div>
-  </section>
+  </div>
+
+  <div class="g g23">
+    <!-- LEFT: OPERATIONS -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
+        <h2>COMMAND CENTER</h2>
+        <div style="display:flex;gap:8px">
+          <button class="btn o" style="font-size:11px;padding:6px 10px" onclick="openModal('income_modal')">💰 Income</button>
+          <button class="btn g" style="font-size:11px;padding:6px 10px" onclick="openSalaryModal()">🏦 Salary</button>
+        </div>
+      </div>
+      
+      <!-- Monthly Status -->
+      <div id="month_status" class="card" style="background:var(--track);padding:15px;border-radius:12px;margin-bottom:20px; cursor:pointer;" onclick="toggleMonthDetails()">
+        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700">
+          <span>Status:</span> <span id="status_text">Waiting...</span>
+          <span style="font-size:10px;color:var(--muted)">▼ Click for details</span>
+        </div>
+        <div class="prog" style="margin-top:8px"><i id="month_prog" style="width:0%"></i></div>
+        <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:11px;color:var(--muted)">
+          <span>Spent: <b id="spent_amt">0</b></span>
+          <span>Budget: <b id="budget_amt">0</b></span>
+        </div>
+        <!-- Hidden Details List -->
+        <div id="month_details" style="display:none; margin-top:10px; border-top:1px solid var(--track); padding-top:8px;"></div>
+      </div>
+
+      <h2>REGISTER TRANSACTION</h2>
+      <div class="tx-form-grid">
+        <input id="t_name" placeholder="Description" inputmode="text">
+        <input id="t_amt" type="number" placeholder="QAR" inputmode="decimal">
+        <select id="t_type" onchange="toggleCatSelect()">
+          <option value="expense">Expense (-)</option>
+          <option value="income">Income (+)</option>
+        </select>
+        <select id="t_cat"><option value="">Category</option></select>
+        <button class="btn g" style="grid-column: span 4;" onclick="addTx()">Add Transaction</button>
+      </div>
+      
+      <h2 style="margin-top:20px">RECENT ACTIVITY</h2>
+      <div class="twrap"><table><thead><tr><th>Type</th><th>Item</th><th>Amount</th><th>Date</th><th></th></tr></thead><tbody id="tx_list"></tbody></table></div>
+    </div>
+
+    <!-- RIGHT: LOANS & FUNDS -->
+    <div class="card">
+      <h2>🔴 LIABILITIES</h2>
+      <div id="loans_list" style="margin-bottom:15px;max-height:200px;overflow-y:auto"></div>
+      <button class="btn o" style="width:100%;font-size:11px" onclick="openModal('loan_modal')">+ Add Loan / Debt</button>
+
+      <h2 style="margin-top:20px">🟢 SAFE FUNDS</h2>
+      <div id="funds_list" style="margin-bottom:15px"></div>
+      <button class="btn o" style="width:100%;font-size:11px" onclick="openFundModal()">+ Add Fund</button>
+      
+      <h2 style="margin-top:20px">📅 UPCOMING CHEQUES</h2>
+      <div id="cheque_list" style="font-size:12px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- MODALS (Place these before closing </body>) -->
+<div id="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:2000;backdrop-filter:blur(4px)" onclick="closeAllModals()"></div>
+
+<!-- Income Modal -->
+<div id="modal-income" class="custom-modal" style="display:none">
+  <div class="card" style="width:90%;max-width:400px">
+    <h2>ADD INCOME</h2>
+    <label>Source</label><input id="inc_source" placeholder="Freelance, Refund...">
+    <label>Amount</label><input id="inc_amt" type="number">
+    <div class="btns"><button class="btn o" onclick="closeAllModals()">Cancel</button><button class="btn g" onclick="confirmIncome()">Save</button></div>
+  </div>
+</div>
+
+<!-- Salary Modal -->
+<div id="modal-salary" class="custom-modal" style="display:none">
+  <div class="card" style="width:90%;max-width:400px">
+    <h2>RECORD SALARY</h2>
+    <p class="mut" style="margin-bottom:10px">This will mark the current month as active.</p>
+    <label>Month</label><input id="sal_month" type="month">
+    <label>Amount</label><input id="sal_amt" type="number">
+    <div class="btns"><button class="btn o" onclick="closeAllModals()">Cancel</button><button class="btn g" onclick="confirmSalary()">Confirm Receipt</button></div>
+  </div>
+</div>
+
+<!-- Loan Modal -->
+<div id="modal-loan" class="custom-modal" style="display:none">
+  <div class="card" style="width:95%;max-width:500px;max-height:90vh;overflow-y:auto">
+    <h2>ADD LIABILITY</h2>
+    <label>Name</label><input id="l_name" placeholder="Car Loan, Credit Card...">
+    <label>Total Amount</label><input id="l_total" type="number">
+    <label>Paid So Far</label><input id="l_paid" type="number" value="0">
+    <label>Next Due Date</label><input id="l_due" type="date">
+    <div class="btns"><button class="btn o" onclick="closeAllModals()">Cancel</button><button class="btn g" onclick="saveLoan()">Create</button></div>
+  </div>
+</div>
+
+<!-- Loan Manager Modal (Detailed) -->
+<div id="modal-loan-manage" class="custom-modal" style="display:none">
+  <div class="card" style="width:95%;max-width:600px;max-height:90vh;overflow-y:auto">
+    <h2 id="manage_title">Manage Loan</h2>
+    <div id="manage_content"></div>
+    <div class="btns"><button class="btn g" onclick="closeAllModals()">Done</button></div>
+  </div>
+</div>
+
+<!-- Cash Editor Modal -->
+<div id="modal-cash" class="custom-modal" style="display:none">
+  <div class="card" style="width:90%;max-width:400px">
+    <h2>UPDATE CASH ON HAND</h2>
+    <label>New Balance</label><input id="cash_input" type="number">
+    <div class="btns"><button class="btn o" onclick="closeAllModals()">Cancel</button><button class="btn g" onclick="saveCash()">Update</button></div>
+  </div>
+</div>
+
+<!-- Fund Editor Modal -->
+<div id="modal-fund" class="custom-modal" style="display:none">
+  <div class="card" style="width:95%;max-width:500px;max-height:90vh;overflow-y:auto">
+    <h2>MANAGE SAFE FUNDS</h2>
+    <div id="fund_editor_content"></div>
+    <button class="btn o" style="width:100%;margin-top:10px" onclick="addNewFundRow()">+ Add New Fund</button>
+    <div class="btns"><button class="btn g" onclick="closeAllModals()">Done</button></div>
+  </div>
+</div>
+
+<style>
+.custom-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2001;display:none;animation:up 0.3s ease}
+</style>
 
   <!-- DOCUMENTS TAB -->
   <section class="tab" id="tab-docs">
@@ -732,215 +846,304 @@ function renderSettings() {
   }
 }
 
-/* --- 5. ACTIONS --- */
+/* --- 6. MODAL UTILS --- */
+function openModal(id) {
+  document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+  const el = document.getElementById(id);
+  if(el) { el.classList.add('active'); el.querySelector('input')?.focus(); }
+}
+function closeModal(id) {
+  const el = document.getElementById(id);
+  if(el) el.classList.remove('active');
+}
+
+/* --- 7. FINANCIAL ACTIONS --- */
 function addTx() {
   const n = g("t_name").value.trim();
   const a = parseFloat(g("t_amt").value);
-  const c = g("t_cat").value;
+  const c = g("t_cat").value || "General";
   const type = g("t_type").value;
-  if(!n || !a) return alert("Enter details");
+  
+  if(!n || !a) return alert("Please enter description and amount");
   
   DATA.tx.push([n, a, c, new Date().toISOString().slice(0,10), type]);
   
-  if(type === 'expense') {
-    if(DATA.accounts && DATA.accounts.length > 0) DATA.accounts[0].balance -= a;
-    else DATA.cash -= a;
-  } else {
-    if(DATA.accounts && DATA.accounts.length > 0) DATA.accounts[0].balance += a;
-    else DATA.cash += a;
-  }
+  // Update Liquid Cash (First 'cash' account or general cash)
+  let cashAcc = DATA.accounts.find(acc => acc.type === 'cash');
+  if(!cashAcc) { cashAcc = {name:"Cash Wallet", type:"cash", balance:0}; DATA.accounts.push(cashAcc); }
+  
+  if(type === 'expense') cashAcc.balance -= a;
+  else cashAcc.balance += a;
   
   persist(); syncPush(); init();
   g("t_name").value = ""; g("t_amt").value = "";
 }
 
 function delTx(i) {
-  if(confirm("Delete?")) { DATA.tx.splice(i, 1); persist(); syncPush(); init(); }
+  if(confirm("Delete this transaction?")) {
+    DATA.tx.splice(i, 1);
+    persist(); syncPush(); init();
+  }
+}
+
+function toggleCatSelect() {
+  // Optional: Change category list based on Income/Expense
+  const sel = g("t_cat");
+  const type = g("t_type").value;
+  const cats = type === 'income' 
+    ? ["Salary", "Freelance", "Refund", "Gift", "Investment Return"]
+    : Object.keys(DATA.variable);
+  sel.innerHTML = cats.map(c => `<option>${c}</option>`).join("");
+}
+
+/* --- 8. SALARY & MONTH LOGIC --- */
+function openSalaryModal() {
+  const currentMonth = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+  g("salary_month_label").textContent = `Recording Salary for ${currentMonth}`;
+  g("salary_input").value = DATA.salary; // Pre-fill expected
+  openModal('salary_modal');
 }
 
 function confirmSalary() {
   const amt = parseFloat(g("salary_input").value);
   if(!amt) return;
-  DATA.tx.push(["Monthly Salary", amt, "Income", new Date().toISOString().slice(0,10), "income"]);
-  if(DATA.accounts && DATA.accounts.length > 0) DATA.accounts[0].balance += amt;
+  
+  const today = new Date().toISOString().slice(0,10);
+  const monthKey = today.slice(0,7); // "2026-08"
+  
+  // Check if already recorded this month
+  const exists = DATA.tx.some(t => t[0] === "Monthly Salary" && t[3].startsWith(monthKey));
+  if(exists) { alert("Salary already recorded for this month!"); return; }
+  
+  DATA.tx.push(["Monthly Salary", amt, "Salary", today, "income"]);
+  
+  // Add to Bank Account (Default to first bank)
+  let bankAcc = DATA.accounts.find(acc => acc.type === 'bank');
+  if(!bankAcc) { bankAcc = {name:"Main Bank", type:"bank", balance:0}; DATA.accounts.unshift(bankAcc); }
+  bankAcc.balance += amt;
+  
   persist(); syncPush(); init();
-  toggleModal('salary_modal');
-  g("salary_input").value = "";
+  closeModal('salary_modal');
 }
 
-function confirmIncome() {
-  const src = g("inc_source").value.trim();
-  const amt = parseFloat(g("inc_amt").value);
-  if(!src || !amt) return;
-  DATA.tx.push([src, amt, "Income", new Date().toISOString().slice(0,10), "income"]);
-  if(DATA.accounts && DATA.accounts.length > 0) DATA.accounts[0].balance += amt;
-  persist(); syncPush(); init();
-  toggleModal('income_modal');
-  g("inc_source").value = ""; g("inc_amt").value = "";
+function toggleMonthDetails() {
+  const div = g("month_details");
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  const monthlyTx = DATA.tx.filter(t => (t[3]||"").startsWith(currentMonth));
+  
+  if(div.style.display === "block") { div.style.display = "none"; return; }
+  
+  div.style.display = "block";
+  if(monthlyTx.length === 0) { div.innerHTML = "<p class='mut'>No transactions this month yet.</p>"; return; }
+  
+  div.innerHTML = monthlyTx.map(t => `
+    <div class="breakdown-item">
+      <span>${t[0]} <small class="mut">(${t[2]})</small></span>
+      <span style="color:${t[4]==='income'?'var(--green)':'var(--red)'}">${t[4]==='income'?'+':'-'}${fmt(t[1])}</span>
+    </div>
+  `).join("");
 }
 
-function addAccountRow() {
-  if(!DATA.accounts) DATA.accounts = [];
-  DATA.accounts.push({name:"New Account", type:"bank", balance:0});
-  persist(); init();
-}
+/* --- 9. ACCOUNTS & DEBTS --- */
 function updateAccount(i, key, val) {
-  DATA.accounts[i][key] = key==='balance'?parseFloat(val):val;
+  DATA.accounts[i][key] = key==='balance' ? parseFloat(val) : val;
   persist(); syncPush(); init();
 }
-function delAccount(i) { DATA.accounts.splice(i,1); persist(); init(); }
+function delAccount(i) { 
+  if(confirm("Remove this account?")) { DATA.accounts.splice(i,1); persist(); init(); }
+}
 
-function openLoanWizard() { toggleModal('loan_modal'); }
 function saveLoan() {
   const name = g("l_name").value;
   const total = parseFloat(g("l_total").value);
-  const rate = parseFloat(g("l_rate").value) || 0;
-  const start = g("l_date").value;
-  const months = parseInt(g("l_months").value);
-  const chequesText = g("l_cheques").value;
+  const paid = parseFloat(g("l_paid").value) || 0;
+  const nextDue = g("l_date").value;
   
-  if(!name || !total || !start) return alert("Fill required fields");
+  if(!name || !total) return;
   
-  const cheques = chequesText.split("\n").filter(l=>l.trim()).map(d => ({date:d.trim(), amount: total/months, paid:false}));
-  
-  DATA.loans.push({name, total, rate, paid:0, nextDue: cheques[0]?cheques[0].date:'', cheques});
+  DATA.loans.push({ name, total, paid, nextDue, cheques: [] });
   persist(); syncPush(); init();
-  toggleModal('loan_modal');
+  closeModal('loan_modal');
+  // Clear inputs
+  g("l_name").value = ""; g("l_total").value = ""; g("l_paid").value = "";
 }
 
-function manageLoan(i) {
-  const l = DATA.loans[i];
-  const action = prompt(`Manage ${l.name}:\n1. Mark Payment Paid\n2. Edit Details\n(Type 1 or 2)`);
-  if(action === '1') {
-    const idx = prompt("Enter Cheque Index (0-based) or 'manual' for manual payment:");
-    if(idx === 'manual') {
-      const amt = parseFloat(prompt("Amount Paid:"));
-      if(amt) { l.paid += amt; persist(); init(); }
-    } else {
-      const ci = parseInt(idx);
-      if(!isNaN(ci) && l.cheques[ci]) {
-        l.cheques[ci].paid = true;
-        l.paid += l.cheques[ci].amount;
-        persist(); init();
-      }
-    }
-  } else if (action === '2') {
-    l.name = prompt("Name:", l.name) || l.name;
-    l.total = parseFloat(prompt("Total:", l.total)) || l.total;
-    persist(); init();
-  }
-}
-
-function addFundPrompt() {
-  const name = prompt("Fund Name (e.g. Emergency, Tunisia):");
-  if(!name) return;
-  const target = parseFloat(prompt("Target Amount:"));
-  if(!DATA.funds[name.toLowerCase()]) {
-    DATA.funds[name.toLowerCase()] = [0, target];
-    persist(); init();
+function openLoanManager(index) {
+  const l = DATA.loans[index];
+  const modal = g("loan_manage_modal");
+  g("lm_title").textContent = `Manage: ${l.name}`;
+  g("lm_remaining").textContent = `Remaining: ${fmt(l.total - l.paid)}`;
+  
+  // Render Cheques List
+  const list = g("lm_cheques_list");
+  if(!l.cheques || l.cheques.length === 0) {
+    list.innerHTML = "<p class='mut'>No cheques scheduled.</p><button class='btn o' style='width:100%;margin-top:10px;font-size:11px' onclick='addCheque(${index})'>+ Schedule Cheque</button>";
   } else {
-    alert("Fund already exists.");
+    list.innerHTML = l.cheques.map((c, ci) => `
+      <div class="breakdown-item" style="align-items:center">
+        <div>
+          <div style="font-weight:600">${c.date}</div>
+          <div class="mut" style="font-size:10px">${fmt(c.amount)}</div>
+        </div>
+        ${c.paid 
+          ? '<span class="pill s-done">Paid</span>' 
+          : `<button class="btn g" style="font-size:10px;padding:4px 8px" onclick="markChequePaid(${index}, ${ci})">Mark Paid</button>`
+        }
+      </div>
+    `).join("") + `<button class="btn o" style="width:100%;margin-top:10px;font-size:11px" onclick='addCheque(${index})'>+ Add Cheque</button>`;
   }
-}
-
-function addFund(key) {
-  const amt = parseFloat(prompt(`Add to ${key} Fund:`));
-  if(amt) {
-    DATA.funds[key][0] += amt;
-    persist(); init();
-  }
-}
-
-function addDocRow() {
-  const name = prompt("Document Name:");
-  const num = prompt("Number:");
-  const exp = prompt("Expiry (YYYY-MM-DD):");
-  if(name) {
-    DATA.docs.push([name, num, exp, ""]);
-    persist(); init();
-  }
-}
-function delDoc(i) { if(confirm("Delete?")) { DATA.docs.splice(i,1); persist(); init(); }}
-function uploadDoc(i) {
-  const url = prompt("Paste Google Drive / Dropbox Link:");
-  if(url) { DATA.docs[i][3] = url; persist(); init(); }
-}
-
-function addPlan() {
-  const t = g("p_title").value.trim();
-  const d = g("p_date").value;
-  if(!t || !d) return;
-  DATA.plans.push([t, d, g("p_st").value]);
-  g("p_title").value = "";
-  persist(); syncPush(); init();
-}
-
-function tickAct(i) { DATA.review["a"+i] = !DATA.review["a"+i]; persist(); init(); }
-function saveReview() {
-  ["keep","stop","start","change"].forEach(k=>DATA.review[k]=g("rv_"+k).value);
-  persist(); syncPush(); init();
-}
-
-function setTheme(t) { document.body.dataset.theme = t; localStorage.setItem("azizTheme", t); }
-function cycleTheme() {
-  const i = THEMES.indexOf(document.body.dataset.theme || "classic");
-  setTheme(THEMES[(i+1)%THEMES.length]);
-}
-
-function saveFinSettings() {
-  DATA.budget = parseFloat(g("set_budget").value) || 0;
-  const cats = {};
-  g("set_cats").value.split(",").forEach(c => { if(c.trim()) cats[c.trim()] = 1000; });
-  DATA.variable = cats;
   
-  const accs = [];
-  g("set_accounts").value.split("\n").forEach(l => {
-    const parts = l.split(",");
-    if(parts.length>=2) accs.push({name:parts[0].trim(), type:"bank", balance:parseFloat(parts[1])||0});
-  });
-  DATA.accounts = accs;
-  
-  persist(); syncPush(); init();
-  alert("Settings Saved!");
+  openModal('loan_manage_modal');
 }
 
-function exportData() {
-  const blob = new Blob([JSON.stringify(DATA)], {type:"application/json"});
-  const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
-  a.download = "aziz-backup.json"; a.click();
+function addCheque(loanIdx) {
+  const date = prompt("Cheque Date (YYYY-MM-DD):"); // Keeping simple for date pick
+  const amt = parseFloat(prompt("Amount:"));
+  if(date && amt) {
+    DATA.loans[loanIdx].cheques.push({ date, amount: amt, paid: false });
+    persist(); init(); openLoanManager(loanIdx); // Refresh modal
+  }
 }
 
-function hardReset() {
-  if(confirm("DELETE ALL DATA?")) { localStorage.removeItem("azizData"); location.reload(); }
-}
-
-g("file").addEventListener("change", e=>{
-  const r=new FileReader();
-  r.onload=()=>{try{const d=JSON.parse(r.result);if(d&&d.salary){DATA=d;persist();init();}}catch(_){alert("Invalid file")}};
-  r.readAsText(e.target.files[0]);
-});
-
-// Tab Switching
-document.querySelectorAll("[data-tab]").forEach(b => {
-  b.onclick = () => {
-    document.querySelectorAll("[data-tab]").forEach(x => x.classList.toggle("on", x.dataset.tab === b.dataset.tab));
-    document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.id === "tab-" + b.dataset.tab));
-    if(b.dataset.tab === 'settings') renderSettings();
-  };
-});
-
-function toggleNotif(e){e.stopPropagation();document.getElementById("notif").classList.toggle("open");}
-document.addEventListener("click",()=>document.getElementById("notif").classList.remove("open"));
-function quickAdjust(type) {
-  const v = prompt("Enter new " + type + " amount:");
-  if(v) {
-    if(type==='cash') {
-       if(DATA.accounts && DATA.accounts.length>0) DATA.accounts.find(a=>a.type==='cash').balance = parseFloat(v);
-       else DATA.cash = parseFloat(v);
-    }
+function markChequePaid(loanIdx, chequeIdx) {
+  const c = DATA.loans[loanIdx].cheques[chequeIdx];
+  if(confirm(`Mark ${fmt(c.amount)} as paid on ${c.date}? This will deduct from your cash.`)) {
+    c.paid = true;
+    // Deduct from Cash
+    let cashAcc = DATA.accounts.find(acc => acc.type === 'cash');
+    if(cashAcc) cashAcc.balance -= c.amount;
+    
+    // Update Loan Paid Total
+    DATA.loans[loanIdx].paid = (DATA.loans[loanIdx].paid || 0) + c.amount;
+    
     persist(); syncPush(); init();
+    openLoanManager(loanIdx);
   }
 }
+
+/* --- 10. FUNDS --- */
+function openFundModal() {
+  g("fund_name").value = ""; g("fund_target").value = ""; g("fund_curr").value = "0";
+  openModal('add_fund_modal');
+}
+
+function saveFund() {
+  const name = g("fund_name").value.toLowerCase().trim();
+  const target = parseFloat(g("fund_target").value);
+  const curr = parseFloat(g("fund_curr").value) || 0;
+  
+  if(!name || !target) return;
+  
+  if(!DATA.funds) DATA.funds = {};
+  DATA.funds[name] = [curr, target, new Date().toISOString()]; // Added timestamp
+  persist(); syncPush(); init();
+  closeModal('add_fund_modal');
+}
+
+function editFund(key) {
+  const f = DATA.funds[key];
+  g("fund_name").value = key;
+  g("fund_target").value = f[1];
+  g("fund_curr").value = f[0];
+  // Store original key to rename if needed (simplified here)
+  const btnSave = g("btn_save_fund");
+  btnSave.onclick = () => {
+    const newCurr = parseFloat(g("fund_curr").value);
+    const newTarget = parseFloat(g("fund_target").value);
+    DATA.funds[key] = [newCurr, newTarget, new Date().toISOString()];
+    persist(); syncPush(); init();
+    closeModal('add_fund_modal');
+  };
+  openModal('add_fund_modal');
+}
+
+/* --- 11. INITIALIZATION (Updated Renders) --- */
+function renderAccounts() {
+  const breakdown = g("bank_breakdown");
+  if(!breakdown) return;
+  
+  const banks = DATA.accounts.filter(a => a.type === 'bank');
+  const cashes = DATA.accounts.filter(a => a.type === 'cash');
+  
+  // Render Bank List
+  breakdown.innerHTML = banks.map(a => `
+    <div class="breakdown-item">
+      <span>${a.name} <small class="mut" onclick="updateAccount(${DATA.accounts.indexOf(a)},'balance',prompt('New Balance:',${a.balance}))" style="cursor:pointer">✎</small></span>
+      <span>${fmt(a.balance)}</span>
+    </div>
+  `).join("") || "<span class='mut'>No bank accounts</span>";
+  
+  // Update Liquid Cash Display
+  const totalCash = cashes.reduce((sum,a)=>sum+a.balance, 0);
+  if(g("cash_hand")) g("cash_hand").textContent = fmt(totalCash);
+}
+
+function renderLoans() {
+  const list = g("loans_list");
+  const debtBreak = g("debt_breakdown");
+  if(!list || !debtBreak) return;
+  
+  if((DATA.loans||[]).length === 0) {
+    list.innerHTML = `<p class="mut">No active loans.</p>`;
+    debtBreak.innerHTML = "<span class='mut'>Debt free!</span>";
+    return;
+  }
+  
+  // List in Right Column
+  list.innerHTML = DATA.loans.map((l,i) => `
+    <div style="background:var(--track);padding:10px;border-radius:8px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;font-weight:700">
+        <span>${l.name}</span>
+        <span style="color:var(--red)">-${fmt(l.total - l.paid)}</span>
+      </div>
+      <div class="prog" style="height:4px;margin:5px 0"><i style="width:${Math.min((l.paid/l.total)*100,100)}%"></i></div>
+      <div style="font-size:11px;display:flex;justify-content:space-between">
+        <span>Next: ${l.nextDue||'None'}</span>
+        <button class="mut" style="border:0;background:transparent;cursor:pointer;text-decoration:underline" onclick="openLoanManager(${i})">Manage Cheques</button>
+      </div>
+    </div>
+  `).join("");
+  
+  // Breakdown in Top Card
+  debtBreak.innerHTML = DATA.loans.map(l => `
+    <div class="breakdown-item">
+      <span>${l.name}</span>
+      <span style="color:var(--red)">-${fmt(l.total - l.paid)}</span>
+    </div>
+  `).join("");
+  
+  if(g("total_debt")) {
+    const total = DATA.loans.reduce((sum,l)=>sum+(l.total-l.paid),0);
+    g("total_debt").textContent = fmt(total);
+  }
+}
+
+function renderFunds() {
+  const list = g("funds_list");
+  if(!list || !DATA.funds) return;
+  
+  list.innerHTML = Object.entries(DATA.funds).map(([key, val]) => {
+    const lastUpd = val[2] ? new Date(val[2]).toLocaleDateString() : 'Never';
+    return `
+    <div style="margin-bottom:12px; background:var(--bg); padding:10px; border-radius:8px;">
+      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;text-transform:capitalize">
+        <span>${key} Fund</span>
+        <button class="mut" style="border:0;background:transparent;cursor:pointer" onclick="editFund('${key}')">✎ Edit</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Last updated: ${lastUpd}</div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+        <span>${fmt(val[0])}</span>
+        <span class="mut">of ${fmt(val[1])}</span>
+      </div>
+      <div class="prog"><i style="width:${Math.min((val[0]/val[1])*100,100)}%"></i></div>
+    </div>
+  `}).join("");
+}
+
+// Keep your existing init(), renderChart(), renderTransactions(), renderDocs()...
+// Just ensure renderAccounts, renderLoans, renderFunds are called inside init()
+
+
 </script>
 </body>
 </html>
