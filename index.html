@@ -11,20 +11,17 @@ body[data-theme="glass"]{--bg:#e8ecf7;--card:rgba(255,255,255,.55);--ink:#1a2130
 body[data-theme="glass"] .card,body[data-theme="glass"] .pills,body[data-theme="glass"] #me,body[data-theme="glass"] .icobtn{backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.65)}
 body[data-theme="midnight"]{--bg:#0b0f14;--card:#121a24;--ink:#e8f0f2;--muted:#8fa0ae;--track:#243140;--green:#0f766e;--green2:#2dd4bf;--sage:#155e59;--acc:#e11d48;--acc2:#fb7185;--sh:0 4px 18px rgba(0,0,0,.45)}
 body[data-theme="sidi"]{--bg:#f3f6fb;--card:#fff;--ink:#122a63;--muted:#6b7a99;--track:#dbe4f5;--green:#1d4ed8;--green2:#3b82f6;--sage:#93b4f5;--acc:#d96f4e;--acc2:#e9927a;--sh:0 4px 18px rgba(18,42,99,.1)}
-body[data-theme="ios"]{--bg:#ffffff;--card:rgba(255,255,255,0.8);--ink:#000000;--muted:#86868b;--track:#e5e5ea;--green:#34c759;--green2:#30d158;--acc:#007aff;--acc2:#5ac8fa;--red:#ff3b30;--amber:#ffcc00;--sh:0 8px 24px rgba(0,0,0,0.12);--bg-gradient: linear-gradient(180deg, #f2f2f7 0%, #ffffff 100%);}
-body[data-theme="ios"] { background: var(--bg-gradient); }
-body[data-theme="ios"] .card { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.4); }
-body[data-theme="ios"] input, body[data-theme="ios"] select, body[data-theme="ios"] textarea { background: rgba(255,255,255,0.5); border: 1px solid rgba(0,0,0,0.1); }
-
 *{box-sizing:border-box;margin:0;padding:0;font-family:Inter,system-ui,sans-serif}
 body{background:var(--bg);color:var(--ink);transition:background .3s,color .3s;overflow-x:hidden}
 svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 @keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(244,88,28,.4)}50%{box-shadow:0 0 0 8px rgba(244,88,28,0)}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
 .card{background:var(--card);border-radius:20px;padding:20px;box-shadow:var(--sh);animation:up .5s both}
 h2{font-size:12px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .mut{color:var(--muted);font-size:12px}
-#app{display:flex;min-height:100vh}
+#app{display:flex;min-height:100vh;opacity:0;transition:opacity .5s}
+#app.visible{opacity:1}
 #side{width:76px;padding:18px 0;display:flex;flex-direction:column;align-items:center;gap:8px;position:sticky;top:0;height:100vh}
 #side .logo{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;margin-bottom:14px}
 #side button{width:44px;height:44px;border:0;border-radius:14px;background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
@@ -55,10 +52,11 @@ h2{font-size:12px;letter-spacing:2px;color:var(--muted);text-transform:uppercase
 .b-up{background:rgba(63,122,94,.15);color:var(--green2)}.b-dn{background:rgba(192,52,52,.12);color:var(--red)}
 .grad{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff}
 .grad .mut{color:rgba(255,255,255,.8)}
-/* Simple Line Chart */
-#chart{height:140px;position:relative;margin-top:10px;border-bottom:1px solid var(--track);border-left:1px solid var(--track);display:flex;align-items:flex-end;padding:0 10px;}
-.chart-line{position:absolute;bottom:0;left:0;width:100%;height:100%;pointer-events:none;}
-.cl{display:flex;justify-content:space-between;margin-top:5px;font-size:10px;color:var(--muted)}
+#chart{display:flex;gap:14px;align-items:flex-end;height:140px;margin-top:12px}
+.cm{flex:1;display:flex;gap:5px;align-items:flex-end;height:100%}
+.cm i{flex:1;border-radius:6px 6px 2px 2px;transition:height .8s cubic-bezier(.2,.8,.2,1)}
+.cm .in{background:var(--green2)}.cm .ex{background:linear-gradient(180deg,var(--acc2),var(--acc))}
+.cl{display:flex;gap:14px;margin-top:8px}.cl span{flex:1;text-align:center;font-size:11px;color:var(--muted)}
 .prog{height:8px;background:var(--track);border-radius:4px;overflow:hidden;margin:8px 0}
 .prog i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--green2),var(--green));transition:width 1s cubic-bezier(.2,.8,.2,1)}
 li.act{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--track);font-size:13.5px;cursor:pointer;list-style:none}
@@ -72,28 +70,41 @@ th{text-align:left;color:var(--muted);font-weight:600;font-size:11px;text-transf
 td{padding:10px 8px;border-top:1px solid var(--track)}
 .pill{font-size:11px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
 .s-done{background:rgba(63,122,94,.15);color:var(--green2)}.s-pend{background:rgba(224,161,12,.15);color:var(--amber)}.s-bad{background:rgba(192,52,52,.12);color:var(--red)}.s-prog{background:rgba(47,111,237,.12);color:var(--blue)}
+.rings{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.ring{text-align:center;width:96px}.ring svg{width:84px;height:84px}.ring p{font-size:11px;margin-top:5px}
+#steps{display:flex;gap:6px;flex-wrap:wrap}
+#steps .st{font-size:12px;font-weight:600;padding:9px 14px;border-radius:999px;background:var(--track);color:var(--muted)}
+#steps .st.done{background:var(--green);color:#fff}
+#steps .st.now{background:var(--acc);color:#fff;animation:pulse 2s infinite}
 .chips{display:flex;gap:10px;flex-wrap:wrap}
 .chip{background:linear-gradient(135deg,#c03434,#a02b2b);color:#fff;font-size:12.5px;font-weight:600;padding:10px 15px;border-radius:12px}
 #notif{position:absolute;right:0;top:48px;width:300px;background:var(--card);border-radius:16px;box-shadow:var(--sh);padding:14px;display:none;z-index:30}
 #notif.open{display:block;animation:up .25s both}
 #notif div{font-size:13px;padding:9px 6px;border-bottom:1px solid var(--track)}
+#notif div:last-child{border:0}
 .tl{border-left:3px solid var(--track);margin-left:8px;padding-left:22px}
 .tl .it{position:relative;padding-bottom:20px}
 .tl .it::before{content:"";position:absolute;left:-30px;top:4px;width:13px;height:13px;border-radius:50%;background:var(--green2);box-shadow:0 0 0 4px var(--track)}
+.tl .it.now::before{background:var(--acc)}
+.cc{border-radius:16px;padding:16px;color:#fff;background:linear-gradient(135deg,#1a2b25,#0e1512);display:flex;flex-direction:column;gap:14px;min-width:230px;flex:1;max-width:320px}
+.cc.o{background:linear-gradient(135deg,var(--acc),var(--acc2))}
+.cc .top{display:flex;justify-content:space-between;font-size:12px;opacity:.85}
+.cc .num{font-size:17px;letter-spacing:2px;font-weight:700}
+.cc .row{display:flex;justify-content:space-between;font-size:11px;opacity:.85}
 .copyb{border:0;background:var(--track);color:var(--ink);border-radius:8px;padding:4px 9px;font-size:11px;font-weight:700;cursor:pointer}
 input,select,textarea{width:100%;padding:9px;border:1px solid var(--track);border-radius:10px;font-size:13.5px;background:transparent;color:var(--ink)}
 textarea{min-height:56px}
 .btn{border:0;border-radius:11px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer}
 .btn.g{background:var(--green);color:#fff}.btn.o{background:transparent;color:var(--ink);border:1px solid var(--track)}
-.btn.r{background:var(--red);color:#fff}
 .btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
 .prow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 label{display:block;font-size:10.5px;margin:10px 0 4px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
 .thb{display:flex;align-items:center;gap:8px;border:2px solid var(--track);border-radius:14px;padding:10px 14px;cursor:pointer;background:transparent;color:var(--ink);font-weight:600;font-size:13px}
 .thb.on{border-color:var(--green)}
 .thb i{width:22px;height:22px;border-radius:50%;display:inline-block}
+textarea.rev{min-height:60px}
 
-/* Lock Screen */
+/* LOCK SCREEN STYLES */
 #lock{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity .5s}
 #lock.hidden{opacity:0;pointer-events:none}
 #lock .box{width:100%;max-width:380px;padding:40px 30px;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,.15);border:1px solid rgba(255,255,255,.4);backdrop-filter:blur(20px);animation:up .6s cubic-bezier(.2,.8,.2,1)}
@@ -103,17 +114,12 @@ label{display:block;font-size:10.5px;margin:10px 0 4px;color:var(--muted);text-t
 #lock .btn{width:100%;padding:14px;font-size:14px}
 #lock .err{color:var(--red);font-size:12px;margin-top:12px;height:18px;font-weight:600}
 
-/* Modal Overlay */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-.modal-overlay.active { display: flex; animation: up 0.3s ease; }
-.modal-box { background: var(--card); padding: 25px; border-radius: 20px; width: 90%; max-width: 450px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
-.modal-header { font-size: 18px; font-weight: 800; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-.close-modal { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--muted); }
-
 #bnav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--card);box-shadow:0 -4px 20px rgba(0,0,0,.1);z-index:25;justify-content:space-around;padding:7px 4px}
 #bnav button{border:0;background:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;font-size:9px;gap:3px;cursor:pointer}
 #bnav button.on{color:var(--ink)}
 @media(max-width:1000px){#side{display:none}#bnav{display:flex}#main{padding:14px 14px 76px}.g4,.g3,.g23,.g2{grid-template-columns:1fr}}
+@media(min-width:1001px){.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:480px){#greet h1{font-size:22px}#greet p{font-size:12px}.stat b{font-size:20px}.card{padding:16px}#topbar{gap:8px}.pills button{padding:6px 10px;font-size:12px}#me{padding:4px 10px 4px 4px}#me .av{width:28px;height:28px;font-size:12px}#me b{font-size:12px}#me span{font-size:10px}#clock{font-size:11px}.icobtn{width:36px;height:36px}#bellN{font-size:9px;padding:1px 4px}#sync{padding:6px 10px;font-size:11px}}
 </style>
 </head>
 <body>
@@ -123,12 +129,12 @@ label{display:block;font-size:10.5px;margin:10px 0 4px;color:var(--muted);text-t
     <div style="font-size:32px;font-weight:800;margin-bottom:4px">AZIZ OS</div>
     <p>Private Access Required</p>
     <input type="password" id="pw" placeholder="••••" autocomplete="off">
-    <button class="btn g" onclick="runUnlock()">Unlock Dashboard</button>
+    <button class="btn g" onclick="unlock()">Unlock Dashboard</button>
     <div id="err" class="err"></div>
   </div>
 </div>
 
-<!-- MAIN APP -->
+<!-- MAIN APP (Hidden by default) -->
 <div id="app">
 <nav id="side">
   <div class="logo">A</div>
@@ -136,17 +142,17 @@ label{display:block;font-size:10.5px;margin:10px 0 4px;color:var(--muted);text-t
   <button data-tab="money" title="Money"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg></button>
   <button data-tab="docs" title="Documents"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></button>
   <button data-tab="plans" title="Planner"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 9h18"/></svg></button>
+  <button data-tab="archive" title="Archive"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="5" rx="2"/><path d="M4 9v11h16V9M10 13h4"/></svg></button>
   <button data-tab="review" title="CEO Review"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></button>
   <button data-tab="settings" title="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 5 12a7 7 0 0 0 .1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6A7 7 0 0 0 19 12z"/></svg></button>
   <div class="sp"></div>
   <button onclick="cycleTheme()" title="Theme"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg></button>
   <button onclick="relock()" title="Lock"><svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="3"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></button>
 </nav>
-
 <div id="main">
   <div id="topbar">
     <div class="pills">
-      <button data-tab="overview" class="on">Overview</button><button data-tab="money">Money</button><button data-tab="docs">Documents</button><button data-tab="plans">Planner</button><button data-tab="review">Review</button><button data-tab="settings">Settings</button>
+      <button data-tab="overview" class="on">Overview</button><button data-tab="money">Money</button><button data-tab="docs">Documents</button><button data-tab="plans">Planner</button><button data-tab="archive">Archive</button><button data-tab="review">CEO Review</button><button data-tab="settings">Settings</button>
     </div>
     <div class="r">
       <span id="clock"></span>
@@ -159,124 +165,272 @@ label{display:block;font-size:10.5px;margin:10px 0 4px;color:var(--muted);text-t
     <div id="sync"><svg viewBox="0 0 24 24"><path d="M17.5 19a4.5 4.5 0 1 0-.4-9A7 7 0 0 0 4 12.5 3.5 3.5 0 0 0 6.5 19z"/></svg><span id="syncT">Local only</span></div>
   </div>
 
-  <!-- OVERVIEW TAB -->
   <section class="tab on" id="tab-overview">
     <div class="g g4" style="margin-bottom:16px">
-      <div class="card grad stat"><span class="mut">NET WORTH</span><b id="ov_networth">—</b><span class="badge" style="background:rgba(255,255,255,.2)">Assets - Debts</span></div>
-      <div class="card stat"><span class="mut">CASH ON HAND</span><b id="ov_cash">—</b></div>
-      <div class="card stat"><span class="mut">BANK TOTAL</span><b id="ov_bank">—</b></div>
-      <div class="card stat" style="border-left:4px solid var(--red)"><span class="mut">TOTAL DEBT</span><b id="ov_debt" style="color:var(--red)">—</b></div>
+      <div class="card grad stat"><span class="mut">AVAILABLE CASH</span><b id="s_cash">—</b><span class="badge" style="background:rgba(255,255,255,.25);color:#fff">your capital</span></div>
+      <div class="card stat"><span class="mut">SAVINGS RATE</span><b id="s_rate">—</b><span class="badge b-up">target 25%</span></div>
+      <div class="card stat"><span class="mut">LEFT OVER (PLAN)</span><b id="s_left">—</b><span class="badge b-up">after everything</span></div>
+      <div class="card stat"><span class="mut">PLANNED SPEND / MO</span><b id="s_exp">—</b><span class="badge b-dn" id="s_expB"></span></div>
     </div>
-    <div class="g g23">
-      <div class="card"><h2>CASHFLOW TREND</h2><div id="chart"></div><div class="cl" id="chartL"></div></div>
-      <div class="card"><h2>FOCUS</h2><p class="mut">PRIORITY</p><p id="prio" style="font-size:15px;font-weight:700;margin:4px 0 12px"></p><ul id="acts"></ul></div>
+    <div class="g g23" style="margin-bottom:16px">
+      <div class="card"><h2>CASHFLOW — LAST 6 MONTHS</h2><div id="chart"></div><div class="cl" id="chartL"></div><p class="mut" style="margin-top:8px">Green = income · Orange = spending</p></div>
+      <div class="card"><h2>TODAY</h2><p class="mut">TOP PRIORITY</p><p id="prio" style="font-size:15px;font-weight:700;margin:4px 0 12px"></p><p class="mut">TOP 3 ACTIONS</p><ul id="acts"></ul></div>
     </div>
-    <div class="g g3" style="margin-top:16px">
-      <div class="card"><h2>EMERGENCY FUND</h2><b id="ef_t"></b><div class="prog"><i id="ef_b"></i></div><p class="mut" id="ef_p"></p></div>
-      <div class="card"><h2>TUNISIA FUND</h2><b id="tf_t"></b><div class="prog"><i id="tf_b"></i></div><p class="mut" id="tf_p"></p></div>
-      <div class="card"><h2 style="color:var(--red)">ATTENTION</h2><div class="chips" id="chips"></div></div>
+    <div class="g g3">
+      <div class="card"><h2>EMERGENCY FUND</h2><b id="ef_t" style="font-size:18px"></b><div class="prog"><i id="ef_b"></i></div><p class="mut" id="ef_p"></p></div>
+      <div class="card"><h2>TUNISIA BUSINESS FUND</h2><b id="tf_t" style="font-size:18px"></b><div class="prog"><i id="tf_b"></i></div><p class="mut" id="tf_p"></p></div>
+      <div class="card"><h2 style="color:var(--red)">NEEDS ATTENTION</h2><div class="chips" id="chips"></div></div>
     </div>
   </section>
 
-  <!-- MONEY TAB -->
-  <section class="tab" id="tab-money">
-    <div class="g g4" style="margin-bottom:20px">
-      <div class="card stat"><span class="mut">MONTHLY STATUS</span><b id="ms_status">Waiting Salary</b><div class="prog" style="margin-top:5px"><i id="ms_prog" style="width:0%"></i></div></div>
-      <div class="card stat"><span class="mut">BUDGET LEFT</span><b id="ms_left">—</b></div>
-      <div class="card stat"><span class="mut">SPENT</span><b id="ms_spent" style="color:var(--red)">—</b></div>
-      <div class="card stat"><button class="btn g" style="width:100%;height:100%" onclick="openModal('salaryModal')">💰 RECORD SALARY</button></div>
+
+<!-- Hidden Modal for Salary -->
+<div id="salary_modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center">
+  <div class="card" style="width:90%;max-width:400px;text-align:center">
+    <h2>NEW MONTH START</h2>
+    <p class="mut">Has your salary been deposited?</p>
+    <input type="number" id="salary_input" placeholder="Amount (e.g. 19000)" style="margin:15px 0;font-size:18px;text-align:center">
+    <div class="btns" style="justify-content:center">
+      <button class="btn o" onclick="document.getElementById('salary_modal').style.display='none'">Cancel</button>
+      <button class="btn g" onclick="confirmSalary()">Confirm Receipt</button>
+    </div>
+  </div>
+</div>
+
+  <section class="tab" id="tab-plans">
+    <div class="g g23">
+      <div class="card"><h2>BIG OBJECTIVES — TIMELINE</h2><div class="tl" id="planL"></div></div>
+      <div class="card"><h2>ADD OBJECTIVE</h2><input id="p_title" placeholder="Objective (e.g. Invest QAR 10k)" style="margin-bottom:8px"><label>Target date</label><input id="p_date" type="date" style="margin-bottom:8px"><label>Status</label><select id="p_st" style="margin-bottom:12px"><option>Planned</option><option>In progress</option><option>Done</option></select><div class="btns"><button class="btn g" onclick="addPlan()">+ Add to timeline</button></div></div>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-archive">
+    <div class="card"><h2>ARCHIVE — PAPER TRAIL</h2>
+      <div style="max-width:240px;margin-bottom:10px"><select id="archF" onchange="init()"><option value="">All types</option><option>Statement</option><option>Contract</option><option>Certificate</option><option>Other</option></select></div>
+      <div class="twrap"><table><thead><tr><th>Title</th><th>Type</th><th>Date</th><th>Note</th></tr></thead><tbody id="archL"></tbody></table></div>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-review">
+    <div class="g g23">
+      <div class="card"><h2>WEEKLY CEO REVIEW <span class="badge b-up" id="revP"></span></h2><div id="revList"></div></div>
+      <div class="card"><h2>MONTHLY BOARD MEETING</h2>
+        <p class="mut">KEEP</p><textarea class="rev" id="rv_keep"></textarea>
+        <p class="mut" style="margin-top:8px">STOP</p><textarea class="rev" id="rv_stop"></textarea>
+        <p class="mut" style="margin-top:8px">START</p><textarea class="rev" id="rv_start"></textarea>
+        <p class="mut" style="margin-top:8px">CHANGE</p><textarea class="rev" id="rv_change"></textarea>
+        <div class="btns"><button class="btn g" onclick="saveReview()">Save review</button></div>
+      </div>
+    </div>
+  </section>
+
+<!-- MONEY TAB UPDATE -->
+<section class="tab" id="tab-money">
+  <!-- TOP ROW: NET WORTH & BREAKDOWNS -->
+  <div class="g g4" style="margin-bottom:20px">
+    <div class="card grad stat"><span class="mut">NET WORTH</span><b id="net_worth">—</b><span class="badge" style="background:rgba(255,255,255,.2)">Assets - Debts</span></div>
+    <div class="card stat"><span class="mut">LIQUID CASH</span><b id="cash_hand">—</b><button class="badge" style="border:0;background:transparent;color:var(--acc);cursor:pointer" onclick="quickAdjust('cash')">✎</button></div>
+    
+    <!-- Bank Breakdown -->
+    <div class="card stat" style="position:relative">
+      <span class="mut">BANK TOTAL</span><b id="bank_total">—</b>
+      <div id="bank_breakdown" style="position:absolute;top:60px;left:20px;right:20px;background:var(--bg);padding:10px;border-radius:8px;font-size:11px;display:none;z-index:10;box-shadow:var(--sh)"></div>
+      <button class="badge b-up" style="border:0;cursor:pointer" onclick="toggleBreakdown('bank')">▼ Details</button>
     </div>
     
-    <div class="g g23">
-      <div class="card">
-        <div style="display:flex;gap:10px;margin-bottom:15px">
-          <button class="btn g" style="flex:1" onclick="openModal('expenseModal')">➖ Expense</button>
-          <button class="btn g" style="flex:1;background:var(--green2)" onclick="openModal('incomeModal')">➕ Income</button>
+    <!-- Debt Breakdown -->
+    <div class="card stat" style="border-left:4px solid var(--red);position:relative">
+      <span class="mut">TOTAL DEBT</span><b id="total_debt" style="color:var(--red)">—</b>
+      <div id="debt_breakdown" style="position:absolute;top:60px;left:20px;right:20px;background:var(--bg);padding:10px;border-radius:8px;font-size:11px;display:none;z-index:10;box-shadow:var(--sh)"></div>
+      <button class="badge b-dn" style="border:0;cursor:pointer" onclick="toggleBreakdown('debt')">▼ Details</button>
+    </div>
+  </div>
+
+  <div class="g g23">
+    <!-- LEFT: OPERATIONS -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
+        <h2>COMMAND CENTER</h2>
+        <div style="display:flex;gap:8px">
+          <button class="btn o" style="font-size:11px;padding:6px 10px" onclick="toggleModal('income_modal')">💰 Income</button>
+          <button class="btn g" style="font-size:11px;padding:6px 10px" onclick="toggleModal('salary_modal')">🏦 Salary</button>
         </div>
-        <h2>RECENT ACTIVITY</h2>
-        <div class="twrap"><table><thead><tr><th>Type</th><th>Item</th><th>Amount</th><th>Date</th></tr></thead><tbody id="tx_list"></tbody></table></div>
       </div>
       
-      <div class="card">
-        <h2>ACCOUNTS & DEBTS</h2>
-        <div id="acc_summary"></div>
-        <div class="btns"><button class="btn o" style="width:100%" onclick="openModal('accountModal')">Manage Accounts/Loans</button></div>
-        
-        <h2 style="margin-top:20px">SAFE FUNDS</h2>
-        <div id="fund_summary"></div>
-        <button class="btn o" style="width:100%;margin-top:10px" onclick="openModal('fundModal')">Update Safe Funds</button>
+      <!-- Monthly Status -->
+      <div id="month_status" class="card" style="background:var(--track);padding:15px;border-radius:12px;margin-bottom:20px">
+        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700"><span>Status:</span> <span id="status_text">Waiting...</span></div>
+        <div class="prog" style="margin-top:8px"><i id="month_prog" style="width:0%"></i></div>
+        <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:11px;color:var(--muted)">
+          <span>Spent: <b id="spent_amt">0</b></span>
+          <span>Budget: <b id="budget_amt">0</b></span>
+        </div>
       </div>
+
+      <h2>REGISTER TRANSACTION</h2>
+      <div class="prow" style="grid-template-columns:1.5fr 1fr 1fr auto;gap:8px">
+        <input id="t_name" placeholder="What? (e.g. Dinner / Refund)" inputmode="text">
+        <input id="t_amt" type="number" placeholder="QAR" inputmode="decimal">
+        <select id="t_type" onchange="toggleCatSelect()">
+          <option value="expense">Expense (-)</option>
+          <option value="income">Income (+)</option>
+        </select>
+        <select id="t_cat"><option value="">Category</option></select>
+        <button class="btn g" onclick="addTx()">Add</button>
+      </div>
+      
+      <h2 style="margin-top:20px">RECENT ACTIVITY</h2>
+      <div class="twrap"><table><thead><tr><th>Type</th><th>Item</th><th>Amount</th><th>Date</th><th></th></tr></thead><tbody id="tx_list"></tbody></table></div>
     </div>
-  </section>
 
-  <!-- DOCUMENTS TAB -->
-  <section class="tab" id="tab-docs">
-    <div class="card"><h2>DOCUMENTS</h2><div class="twrap"><table><thead><tr><th>Name</th><th>Expiry</th><th>Status</th><th>Action</th></tr></thead><tbody id="docs_list"></tbody></table></div></div>
-  </section>
+    <!-- RIGHT: LOANS & FUNDS -->
+    <div class="card">
+      <h2>🔴 LIABILITIES</h2>
+      <div id="loans_list" style="margin-bottom:15px;max-height:200px;overflow-y:auto"></div>
+      <button class="btn o" style="width:100%;font-size:11px" onclick="openLoanWizard()">+ Add Loan / Debt</button>
 
-  <!-- PLANNER TAB -->
-  <section class="tab" id="tab-plans">
-    <div class="card"><h2>TIMELINE</h2><div class="tl" id="plan_list"></div></div>
-  </section>
-
-  <!-- REVIEW TAB -->
-  <section class="tab" id="tab-review">
-    <div class="card"><h2>WEEKLY CHECK</h2><div id="rev_list"></div></div>
-  </section>
-
-  <!-- SETTINGS TAB -->
-  <section class="tab" id="tab-settings">
-    <div class="g g2">
-      <div class="card">
-        <h2>FINANCIAL CONFIG</h2>
-        <label>Monthly Budget Limit</label>
-        <input type="number" id="set_budget" onchange="saveConfig()">
-        <label>Categories (comma separated)</label>
-        <textarea id="set_cats" onchange="saveConfig()"></textarea>
-        <div class="btns"><button class="btn g" onclick="saveConfig()">Save Config</button></div>
-      </div>
-      <div class="card">
-        <h2>SYSTEM PREFERENCES</h2>
-        <label>Theme</label>
-        <div class="chips" id="theme_sel"></div>
-        <label>Sync Status</label>
-        <div id="sync_msg" style="padding:10px;background:var(--track);border-radius:8px;margin-bottom:10px">Local Only</div>
-        <button class="btn o" onclick="testSync()">Test Connection</button>
-        <div class="btns"><button class="btn o" onclick="exportData()">Backup</button><button class="btn r" onclick="hardReset()">Reset All</button></div>
-      </div>
+      <h2 style="margin-top:20px">🟢 SAFE FUNDS</h2>
+      <div id="funds_list" style="margin-bottom:15px"></div>
+      <button class="btn o" style="width:100%;font-size:11px" onclick="addFundPrompt()">+ Add Fund</button>
+      
+      <h2 style="margin-top:20px">📅 UPCOMING CHEQUES</h2>
+      <div id="cheque_list" style="font-size:12px"></div>
     </div>
-  </section>
+  </div>
+</section>
+
+<!-- INCOME MODAL -->
+<div id="income_modal" class="modal" style="display:none">
+  <div class="card" style="width:90%;max-width:400px;text-align:center">
+    <h2>ADD INCOME</h2>
+    <p class="mut">Freelance, Refund, Gift, etc.</p>
+    <input type="text" id="inc_source" placeholder="Source (e.g. Freelance)" style="margin:10px 0">
+    <input type="number" id="inc_amt" placeholder="Amount" style="margin-bottom:10px">
+    <div class="btns" style="justify-content:center">
+      <button class="btn o" onclick="toggleModal('income_modal')">Cancel</button>
+      <button class="btn g" onclick="confirmIncome()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOAN WIZARD MODAL -->
+<div id="loan_modal" class="modal" style="display:none">
+  <div class="card" style="width:95%;max-width:600px;max-height:90vh;overflow-y:auto">
+    <h2>ADD NEW LIABILITY</h2>
+    <label>Lender Name / Bank</label><input id="l_name" placeholder="e.g. CBQ Car Loan">
+    <label>Total Amount (QAR)</label><input id="l_total" type="number">
+    <label>Interest Rate (%)</label><input id="l_rate" type="number" value="0">
+    <label>Start Date</label><input id="l_date" type="date">
+    <label>Duration (Months)</label><input id="l_months" type="number">
+    <label>Cheque Dates (YYYY-MM-DD, one per line)</label>
+    <textarea id="l_cheques" placeholder="2024-09-01&#10;2024-10-01"></textarea>
+    <div class="btns">
+      <button class="btn o" onclick="toggleModal('loan_modal')">Cancel</button>
+      <button class="btn g" onclick="saveLoan()">Create Loan Plan</button>
+    </div>
+  </div>
+</div>
+
+<!-- DOCUMENTS TAB UPDATE -->
+<section class="tab" id="tab-docs">
+  <div class="g g2">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2>MY DOCUMENTS</h2>
+        <button class="btn g" style="font-size:11px;padding:6px 12px" onclick="addDocRow()">+ Add Document</button>
+      </div>
+      <p class="mut" style="font-size:11px;margin-bottom:10px">Paste Google Drive/Dropbox links to view files.</p>
+      <div class="twrap"><table><thead><tr><th>Document</th><th>Number</th><th>Expiry</th><th>Status</th><th>File</th><th></th></tr></thead><tbody id="docsL"></tbody></table></div>
+    </div>
+    <div class="card"><h2>MY CARDS</h2><div style="display:flex;gap:14px;flex-wrap:wrap" id="cardsL"></div></div>
+  </div>
+</section>
+
+<!-- SETTINGS TAB UPDATE -->
+<section class="tab" id="tab-settings">
+  <div class="g g2">
+    <!-- LEFT: FINANCIAL SETTINGS -->
+    <div class="card">
+      <h2>🏦 FINANCIAL CONFIG</h2>
+      <p class="mut">Manage Accounts, Categories & Budgets</p>
+      
+      <label>Bank Accounts (Name, Balance)</label>
+      <textarea id="set_accounts" placeholder="CBQ Current, 5000&#10;CBQ Savings, 12000" style="height:80px;font-family:monospace"></textarea>
+      
+      <label>Expense Categories (comma separated)</label>
+      <input id="set_cats" placeholder="Groceries, Transport, Dining..." style="margin-top:5px">
+      
+      <label>Monthly Budget Limit</label>
+      <input type="number" id="set_budget" style="margin-top:5px">
+      
+      <div class="btns"><button class="btn g" onclick="saveFinSettings()">Save Financial Settings</button></div>
+    </div>
+
+    <!-- RIGHT: SYSTEM SETTINGS -->
+    <div class="card">
+      <h2>⚙️ SYSTEM PREFERENCES</h2>
+      
+      <label>Theme Selection</label>
+      <div class="chips" id="themeRow" style="margin-bottom:15px"></div>
+      
+      <label>Google Sync Status</label>
+      <div id="sync_box" style="background:var(--track);padding:10px;border-radius:8px;margin-bottom:15px;display:flex;justify-content:space-between;align-items:center">
+        <span id="sync_txt" style="font-size:12px;font-weight:600">Local Only</span>
+        <button class="btn o" style="font-size:10px;padding:4px 8px" onclick="syncTest()">Test Connection</button>
+      </div>
+      
+      <label>Data Management</label>
+      <div class="btns">
+        <button class="btn o" onclick="exportData()">⬇ Backup JSON</button>
+        <button class="btn o" onclick="document.getElementById('file').click()">⬆ Restore</button>
+        <input type="file" id="file" hidden accept=".json">
+      </div>
+      
+      <button class="btn o" style="width:100%;margin-top:20px;color:var(--red);border-color:var(--red)" onclick="hardReset()">⚠ Factory Reset</button>
+    </div>
+  </div>
+</section>
+
+<!-- GLOBAL MODAL STYLE -->
+<style>
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:2000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px)}
+.doc-link{color:var(--blue);text-decoration:none;font-weight:600;font-size:11px;border:1px solid var(--track);padding:4px 8px;border-radius:6px}
+.doc-link:hover{background:var(--blue);color:#fff}
+</style>
+
 </div>
 </div>
-
-<!-- MODALS -->
-<div id="salaryModal" class="modal-overlay"><div class="modal-box"><div class="modal-header">Record Salary<span class="close-modal" onclick="closeModal('salaryModal')">&times;</span></div><input type="number" id="sal_amt" placeholder="Amount"><input type="date" id="sal_date"><div class="btns"><button class="btn g" onclick="submitSalary()">Confirm</button></div></div></div>
-<div id="expenseModal" class="modal-overlay"><div class="modal-box"><div class="modal-header">Add Expense<span class="close-modal" onclick="closeModal('expenseModal')">&times;</span></div><input type="text" id="exp_name" placeholder="What?"><input type="number" id="exp_amt" placeholder="Amount"><select id="exp_cat"></select><input type="date" id="exp_date"><div class="btns"><button class="btn r" onclick="submitTx('expense')">Submit</button></div></div></div>
-<div id="incomeModal" class="modal-overlay"><div class="modal-box"><div class="modal-header">Add Income<span class="close-modal" onclick="closeModal('incomeModal')">&times;</span></div><input type="text" id="inc_name" placeholder="Source"><input type="number" id="inc_amt" placeholder="Amount"><input type="date" id="inc_date"><div class="btns"><button class="btn g" onclick="submitTx('income')">Submit</button></div></div></div>
-<div id="accountModal" class="modal-overlay"><div class="modal-box"><div class="modal-header">Manage Accounts/Loans<span class="close-modal" onclick="closeModal('accountModal')">&times;</span></div><div id="acc_editor"></div><button class="btn o" style="width:100%;margin-top:10px" onclick="addNewAccount()">+ Add New</button></div></div>
-<div id="fundModal" class="modal-overlay"><div class="modal-box"><div class="modal-header">Safe Funds<span class="close-modal" onclick="closeModal('fundModal')">&times;</span></div><div id="fund_editor"></div></div></div>
-
 <nav id="bnav">
-  <button data-tab="overview" class="on">Home</button>
-  <button data-tab="money">Money</button>
-  <button data-tab="docs">Docs</button>
-  <button data-tab="plans">Plans</button>
-  <button data-tab="review">Review</button>
-  <button data-tab="settings">Settings</button>
+  <button data-tab="overview" class="on"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>Home</button>
+  <button data-tab="money"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>Money</button>
+  <button data-tab="docs"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>Docs</button>
+  <button data-tab="plans"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 9h18"/></svg>Plans</button>
+  <button data-tab="review"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Review</button>
+  <button data-tab="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>Settings</button>
 </nav>
-
 <script>
-/* --- CORE DATA --- */
+/* --- 1. CONFIG & DATA --- */
 const SYNC_URL = "https://script.google.com/macros/s/AKfycby5W9DL6iWgvW9bYFR3niMXnvB8cxDw4ELye1brVmAmW68jkqm42RTwYyqqzVLuZ50/exec";
 const THEMES = ["classic", "glass", "midnight", "sidi", "ios"];
 const DEFAULTS = {
-  budget: 17500, cats: "Groceries,Transport,Dining,Utilities,Personal,Shopping",
-  cash: 5000, 
-  accounts: [{name:"CBQ Current", bal:12000, type:"bank"}, {name:"CBQ Savings", bal:20000, type:"bank"}],
-  loans: [{name:"Car Loan", total:80000, paid:15000, dueDate:"25th", type:"loan"}],
-  funds: [{name:"Emergency", cur:15000, tgt:30000}, {name:"Tunisia", cur:5000, tgt:50000}],
-  salaryDate: null, lastSal: 0,
-  tx: [], docs: [], plans: [], review: {}
+  salary: 19000, rent: 5900, budget: 17500,
+  variable: { "Groceries": 2400, "Transport": 700, "Dining out": 1100, "Utilities": 650, "Personal": 900, "Family support": 1500 },
+  savings: 3000, investments: 1000, tunisia: 800, cash: 42310,
+  funds: { emergency: [24600, 30000], tunisia: [20500, 50000] },
+  priority: "Finalize Tunisia business pitch deck",
+  actions: ["Review Q2 savings report", "Schedule mentor call", "Update personal KPI tracker"],
+  objectives: [["Emergency Fund", 82], ["Cut Expenses", 65], ["Tunisia Fund", 41]],
+  attention: ["Kahramaa bill — due Aug 12", "Credit card payment — due Aug 15"],
+  history: [["Mar", 15800], ["Apr", 16900], ["May", 16200], ["Jun", 17400], ["Jul", 16800]],
+  tx: [["Carrefour grocery", 420, "Groceries", "2026-08-07", "expense"], ["Woqod fuel", 250, "Transport", "2026-08-06", "expense"]],
+  docs: [["Qatar ID", "28412345678", "2027-03-15", ""]], // Added empty link field
+  cards: [["QNB Visa", "4567890123456782", "6782", "09/29"]],
+  plans: [["Build QAR 30k emergency fund", "2026-12-31", "In progress"]],
+  archive: [["Bank statement — QNB Q2", "Statement", "2026-07-01", "PDF in Drive"]],
+  accounts: [{name:"CBQ Current", type:"bank", balance:15000}, {name:"Cash Wallet", type:"cash", balance:2000}],
+  loans: [], // {name:"Car Loan", total:50000, paid:10000, nextDue:"2026-09-01", cheques:[{date:"2026-09-01", amount:2280, paid:false}]}
+  tStage: 3,
+  review: { checks: {}, keep: "", stop: "", start: "", change: "" }
 };
 
 let DATA = load();
@@ -284,218 +438,362 @@ let DATA = load();
 function load() {
   try {
     const d = JSON.parse(localStorage.getItem("azizData"));
-    if(!d) return JSON.parse(JSON.stringify(DEFAULTS));
-    // Merge defaults to ensure new fields exist
-    return { ...DEFAULTS, ...d, accounts: d.accounts||DEFAULTS.accounts, loans: d.loans||DEFAULTS.loans, funds: Array.isArray(d.funds)?d.funds:DEFAULTS.funds };
-  } catch(e) { return JSON.parse(JSON.stringify(DEFAULTS)); }
+    if (!d) return JSON.parse(JSON.stringify(DEFAULTS));
+    // Merge saved data with defaults to ensure new fields exist
+    return { ...DEFAULTS, ...d, variable: {...DEFAULTS.variable, ...(d.variable||{})}, funds: {...DEFAULTS.funds, ...(d.funds||{})} };
+  } catch (e) { console.error("Load error", e); return JSON.parse(JSON.stringify(DEFAULTS)); }
 }
-function save() { localStorage.setItem("azizData", JSON.stringify(DATA)); renderAll(); }
 
-/* --- LOCK --- */
+function persist() { localStorage.setItem("azizData", JSON.stringify(DATA)); }
+
+/* --- 2. LOCK SYSTEM --- */
 const getPass = () => localStorage.getItem("azizPass") || "aziz2026";
+
 function runUnlock() {
-  if(document.getElementById('pw').value === getPass()) {
-    document.getElementById('lock').style.opacity='0';
-    setTimeout(()=>{document.getElementById('lock').style.display='none'; init();}, 400);
-  } else { document.getElementById('err').textContent="Wrong Password"; }
+  const pwInput = document.getElementById('pw');
+  const errDiv = document.getElementById('err');
+  const lockScreen = document.getElementById('lock');
+  if (!pwInput || !lockScreen) return;
+
+  if (pwInput.value.trim() === getPass()) {
+    lockScreen.style.opacity = '0';
+    setTimeout(() => {
+      lockScreen.style.display = 'none';
+      document.getElementById('app').classList.add('visible');
+      init(); syncPull();
+    }, 400);
+  } else {
+    if(errDiv) errDiv.textContent = "Incorrect password.";
+    pwInput.value = ''; pwInput.focus();
+    lockScreen.querySelector('.box').animate([{transform:'translateX(0)'},{transform:'translateX(-10px)'},{transform:'translateX(10px)'},{transform:'translateX(0)'}], {duration:250});
+  }
 }
+
 function relock() { location.reload(); }
+
 window.addEventListener('load', () => {
-  document.getElementById('pw').addEventListener('keydown', e=>{if(e.key==='Enter') runUnlock()});
-  applyTheme();
+  const pwInput = document.getElementById('pw');
+  if(pwInput) pwInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') runUnlock(); });
 });
 
-/* --- NAVIGATION --- */
-document.querySelectorAll('[data-tab]').forEach(b=>{
-  b.onclick = () => {
-    document.querySelectorAll('[data-tab]').forEach(x=>x.classList.remove('on'));
-    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
-    b.classList.add('on');
-    document.getElementById('tab-'+b.dataset.tab).classList.add('on');
-    if(b.dataset.tab === 'settings') renderSettings();
-    if(b.dataset.tab === 'money') renderMoney();
-  }
-});
-
-/* --- MODALS --- */
-function openModal(id) { document.getElementById(id).classList.add('active'); prepModal(id); }
-function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-function prepModal(id) {
-  if(id==='expenseModal' || id==='incomeModal') {
-    const sel = document.getElementById('exp_cat');
-    sel.innerHTML = DATA.cats.split(',').map(c=>`<option>${c.trim()}</option>`).join('');
-    document.getElementById('exp_date').valueAsDate = new Date();
-    document.getElementById('inc_date').valueAsDate = new Date();
-  }
-  if(id==='accountModal') renderAccEditor();
-  if(id==='fundModal') renderFundEditor();
+/* --- 3. CORE FUNCTIONS --- */
+function syncPull() {
+  if(!SYNC_URL) return;
+  fetch(SYNC_URL, {mode:"cors"}).then(r=>r.json()).then(d=>{
+    if(d && d.salary) { DATA = {...DEFAULTS, ...d}; persist(); init(); }
+  }).catch(e=>{});
+}
+function syncPush() {
+  if(!SYNC_URL) return;
+  fetch(SYNC_URL, {method:"POST", body:JSON.stringify(DATA), mode:"cors"}).catch(e=>{});
 }
 
-/* --- RENDERERS --- */
+const fmt = n => "QAR " + Math.round(n).toLocaleString();
+const g = id => document.getElementById(id);
+
+/* --- 4. INITIALIZATION --- */
 function init() {
-  document.getElementById('app').style.opacity=1;
-  setInterval(()=>{
-    const n=new Date();
-    document.getElementById('clock').textContent = n.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short'})+' • '+n.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-    const h=n.getHours();
-    document.getElementById('hello').textContent = (h<12?'Good morning':h<17?'Good afternoon':'Good evening')+', Aziz';
-  }, 1000);
-  renderAll();
-}
+  console.log("System Ready");
+  
+  // 1. Calculate Financials
+  const currentMonth = new Date().toISOString().slice(0, 7); // "2026-08"
+  
+  // Safe Transaction Filtering (Fixes the crash)
+  const monthlyTx = DATA.tx.filter(t => {
+    const dateStr = t[3] || ""; 
+    return typeof dateStr === 'string' && dateStr.startsWith(currentMonth);
+  });
+  
+  const incomeThisMonth = monthlyTx.filter(t => t[4] === 'income').reduce((sum, t) => sum + (parseFloat(t[1])||0), 0);
+  const expenseThisMonth = monthlyTx.filter(t => t[4] === 'expense').reduce((sum, t) => sum + (parseFloat(t[1])||0), 0);
+  const totalIncome = DATA.tx.filter(t => t[4] === 'income').reduce((sum, t) => sum + (parseFloat(t[1])||0), 0);
+  
+  // Account Totals
+  const bankTotal = (DATA.accounts||[]).filter(a => a.type === 'bank').reduce((sum, a) => sum + (a.balance||0), 0);
+  const cashTotal = (DATA.accounts||[]).filter(a => a.type === 'cash').reduce((sum, a) => sum + (a.balance||0), 0);
+  const totalDebt = (DATA.loans||[]).reduce((sum, l) => sum + ((l.total||0) - (l.paid||0)), 0);
+  const netWorth = (bankTotal + cashTotal + (DATA.funds.emergency?[DATA.funds.emergency[0]]:0)) - totalDebt;
 
-function renderAll() {
-  renderOverview();
-  renderMoney();
+  // 2. Update Overview Cards
+  if(g("s_cash")) g("s_cash").textContent = fmt(cashTotal);
+  if(g("net_worth")) g("net_worth").textContent = fmt(netWorth);
+  if(g("bank_total")) g("bank_total").textContent = fmt(bankTotal);
+  if(g("total_debt")) g("total_debt").textContent = fmt(totalDebt);
+  
+  // 3. Update Charts (Simple Line Chart using SVG)
+  renderChart();
+  
+  // 4. Update Lists
+  renderTransactions();
+  renderAccounts();
+  renderLoans();
+  renderFunds();
   renderDocs();
-  renderPlans();
-  renderReview();
+  renderSettings();
+  
+  // 5. Auto-Alerts (Salary Logic)
+  if(incomeThisMonth === 0 && new Date().getDate() > 5) {
+    if(g("status_text")) {
+      g("status_text").textContent = "⚠️ Salary Not Recorded Yet!";
+      g("status_text").style.color = "var(--red)";
+    }
+  } else {
+    if(g("status_text")) {
+      g("status_text").textContent = "✅ Month Active";
+      g("status_text").style.color = "var(--green)";
+    }
+  }
+  
+  if(g("spent_amt")) g("spent_amt").textContent = fmt(expenseThisMonth);
+  if(g("budget_amt")) g("budget_amt").textContent = fmt(DATA.budget);
+  if(g("month_prog")) g("month_prog").style.width = Math.min((expenseThisMonth/DATA.budget)*100, 100) + "%";
 }
 
-function renderOverview() {
-  // Calc Net Worth
-  const bankTotal = DATA.accounts.filter(a=>a.type==='bank').reduce((s,a)=>s+(parseFloat(a.bal)||0), 0);
-  const debtTotal = DATA.loans.reduce((s,l)=>s+((parseFloat(l.total)||0) - (parseFloat(l.paid)||0)), 0);
-  const net = DATA.cash + bankTotal + DATA.funds.reduce((s,f)=>s+(parseFloat(f.cur)||0),0) - debtTotal;
+/* --- 5. RENDERERS --- */
+function renderChart() {
+  const ctx = g("chart");
+  if(!ctx) return;
+  // Simple SVG Line Chart
+  const data = DATA.history.slice(-5);
+  const max = Math.max(...data.map(d=>d[1]), 20000);
+  const pts = data.map((d,i) => {
+    const x = (i / (data.length-1)) * 100;
+    const y = 100 - ((d[1]/max)*100);
+    return `${x},${y}`;
+  }).join(" ");
   
-  document.getElementById('ov_networth').textContent = fmt(net);
-  document.getElementById('ov_cash').textContent = fmt(DATA.cash);
-  document.getElementById('ov_bank').textContent = fmt(bankTotal);
-  document.getElementById('ov_debt').textContent = fmt(debtTotal);
-  
-  // Chart (Simple SVG)
-  const hist = DATA.tx.slice(-6);
-  const max = Math.max(...hist.map(t=>t.amt), 1000);
-  let pts = hist.map((t,i)=>`${i*20},${100-(t.amt/max)*100}`).join(' ');
-  document.getElementById('chart').innerHTML = `<svg class="chart-line" viewBox="0 0 100 100" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="var(--acc)" stroke-width="2"/></svg>`;
-  
-  document.getElementById('prio').textContent = DATA.priority || "No priority set";
-  document.getElementById('acts').innerHTML = (DATA.actions||[]).map(a=>`<li class="act"><span class="cb"></span>${a}</li>`).join('');
-  
-  // Funds
-  const ef = DATA.funds[0]||{cur:0,tgt:1};
-  document.getElementById('ef_t').textContent = fmt(ef.cur);
-  document.getElementById('ef_b').style.width = (ef.cur/ef.tgt*100)+'%';
-  document.getElementById('ef_p').textContent = Math.round(ef.cur/ef.tgt*100)+'% of '+fmt(ef.tgt);
-  
-  const tf = DATA.funds[1]||{cur:0,tgt:1};
-  document.getElementById('tf_t').textContent = fmt(tf.cur);
-  document.getElementById('tf_b').style.width = (tf.cur/tf.tgt*100)+'%';
-  document.getElementById('tf_p').textContent = Math.round(tf.cur/tf.tgt*100)+'% of '+fmt(tf.tgt);
+  ctx.innerHTML = `
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="width:100%;height:100%;overflow:visible">
+      <polyline points="${pts}" fill="none" stroke="var(--acc)" stroke-width="2" vector-effect="non-scaling-stroke"/>
+      ${data.map((d,i) => {
+        const x = (i / (data.length-1)) * 100;
+        const y = 100 - ((d[1]/max)*100);
+        return `<circle cx="${x}" cy="${y}" r="3" fill="var(--bg)" stroke="var(--acc)" stroke-width="2" />`;
+      }).join('')}
+    </svg>
+    <div class="cl">${data.map(d=>`<span>${d[0]}</span>`).join("")}</div>
+  `;
 }
 
-function renderMoney() {
-  const now = new Date().toISOString().slice(0,7);
-  const monthTx = DATA.tx.filter(t=>t.date && t.date.startsWith(now));
-  const spent = monthTx.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amt, 0);
-  const income = monthTx.filter(t=>t.type==='income').reduce((s,t)=>s+t.amt, 0);
+function renderTransactions() {
+  const list = g("tx_list");
+  if(!list) return;
+  list.innerHTML = DATA.tx.slice().reverse().map((t,i) => {
+    const originalIdx = DATA.tx.length - 1 - i;
+    const type = t[4] || 'expense';
+    const color = type === 'income' ? 'var(--green)' : 'var(--ink)';
+    const sign = type === 'income' ? '+' : '-';
+    return `<tr>
+      <td><b style="color:${color}">${t[0]}</b></td>
+      <td class="mut">${t[2]||'-'}</td>
+      <td style="font-weight:700;color:${color}">${sign}${fmt(t[1])}</td>
+      <td class="mut">${t[3]||'-'}</td>
+      <td><button class="copyb" onclick="delTx(${originalIdx})">✕</button></td>
+    </tr>`;
+  }).join("");
+}
+
+function renderAccounts() {
+  const list = g("accounts_editor");
+  if(!list) return;
+  list.innerHTML = (DATA.accounts||[]).map((a,i) => `
+    <div style="display:flex;gap:10px;margin-bottom:10px;align-items:center">
+      <input value="${a.name}" onchange="updateAccount(${i},'name',this.value)" placeholder="Bank Name" style="flex:2">
+      <select onchange="updateAccount(${i},'type',this.value)" style="flex:1">
+        <option value="bank" ${a.type==='bank'?'selected':''}>Bank</option>
+        <option value="cash" ${a.type==='cash'?'selected':''}>Cash</option>
+      </select>
+      <input type="number" value="${a.balance}" onchange="updateAccount(${i},'balance',this.value)" placeholder="Balance" style="flex:1">
+      <button class="btn o" style="padding:8px" onclick="delAccount(${i})">✕</button>
+    </div>
+  `).join("");
   
-  const status = DATA.salaryDate && DATA.salaryDate.startsWith(now) ? 'Salary Received' : 'Waiting Salary';
-  document.getElementById('ms_status').textContent = status;
-  document.getElementById('ms_spent').textContent = fmt(spent);
-  document.getElementById('ms_left').textContent = fmt((DATA.budget||0) - spent);
-  document.getElementById('ms_prog').style.width = Math.min((spent/(DATA.budget||1))*100, 100)+'%';
-  
-  // List
-  const list = document.getElementById('tx_list');
-  list.innerHTML = DATA.tx.slice().reverse().map(t=>`
-    <tr>
-      <td><span class="pill ${t.type==='income'?'s-done':'s-bad'}">${t.type==='income'?'IN':'OUT'}</span></td>
-      <td>${t.name}</td>
-      <td style="color:${t.type==='income'?'var(--green)':'var(--red)'}">${t.type==='income'?'+':'-'} ${fmt(t.amt)}</td>
-      <td class="mut">${t.date}</td>
-    </tr>
-  `).join('');
-  
-  // Summaries
-  document.getElementById('acc_summary').innerHTML = DATA.accounts.map(a=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--track)"><span>${a.name}</span><b>${fmt(a.bal)}</b></div>`).join('') + 
-    (DATA.loans.length?`<div style="margin-top:10px;color:var(--red)"><b>Loans:</b><br>${DATA.loans.map(l=>`${l.name}: ${fmt(l.total-l.paid)} left`).join('<br>')}</div>`:'');
-    
-  document.getElementById('fund_summary').innerHTML = DATA.funds.map(f=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--track)"><span>${f.name}</span><b>${fmt(f.cur)}</b></div>`).join('');
+  // Update Breakdown in Money Tab
+  const breakdown = g("bank_count");
+  if(breakdown) breakdown.textContent = (DATA.accounts||[]).length + " Accounts";
+}
+
+function renderLoans() {
+  const list = g("loans_list");
+  if(!list) return;
+  if((DATA.loans||[]).length === 0) {
+    list.innerHTML = `<p class="mut">No active loans.</p>`;
+    return;
+  }
+  list.innerHTML = DATA.loans.map((l,i) => `
+    <div style="background:var(--track);padding:10px;border-radius:8px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;font-weight:700"><span>${l.name}</span><span style="color:var(--red)">-${fmt(l.total - l.paid)}</span></div>
+      <div class="prog" style="height:4px;margin:5px 0"><i style="width:${(l.paid/l.total)*100}%"></i></div>
+      <div style="font-size:11px;display:flex;justify-content:space-between">
+        <span>Paid: ${fmt(l.paid)}</span>
+        <span>Next: ${l.nextDue||'None'}</span>
+      </div>
+      <button class="btn o" style="font-size:10px;padding:4px 8px;margin-top:5px" onclick="manageLoan(${i})">Manage Cheques/Payments</button>
+    </div>
+  `).join("");
+}
+
+function renderFunds() {
+  const list = g("funds_list");
+  if(!list) return;
+  const funds = DATA.funds || {};
+  list.innerHTML = Object.entries(funds).map(([key, val]) => `
+    <div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;text-transform:capitalize">
+        <span>${key} Fund</span>
+        <span>${fmt(val[0])} / ${fmt(val[1])}</span>
+      </div>
+      <div class="prog"><i style="width:${Math.min((val[0]/val[1])*100,100)}%"></i></div>
+      <button class="mut" style="border:0;background:transparent;font-size:11px;cursor:pointer" onclick="addFund('${key}')">+ Add Money</button>
+    </div>
+  `).join("");
 }
 
 function renderDocs() {
-  document.getElementById('docs_list').innerHTML = (DATA.docs||[]).map(d=>`<tr><td>${d.name}</td><td>${d.exp}</td><td><span class="pill s-done">Valid</span></td><td><button class="copyb">View</button></td></tr>`).join('');
-}
-function renderPlans() {
-  document.getElementById('plan_list').innerHTML = (DATA.plans||[]).map(p=>`<div class="it"><b>${p.title}</b><br><span class="mut">${p.date}</span></div>`).join('');
-}
-function renderReview() {
-  document.getElementById('rev_list').innerHTML = "<p class='mut'>Weekly review items...</p>";
+  const list = g("docsL");
+  if(!list) return;
+  list.innerHTML = (DATA.docs||[]).map((d,i) => `
+    <tr>
+      <td><b>${d[0]}</b></td>
+      <td class="mut">••• ${String(d[1]).slice(-4)}</td>
+      <td class="mut">${d[2]||'N/A'}</td>
+      <td><span class="pill s-done">Valid</span></td>
+      <td>
+        ${d[3] ? `<a href="${d[3]}" target="_blank" class="copyb">View</a>` : '<button class="copyb" onclick="uploadDoc('+i+')">Upload</button>'}
+      </td>
+    </tr>
+  `).join("");
 }
 
 function renderSettings() {
-  document.getElementById('set_budget').value = DATA.budget;
-  document.getElementById('set_cats').value = DATA.cats;
-  document.getElementById('theme_sel').innerHTML = THEMES.map(t=>`<button class="thb ${document.body.dataset.theme===t?'on':''}" onclick="setTheme('${t}')">${t}</button>`).join('');
-}
-
-function renderAccEditor() {
-  const div = document.getElementById('acc_editor');
-  let h = '<h3>Banks</h3>';
-  DATA.accounts.forEach((a,i)=>{ h+= `<div class="prow"><input value="${a.name}" onchange="updateAcc(${i},'name',this.value)"><input type="number" value="${a.bal}" onchange="updateAcc(${i},'bal',this.value)"></div>`; });
-  h += '<h3>Loans</h3>';
-  DATA.loans.forEach((l,i)=>{ h+= `<div class="prow"><input value="${l.name}" onchange="updateLoan(${i},'name',this.value)"><input type="number" value="${l.total}" placeholder="Total" onchange="updateLoan(${i},'total',this.value)"><input type="number" value="${l.paid}" placeholder="Paid" onchange="updateLoan(${i},'paid',this.value)"></div>`; });
-  div.innerHTML = h;
-}
-
-function renderFundEditor() {
-  const div = document.getElementById('fund_editor');
-  div.innerHTML = DATA.funds.map((f,i)=>`<div class="prow"><input value="${f.name}" onchange="updateFund(${i},'name',this.value)"><input type="number" value="${f.cur}" onchange="updateFund(${i},'cur',this.value)"><input type="number" value="${f.tgt}" onchange="updateFund(${i},'tgt',this.value)"></div>`).join('');
-}
-
-/* --- ACTIONS --- */
-function submitSalary() {
-  const amt = parseFloat(document.getElementById('sal_amt').value);
-  const dt = document.getElementById('sal_date').value;
-  if(!amt || !dt) return alert("Fill all");
-  DATA.lastSal = amt;
-  DATA.salaryDate = dt;
-  // Auto-add income tx
-  DATA.tx.push({type:'income', name:'Salary', amt:amt, date:dt});
-  DATA.cash += amt;
-  save(); closeModal('salaryModal');
-}
-
-function submitTx(type) {
-  const name = document.getElementById(type+'_name').value;
-  const amt = parseFloat(document.getElementById(type+'_amt').value);
-  const cat = document.getElementById('exp_cat').value;
-  const dt = document.getElementById(type+'_date').value;
-  if(!name || !amt) return alert("Fill all");
+  // System Settings
+  const themeRow = g("themeRow");
+  if(themeRow) {
+    themeRow.innerHTML = THEMES.map(t => `
+      <button class="thb ${(document.body.dataset.theme||'classic')===t?'on':''}" onclick="setTheme('${t}')">
+        <span style="text-transform:capitalize">${t}</span>
+      </button>
+    `).join("");
+  }
   
-  DATA.tx.push({type:type, name:name, cat:cat, amt:amt, date:dt});
-  if(type==='expense') DATA.cash -= amt;
-  else DATA.cash += amt;
+  // Financial Settings
+  if(g("set_budget")) g("set_budget").value = DATA.budget;
+  if(g("set_cats")) g("set_cats").value = Object.keys(DATA.variable).join(", ");
+}
+
+/* --- 6. ACTIONS --- */
+function addTx(type = 'expense') {
+  const n = g("t_name").value.trim();
+  const a = parseFloat(g("t_amt").value);
+  const c = g("t_cat").value;
+  if(!n || !a) return alert("Enter details");
   
-  save(); closeModal(type+'Modal');
+  DATA.tx.push([n, a, c, new Date().toISOString().slice(0,10), type]);
+  
+  // Update Cash/Bank Balance automatically
+  if(type === 'expense') {
+    // Deduct from first cash account or general cash
+    if(DATA.accounts && DATA.accounts.length > 0) DATA.accounts[0].balance -= a;
+    else DATA.cash -= a;
+  } else {
+    // Add Income
+    if(DATA.accounts && DATA.accounts.length > 0) DATA.accounts[0].balance += a;
+    else DATA.cash += a;
+  }
+  
+  persist(); syncPush(); init();
+  g("t_name").value = ""; g("t_amt").value = "";
 }
 
-function updateAcc(i,k,v) { DATA.accounts[i][k]=k==='bal'?parseFloat(v):v; save(); }
-function updateLoan(i,k,v) { DATA.loans[i][k]=parseFloat(v)||v; save(); }
-function updateFund(i,k,v) { DATA.funds[i][k]=parseFloat(v)||v; save(); }
-function addNewAccount() { DATA.accounts.push({name:"New Account", bal:0, type:"bank"}); renderAccEditor(); }
-
-function saveConfig() {
-  DATA.budget = parseFloat(document.getElementById('set_budget').value);
-  DATA.cats = document.getElementById('set_cats').value;
-  save(); alert("Saved!");
+function delTx(i) {
+  if(confirm("Delete?")) { DATA.tx.splice(i, 1); persist(); syncPush(); init(); }
 }
 
-function setTheme(t) { document.body.dataset.theme = t; localStorage.setItem('azizTheme', t); renderSettings(); }
-function applyTheme() { const t = localStorage.getItem('azizTheme'); if(t) document.body.dataset.theme = t; }
-function cycleTheme() { const i = THEMES.indexOf(document.body.dataset.theme||'classic'); setTheme(THEMES[(i+1)%THEMES.length]); }
-
-function testSync() {
-  document.getElementById('sync_msg').textContent = "Testing...";
-  fetch(SYNC_URL).then(r=>r.text()).then(t=>{ document.getElementById('sync_msg').textContent = "✅ Connected: "+t.slice(0,30); }).catch(()=>{ document.getElementById('sync_msg').textContent = "❌ Failed"; });
+function toggleSalaryModal() { g("salary_modal").style.display = "flex"; }
+function confirmSalary() {
+  const amt = parseFloat(g("salary_input").value);
+  if(!amt) return;
+  DATA.tx.push(["Monthly Salary", amt, "Income", new Date().toISOString().slice(0,10), "income"]);
+  if(DATA.accounts && DATA.accounts.length > 0) DATA.accounts[0].balance += amt;
+  persist(); syncPush(); init();
+  g("salary_modal").style.display = "none";
+  g("salary_input").value = "";
 }
-function exportData() { const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(DATA)],{type:'application/json'})); a.download='aziz_backup.json'; a.click(); }
-function hardReset() { if(confirm("RESET ALL?")) { localStorage.removeItem('azizData'); location.reload(); } }
 
-function toggleNotif(e) { e.stopPropagation(); document.getElementById('notif').classList.toggle('open'); }
-document.addEventListener('click', ()=>document.getElementById('notif').classList.remove('open'));
+function addAccountRow() {
+  if(!DATA.accounts) DATA.accounts = [];
+  DATA.accounts.push({name:"New Account", type:"bank", balance:0});
+  persist(); init();
+}
+function updateAccount(i, key, val) {
+  DATA.accounts[i][key] = key==='balance'?parseFloat(val):val;
+  persist(); syncPush(); init();
+}
+function delAccount(i) { DATA.accounts.splice(i,1); persist(); init(); }
 
-const fmt = n => "QAR " + Math.round(n).toLocaleString();
+function addLoanPrompt() {
+  const name = prompt("Loan Name (e.g. Car Loan):");
+  if(!name) return;
+  const total = parseFloat(prompt("Total Loan Amount:"));
+  const paid = parseFloat(prompt("Amount Already Paid:")||"0");
+  DATA.loans.push({name, total, paid, nextDue:"", cheques:[]});
+  persist(); init();
+}
+
+function manageLoan(i) {
+  const l = DATA.loans[i];
+  const action = prompt(`Manage ${l.name}:\n1. Add Cheque\n2. Mark Paid\n3. Edit Details\n(Type 1, 2, or 3)`);
+  if(action === '1') {
+    const date = prompt("Cheque Date (YYYY-MM-DD):");
+    const amt = parseFloat(prompt("Amount:"));
+    if(!l.cheques) l.cheques = [];
+    l.cheques.push({date, amount:amt, paid:false});
+  } else if (action === '2') {
+    const amt = parseFloat(prompt("Payment Amount:"));
+    l.paid = (l.paid||0) + amt;
+  } else if (action === '3') {
+    l.name = prompt("Name:", l.name) || l.name;
+    l.total = parseFloat(prompt("Total:", l.total)) || l.total;
+  }
+  persist(); init();
+}
+
+function addFund(key) {
+  const amt = parseFloat(prompt(`Add to ${key} Fund:`));
+  if(amt) {
+    DATA.funds[key][0] += amt;
+    persist(); init();
+  }
+}
+
+function uploadDoc(i) {
+  const url = prompt("Paste Google Drive / Dropbox Link for this document:");
+  if(url) {
+    DATA.docs[i][3] = url;
+    persist(); init();
+  }
+}
+
+function setTheme(t) { document.body.dataset.theme = t; localStorage.setItem("azizTheme", t); }
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(DATA)], {type:"application/json"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+  a.download = "aziz-backup.json"; a.click();
+}
+
+function hardReset() {
+  if(confirm("DELETE ALL DATA?")) { localStorage.removeItem("azizData"); location.reload(); }
+}
+
+// Tab Switching
+document.querySelectorAll("[data-tab]").forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll("[data-tab]").forEach(x => x.classList.toggle("on", x.dataset.tab === b.dataset.tab));
+    document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.id === "tab-" + b.dataset.tab));
+    if(b.dataset.tab === 'settings') renderSettings();
+  };
+});
 </script>
 </body>
 </html>
