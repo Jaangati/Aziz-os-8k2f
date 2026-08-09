@@ -369,4 +369,649 @@ textarea.rev{min-height:60px}
     <p class="mut" style="margin-bottom:15px; font-size:12px;">Confirm receipt for <b id="salary_month_label">this month</b>.</p>
     <div class="input-group"><label>Net Amount Received</label><input id="m_sal_amt" type="number" placeholder="e.g. 19000"></div>
     <div class="btn-row">
-      <button class
+      <button class="btn-full btn-cancel" onclick="closeModal('modal-salary')">Cancel</button>
+      <button class="btn-full btn-confirm" onclick="submitSalary()">Confirm Receipt</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-loan" class="modal-overlay">
+  <div class="modal-card" style="max-width: 500px;">
+    <div class="modal-header"><span>Add Liability</span><span class="modal-close" onclick="closeModal('modal-loan')">&times;</span></div>
+    <div class="input-group"><label>Lender Name</label><input id="l_name" placeholder="e.g. CBQ Car Loan"></div>
+    <div class="input-group"><label>Total Amount (QAR)</label><input id="l_total" type="number"></div>
+    <div class="input-group"><label>Paid So Far</label><input id="l_paid" type="number" value="0"></div>
+    <div class="input-group"><label>Next Due Date</label><input id="l_due" type="date"></div>
+    <div class="btn-row">
+      <button class="btn-full btn-cancel" onclick="closeModal('modal-loan')">Cancel</button>
+      <button class="btn-full btn-confirm" onclick="saveLoan()">Create</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-fund" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header"><span>Edit Fund</span><span class="modal-close" onclick="closeModal('modal-fund')">&times;</span></div>
+    <input type="hidden" id="m_fund_key">
+    <div class="input-group"><label>Fund Name</label><input id="m_fund_name"></div>
+    <div class="input-group"><label>Current Balance</label><input id="m_fund_bal" type="number"></div>
+    <div class="input-group"><label>Target Amount</label><input id="m_fund_target" type="number"></div>
+    <div class="btn-row">
+      <button class="btn-full btn-cancel" onclick="closeModal('modal-fund')">Cancel</button>
+      <button class="btn-full btn-confirm" onclick="submitFund()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SYNC_URL = "https://script.google.com/macros/s/AKfycby5W9DL6iWgvW9bYFR3niMXnvB8cxDw4ELye1brVmAmW68jkqm42RTwYyqqzVLuZ50/exec";
+const THEMES = ["classic", "glass", "midnight", "sidi", "ios"];
+const DEFAULTS = {
+  salary: 19000, rent: 5900, budget: 17500,
+  variable: { "Groceries": 2400, "Transport": 700, "Dining out": 1100, "Utilities": 650, "Personal": 900, "Family support": 1500 },
+  savings: 3000, investments: 1000, tunisia: 800, cash: 42310,
+  funds: { emergency: [24600, 30000], tunisia: [20500, 50000] },
+  priority: "Finalize Tunisia business pitch deck",
+  actions: ["Review Q2 savings report", "Schedule mentor call", "Update personal KPI tracker"],
+  objectives: [["Emergency Fund", 82], ["Cut Expenses", 65], ["Tunisia Fund", 41]],
+  attention: ["Kahramaa bill — due Aug 12", "Credit card payment — due Aug 15"],
+  history: [["Mar", 15800], ["Apr", 16900], ["May", 16200], ["Jun", 17400], ["Jul", 16800]],
+  tx: [["Carrefour grocery", 420, "Groceries", "2026-08-07", "expense"], ["Woqod fuel", 250, "Transport", "2026-08-06", "expense"]],
+  docs: [["Qatar ID", "28412345678", "2027-03-15", ""]],
+  cards: [["QNB Visa", "4567890123456782", "6782", "09/29"]],
+  plans: [["Build QAR 30k emergency fund", "2026-12-31", "In progress"]],
+  archive: [["Bank statement — QNB Q2", "Statement", "2026-07-01", "PDF in Drive"]],
+  accounts: [{name:"CBQ Current", type:"bank", balance:15000}, {name:"Cash Wallet", type:"cash", balance:2000}],
+  loans: [],
+  tStage: 3,
+  review: { checks: {}, keep: "", stop: "", start: "", change: "" }
+};
+
+let DATA = load();
+
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem("azizData"));
+    if (!d) return JSON.parse(JSON.stringify(DEFAULTS));
+    return { ...DEFAULTS, ...d, variable: {...DEFAULTS.variable, ...(d.variable||{})}, funds: {...DEFAULTS.funds, ...(d.funds||{})} };
+  } catch (e) { console.error("Load error", e); return JSON.parse(JSON.stringify(DEFAULTS)); }
+}
+
+function persist() { localStorage.setItem("azizData", JSON.stringify(DATA)); }
+
+const getPass = () => localStorage.getItem("azizPass") || "aziz2026";
+
+function runUnlock() {
+  const pwInput = document.getElementById('pw');
+  const errDiv = document.getElementById('err');
+  const lockScreen = document.getElementById('lock');
+  if (!pwInput || !lockScreen) return;
+
+  if (pwInput.value.trim() === getPass()) {
+    lockScreen.style.opacity = '0';
+    setTimeout(() => {
+      lockScreen.style.display = 'none';
+      document.getElementById('app').classList.add('visible');
+      init(); syncPull();
+    }, 400);
+  } else {
+    if(errDiv) errDiv.textContent = "Incorrect password.";
+    pwInput.value = ''; pwInput.focus();
+    lockScreen.querySelector('.box').animate([{transform:'translateX(0)'},{transform:'translateX(-10px)'},{transform:'translateX(10px)'},{transform:'translateX(0)'}], {duration:250});
+  }
+}
+
+function relock() { location.reload(); }
+
+window.addEventListener('load', () => {
+  const pwInput = document.getElementById('pw');
+  if(pwInput) pwInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') runUnlock(); });
+  const savedTheme = localStorage.getItem("azizTheme");
+  if(savedTheme) document.body.dataset.theme = savedTheme;
+});
+
+function syncPull() {
+  if(!SYNC_URL) return;
+  fetch(SYNC_URL, {mode:"cors"}).then(r=>r.json()).then(d=>{
+    if(d && d.salary) { DATA = {...DEFAULTS, ...d}; persist(); init(); }
+  }).catch(e=>{});
+}
+
+function syncPush() {
+  if(!SYNC_URL) return;
+  fetch(SYNC_URL, {method:"POST", body:JSON.stringify(DATA), mode:"cors"}).catch(e=>{});
+}
+
+function syncTest() {
+  if(!SYNC_URL) return alert("No URL configured");
+  fetch(SYNC_URL, {mode:"cors"}).then(r=>r.text()).then(t=>{
+    document.getElementById("sync_txt").textContent = "✅ Connected: " + t.slice(0,20);
+  }).catch(e=>{
+    document.getElementById("sync_txt").textContent = "❌ Failed";
+  });
+}
+
+const fmt = n => "QAR " + Math.round(n).toLocaleString();
+const g = id => document.getElementById(id);
+
+function setTheme(t) {
+  document.body.dataset.theme = t;
+  localStorage.setItem("azizTheme", t);
+  renderSettings();
+}
+
+function cycleTheme() {
+  const current = document.body.dataset.theme || 'classic';
+  const idx = THEMES.indexOf(current);
+  setTheme(THEMES[(idx + 1) % THEMES.length]);
+}
+
+function toggleNotif(e) {
+  e.stopPropagation();
+  g("notif").classList.toggle("open");
+}
+
+document.addEventListener("click", () => g("notif").classList.remove("open"));
+
+function openModal(id) {
+  const m = document.getElementById(id);
+  if(m) { m.classList.add('active'); m.querySelector('input')?.focus(); }
+}
+
+function closeModal(id) {
+  const m = document.getElementById(id);
+  if(m) m.classList.remove('active');
+}
+
+function toggleCatSelect() {
+  const type = g("t_type").value;
+  const catSelect = g("t_cat");
+  const cats = Object.keys(DATA.variable);
+  if(type === 'income') {
+    catSelect.innerHTML = '<option value="Income">Income</option><option value="Refund">Refund</option><option value="Gift">Gift</option>';
+  } else {
+    catSelect.innerHTML = cats.map(c=>`<option value="${c}">${c}</option>`).join("");
+  }
+}
+
+function addTx() {
+  const n = g("t_name").value.trim();
+  const a = parseFloat(g("t_amt").value);
+  const c = g("t_cat").value || "General";
+  const type = g("t_type").value;
+  
+  if(!n || !a) return alert("Please enter description and amount");
+  
+  DATA.tx.push([n, a, c, new Date().toISOString().slice(0,10), type]);
+  
+  let cashAcc = DATA.accounts.find(acc => acc.type === 'cash');
+  if(!cashAcc) { cashAcc = {name:"Cash Wallet", type:"cash", balance:0}; DATA.accounts.push(cashAcc); }
+  
+  if(type === 'expense') cashAcc.balance -= a;
+  else cashAcc.balance += a;
+  
+  persist(); syncPush(); init();
+  g("t_name").value = ""; g("t_amt").value = "";
+}
+
+function delTx(i) {
+  if(confirm("Delete this transaction?")) {
+    DATA.tx.splice(i, 1);
+    persist(); syncPush(); init();
+  }
+}
+
+function confirmIncome() {
+  const src = g("inc_source").value.trim();
+  const amt = parseFloat(g("inc_amt").value);
+  if(!src || !amt) return alert("Please fill all fields");
+  
+  DATA.tx.push([src, amt, "Income", new Date().toISOString().slice(0,10), "income"]);
+  
+  let cashAcc = DATA.accounts.find(acc => acc.type === 'cash');
+  if(!cashAcc) { cashAcc = {name:"Cash Wallet", type:"cash", balance:0}; DATA.accounts.push(cashAcc); }
+  cashAcc.balance += amt;
+  
+  persist(); syncPush(); init();
+  closeModal('modal-income');
+  g("inc_source").value = ""; g("inc_amt").value = "";
+}
+
+function submitSalary() {
+  const amt = parseFloat(g("m_sal_amt").value);
+  if(!amt) return;
+  
+  const monthLabel = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+  DATA.tx.push(["Salary: " + monthLabel, amt, "Income", new Date().toISOString().slice(0,10), "income"]);
+  
+  let bankAcc = DATA.accounts.find(acc => acc.type === 'bank');
+  if(!bankAcc) { bankAcc = {name:"Main Bank", type:"bank", balance:0}; DATA.accounts.unshift(bankAcc); }
+  bankAcc.balance += amt;
+  
+  persist(); syncPush(); init();
+  closeModal('modal-salary');
+  g("m_sal_amt").value = "";
+}
+
+function saveLoan() {
+  const name = g("l_name").value;
+  const total = parseFloat(g("l_total").value);
+  const paid = parseFloat(g("l_paid").value) || 0;
+  const nextDue = g("l_due").value;
+  
+  if(!name || !total) return;
+  
+  DATA.loans.push({ name, total, paid, nextDue, cheques: [] });
+  persist(); syncPush(); init();
+  closeModal('modal-loan');
+  g("l_name").value = ""; g("l_total").value = ""; g("l_paid").value = "";
+}
+
+function submitFund() {
+  const key = g("m_fund_key").value || g("m_fund_name").value.toLowerCase().trim();
+  const name = g("m_fund_name").value.trim();
+  const bal = parseFloat(g("m_fund_bal").value) || 0;
+  const target = parseFloat(g("m_fund_target").value) || 10000;
+  
+  if(!name) return;
+  
+  if(!DATA.funds) DATA.funds = {};
+  DATA.funds[key] = [bal, target];
+  persist(); syncPush(); init();
+  closeModal('modal-fund');
+}
+
+function toggleMonthDetails() {
+  const div = g("month_details");
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  const monthlyTx = DATA.tx.filter(t => (t[3]||"").startsWith(currentMonth));
+  
+  if(div.style.display === "block") { div.style.display = "none"; return; }
+  
+  div.style.display = "block";
+  if(monthlyTx.length === 0) { div.innerHTML = "<p class='mut'>No transactions this month yet.</p>"; return; }
+  
+  div.innerHTML = monthlyTx.map(t => `
+    <div class="breakdown-item">
+      <span>${t[0]} <small class="mut">(${t[2]})</small></span>
+      <span style="color:${t[4]==='income'?'var(--green)':'var(--red)'}">${t[4]==='income'?'+':'-'}${fmt(t[1])}</span>
+    </div>
+  `).join("");
+}
+
+function addPlan() {
+  const t = g("p_title").value.trim();
+  const d = g("p_date").value;
+  if(!t || !d) return;
+  DATA.plans.push([t, d, g("p_st").value]);
+  g("p_title").value = "";
+  persist(); syncPush(); init();
+}
+
+function addDocRow() {
+  const name = prompt("Document name:");
+  if(!name) return;
+  const num = prompt("Document number:");
+  const exp = prompt("Expiry date (YYYY-MM-DD):");
+  DATA.docs.push([name, num || "", exp || "", ""]);
+  persist(); syncPush(); init();
+}
+
+function saveReview() {
+  ["keep","stop","start","change"].forEach(k=>DATA.review[k]=g("rv_"+k).value);
+  persist(); syncPush(); init();
+}
+
+function exportData() {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(DATA,null,1)], {type:"application/json"}));
+  a.download = "aziz-os-backup.json";
+  a.click();
+}
+
+function hardReset() {
+  if(confirm("Reset ALL data to defaults?")) {
+    localStorage.removeItem("azizData");
+    DATA = JSON.parse(JSON.stringify(DEFAULTS));
+    persist();
+    init();
+  }
+}
+
+function saveFinSettings() {
+  DATA.budget = parseFloat(g("set_budget").value) || DATA.budget;
+  const catsStr = g("set_cats").value;
+  if(catsStr) {
+    const cats = catsStr.split(",").map(c => c.trim()).filter(Boolean);
+    const newVar = {};
+    cats.forEach(c => { newVar[c] = DATA.variable[c] || 0; });
+    DATA.variable = newVar;
+  }
+  persist(); syncPush(); init();
+  alert("Settings saved");
+}
+
+function renderChart() {
+  const ctx = g("chart");
+  if(!ctx) return;
+  const data = DATA.history.slice(-5);
+  const max = Math.max(...data.map(d=>d[1]), 20000);
+  const pts = data.map((d,i) => {
+    const x = (i / (data.length-1)) * 100;
+    const y = 100 - ((d[1]/max)*100);
+    return `${x},${y}`;
+  }).join(" ");
+  
+  ctx.innerHTML = `
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="width:100%;height:100%;overflow:visible">
+      <polyline points="${pts}" fill="none" stroke="var(--acc)" stroke-width="2" vector-effect="non-scaling-stroke"/>
+      ${data.map((d,i) => {
+        const x = (i / (data.length-1)) * 100;
+        const y = 100 - ((d[1]/max)*100);
+        return `<circle cx="${x}" cy="${y}" r="3" fill="var(--bg)" stroke="var(--acc)" stroke-width="2" />`;
+      }).join('')}
+    </svg>
+    <div class="cl">${data.map(d=>`<span>${d[0]}</span>`).join("")}</div>
+  `;
+}
+
+function renderTransactions() {
+  const list = g("tx_list");
+  if(!list) return;
+  list.innerHTML = DATA.tx.slice().reverse().map((t,i) => {
+    const originalIdx = DATA.tx.length - 1 - i;
+    const type = t[4] || 'expense';
+    const color = type === 'income' ? 'var(--green)' : 'var(--ink)';
+    const sign = type === 'income' ? '+' : '-';
+    return `<tr>
+      <td><b style="color:${color}">${type === 'income' ? '📈' : '📉'}</b></td>
+      <td><b>${t[0]}</b><br><small class="mut">${t[2]||'-'}</small></td>
+      <td style="font-weight:700;color:${color}">${sign}${fmt(t[1])}</td>
+      <td class="mut">${t[3]||'-'}</td>
+      <td><button class="copyb" onclick="delTx(${originalIdx})">✕</button></td>
+    </tr>`;
+  }).join("");
+}
+
+function renderAccounts() {
+  const breakdown = g("bank_breakdown");
+  if(!breakdown) return;
+  
+  const banks = DATA.accounts.filter(a => a.type === 'bank');
+  const cashes = DATA.accounts.filter(a => a.type === 'cash');
+  
+  breakdown.innerHTML = banks.map(a => `
+    <div class="breakdown-item">
+      <span>${a.name}</span>
+      <span>${fmt(a.balance)}</span>
+    </div>
+  `).join("") || "<span class='mut'>No bank accounts</span>";
+  
+  const totalCash = cashes.reduce((sum,a)=>sum+a.balance, 0);
+  if(g("cash_hand")) g("cash_hand").textContent = fmt(totalCash);
+}
+
+function renderLoans() {
+  const list = g("loans_list");
+  const debtBreak = g("debt_breakdown");
+  if(!list || !debtBreak) return;
+  
+  if((DATA.loans||[]).length === 0) {
+    list.innerHTML = `<p class="mut">No active loans.</p>`;
+    debtBreak.innerHTML = "<span class='mut'>Debt free!</span>";
+    return;
+  }
+  
+  list.innerHTML = DATA.loans.map((l,i) => `
+    <div style="background:var(--track);padding:12px;border-radius:12px;margin-bottom:8px; cursor:pointer;" onclick="openLoanManager(${i})">
+      <div style="display:flex;justify-content:space-between;font-weight:700;font-size:13px;"><span>${l.name}</span><span style="color:var(--red)">${fmt(l.total-l.paid)}</span></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px;">Next: ${l.nextDue||'None'}</div>
+    </div>
+  `).join("");
+  
+  debtBreak.innerHTML = DATA.loans.map(l => `
+    <div class="breakdown-item">
+      <span>${l.name}</span>
+      <span style="color:var(--red)">-${fmt(l.total - l.paid)}</span>
+    </div>
+  `).join("");
+  
+  if(g("total_debt")) {
+    const total = DATA.loans.reduce((sum,l)=>sum+(l.total-l.paid),0);
+    g("total_debt").textContent = fmt(total);
+  }
+}
+
+function openLoanManager(index) {
+  const loan = DATA.loans[index];
+  alert(`Loan Manager for ${loan.name}\nRemaining: ${fmt(loan.total - loan.paid)}\nThis feature needs additional modals to manage cheques and payments.`);
+}
+
+function renderFunds() {
+  const list = g("funds_list");
+  if(!list) return;
+  const funds = DATA.funds || {};
+  list.innerHTML = Object.entries(funds).map(([key, val]) => `
+    <div style="margin-bottom:12px; cursor:pointer;" onclick="openFundEditor('${key}')">
+      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;text-transform:capitalize">
+        <span>${key}</span>
+        <span>${fmt(val[0])}</span>
+      </div>
+      <div class="prog" style="height:6px;"><i style="width:${Math.min((val[0]/val[1])*100,100)}%"></i></div>
+      <div style="font-size:10px;color:var(--muted);text-align:right;margin-top:2px;">Tap to edit</div>
+    </div>
+  `).join("");
+}
+
+function openFundEditor(key) {
+  const fund = DATA.funds[key];
+  g("m_fund_key").value = key;
+  g("m_fund_name").value = key;
+  g("m_fund_bal").value = fund[0];
+  g("m_fund_target").value = fund[1];
+  openModal('modal-fund');
+}
+
+function renderDocs() {
+  const list = g("docsL");
+  if(!list) return;
+  list.innerHTML = (DATA.docs||[]).map((d,i) => `
+    <tr>
+      <td><b>${d[0]}</b></td>
+      <td class="mut">••• ${String(d[1]).slice(-4)}</td>
+      <td class="mut">${d[2]||'N/A'}</td>
+      <td><span class="pill s-done">Valid</span></td>
+      <td>
+        ${d[3] ? `<a href="${d[3]}" target="_blank" class="copyb">View</a>` : '<button class="copyb">Upload</button>'}
+      </td>
+      <td><button class="copyb">✕</button></td>
+    </tr>
+  `).join("");
+}
+
+function renderCheques() {
+  const list = g("cheque_list");
+  if(!list) return;
+  const today = new Date().toISOString().slice(0,10);
+  const upcoming = [];
+  (DATA.loans||[]).forEach(l => {
+    (l.cheques||[]).forEach(c => {
+      if(!c.paid && c.date >= today) upcoming.push({date:c.date, amount:c.amount, loan:l.name});
+    });
+  });
+  upcoming.sort((a,b) => a.date.localeCompare(b.date));
+  if(upcoming.length === 0) {
+    list.innerHTML = "<p class='mut'>No upcoming cheques.</p>";
+  } else {
+    list.innerHTML = upcoming.slice(0,5).map(c => `
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--track)">
+        <span>${c.date} <b>${c.loan}</b></span>
+        <b style="color:var(--red)">${fmt(c.amount)}</b>
+      </div>
+    `).join("");
+  }
+}
+
+function renderSettings() {
+  const themeRow = g("themeRow");
+  if(themeRow) {
+    themeRow.innerHTML = THEMES.map(t => `
+      <button class="thb ${(document.body.dataset.theme||'classic')===t?'on':''}" onclick="setTheme('${t}')">
+        <span style="text-transform:capitalize">${t}</span>
+      </button>
+    `).join("");
+  }
+  if(g("set_budget")) g("set_budget").value = DATA.budget;
+  if(g("set_cats")) g("set_cats").value = Object.keys(DATA.variable).join(", ");
+  if(g("set_accounts")) {
+    g("set_accounts").value = (DATA.accounts||[]).map(a=>`${a.name}, ${a.balance}`).join("\n");
+  }
+}
+
+function init() {
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  
+  const monthlyTx = DATA.tx.filter(t => {
+    const dateStr = t[3] || ""; 
+    return typeof dateStr === 'string' && dateStr.startsWith(currentMonth);
+  });
+  
+  const incomeThisMonth = monthlyTx.filter(t => t[4] === 'income').reduce((sum, t) => sum + (parseFloat(t[1])||0), 0);
+  const expenseThisMonth = monthlyTx.filter(t => t[4] === 'expense').reduce((sum, t) => sum + (parseFloat(t[1])||0), 0);
+  
+  const bankTotal = (DATA.accounts||[]).filter(a => a.type === 'bank').reduce((sum, a) => sum + (a.balance||0), 0);
+  const cashTotal = (DATA.accounts||[]).filter(a => a.type === 'cash').reduce((sum, a) => sum + (a.balance||0), 0);
+  const safeFundsTotal = (DATA.funds.emergency ? DATA.funds.emergency[0] : 0) + (DATA.funds.tunisia ? DATA.funds.tunisia[0] : 0);
+  const totalDebt = (DATA.loans||[]).reduce((sum, l) => sum + ((l.total||0) - (l.paid||0)), 0);
+  
+  const netWorth = (bankTotal + cashTotal + safeFundsTotal) - totalDebt;
+
+  if(g("s_cash")) g("s_cash").textContent = fmt(cashTotal);
+  if(g("net_worth")) g("net_worth").textContent = fmt(netWorth);
+  if(g("bank_total")) g("bank_total").textContent = fmt(bankTotal);
+  if(g("total_debt")) g("total_debt").textContent = fmt(totalDebt);
+  
+  renderChart();
+  renderTransactions();
+  renderAccounts();
+  renderLoans();
+  renderFunds();
+  renderDocs();
+  renderSettings();
+  renderCheques();
+  
+  if(incomeThisMonth === 0 && new Date().getDate() > 5) {
+    if(g("status_text")) {
+      g("status_text").textContent = "⚠️ Salary Not Recorded Yet!";
+      g("status_text").style.color = "var(--red)";
+    }
+  } else {
+    if(g("status_text")) {
+      g("status_text").textContent = "✅ Month Active";
+      g("status_text").style.color = "var(--green)";
+    }
+  }
+  
+  if(g("spent_amt")) g("spent_amt").textContent = fmt(expenseThisMonth);
+  if(g("budget_amt")) g("budget_amt").textContent = fmt(DATA.budget);
+  if(g("month_prog")) g("month_prog").style.width = Math.min((expenseThisMonth/DATA.budget)*100, 100) + "%";
+  
+  const ef = DATA.funds.emergency;
+  const tf = DATA.funds.tunisia;
+  if(g("ef_t")) g("ef_t").textContent = fmt(ef[0]);
+  if(g("ef_b")) g("ef_b").style.width = Math.min(ef[0]/ef[1]*100, 100) + "%";
+  if(g("ef_p")) g("ef_p").textContent = Math.round(ef[0]/ef[1]*100) + "% of target";
+  
+  if(g("tf_t")) g("tf_t").textContent = fmt(tf[0]);
+  if(g("tf_b")) g("tf_b").style.width = Math.min(tf[0]/tf[1]*100, 100) + "%";
+  if(g("tf_p")) g("tf_p").textContent = Math.round(tf[0]/tf[1]*100) + "% of target";
+  
+  if(g("chips")) g("chips").innerHTML = DATA.attention.map(a=>`<div class="chip">${a}</div>`).join("");
+  if(g("bellN")) g("bellN").textContent = DATA.attention.length;
+  if(g("notif")) g("notif").innerHTML = DATA.attention.map(a=>`<div>🔔 ${a}</div>`).join("");
+  
+  if(g("prio")) g("prio").textContent = DATA.priority;
+  if(g("acts")) {
+    g("acts").innerHTML = DATA.actions.map((a,i)=>`
+      <li class="act ${DATA.review["a"+i]?"done":""}" onclick="tickAct(${i})">
+        <span class="cb">✓</span><span>${a}</span>
+      </li>`).join("");
+  }
+  
+  if(g("planL")) {
+    g("planL").innerHTML = DATA.plans.map(p=>`
+      <div class="it ${p[2]==="In progress"?"now":""}">
+        <b>${p[0]}</b><br>
+        <span class="mut">${p[1]}</span>
+        <span class="pill ${p[2]==="Done"?"s-done":p[2]==="In progress"?"s-prog":"s-pend"}">${p[2]}</span>
+      </div>
+    `).join("");
+  }
+  
+  if(g("archL")) {
+    const af = g("archF")?.value || "";
+    g("archL").innerHTML = DATA.archive.filter(a=>!af||a[1]===af).map(a=>`
+      <tr>
+        <td><b>${a[0]}</b></td>
+        <td><span class="pill s-prog">${a[1]}</span></td>
+        <td class="mut">${a[2]}</td>
+        <td class="mut">${a[3]||""}</td>
+      </tr>
+    `).join("");
+  }
+  
+  const RV=[["Financial",["Reviewed spending","Confirmed savings","Checked bills"]],["Work",["Noted progress","Noted stuck","Identified opportunity"]],["Personal",["Contacted someone","Planned moment"]],["Goals",["Checked progress","Set priorities"]]];
+  let html="",tot=0,done=0;
+  RV.forEach(s=>{
+    html+=`<p class="mut" style="margin:12px 0 4px;font-weight:700">${s[0].toUpperCase()}</p>`;
+    s[1].forEach((it,i)=>{
+      const k=s[0]+i;
+      tot++;
+      if(DATA.review.checks[k]) done++;
+      html+=`<li class="act ${DATA.review.checks[k]?"done":""}" onclick="tickRev('${k}')"><span class="cb">✓</span><span>${it}</span></li>`;
+    });
+  });
+  if(g("revList")) g("revList").innerHTML = html;
+  if(g("revP")) g("revP").textContent = done+"/"+tot;
+  
+  ["keep","stop","start","change"].forEach(k=>{
+    if(g("rv_"+k)) g("rv_"+k).value = DATA.review[k]||"";
+  });
+}
+
+function tickAct(i) {
+  DATA.review["a"+i] = !DATA.review["a"+i];
+  persist(); syncPush(); init();
+}
+
+function tickRev(k) {
+  DATA.review.checks[k] = !DATA.review.checks[k];
+  persist(); syncPush(); init();
+}
+
+setInterval(()=>{
+  const n=new Date();
+  if(g("clock")) g("clock").textContent=n.toLocaleDateString("en-GB",{weekday:"short",day:"2-digit",month:"short"})+" • "+n.toLocaleTimeString("en-GB");
+  const h=n.getHours();
+  if(g("hello")) g("hello").textContent=(h<12?"Good morning":h<17?"Good afternoon":"Good evening")+", Aziz";
+},1000);
+
+document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("on",x.dataset.tab===b.dataset.tab));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.id==="tab-"+b.dataset.tab));
+});
+
+document.getElementById('file').addEventListener("change",e=>{
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const d=JSON.parse(r.result);
+      if(d&&d.salary){DATA=d;persist();syncPush();init();}
+    }catch(_){alert("Invalid file")}
+  };
+  r.readAsText(e.target.files[0]);
+  e.target.value="";
+});
+</script>
+</body>
+</html>
