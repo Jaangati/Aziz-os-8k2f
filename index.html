@@ -1146,4 +1146,260 @@ function renderFunds() {
 
 </script>
 </body>
+<!-- FIX: ADD THESE MODALS BEFORE </body> TO MAKE CLICKS WORK -->
+<style>
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9998; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+.modal-overlay.active { display: flex; animation: up 0.3s ease; }
+.modal-card { background: var(--card); padding: 25px; border-radius: 20px; width: 90%; max-width: 450px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); }
+.modal-header { font-size: 18px; font-weight: 800; margin-bottom: 15px; display: flex; justify-content: space-between; }
+.modal-close { cursor: pointer; color: var(--muted); font-size: 20px; }
+.input-group { margin-bottom: 12px; }
+.input-group label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+.input-group input, .input-group select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--track); background: var(--bg); color: var(--ink); font-size: 14px; }
+.btn-row { display: flex; gap: 10px; margin-top: 20px; }
+.btn-full { flex: 1; padding: 12px; border: 0; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 13px; }
+.btn-cancel { background: var(--track); color: var(--ink); }
+.btn-confirm { background: var(--green); color: #fff; }
+.breakdown-list { margin-top: 8px; font-size: 12px; }
+.breakdown-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--track); }
+</style>
+
+<!-- 1. TRANSACTION MODAL -->
+<div id="modal-tx" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header"><span>Register Transaction</span><span class="modal-close" onclick="closeModal('modal-tx')">&times;</span></div>
+    <div class="input-group">
+      <label>Type</label>
+      <select id="m_tx_type" onchange="toggleTxColor()">
+        <option value="expense">Expense (-)</option>
+        <option value="income">Income (+)</option>
+      </select>
+    </div>
+    <div class="input-group"><label>Description</label><input id="m_tx_desc" placeholder="e.g. Grocery, Freelance"></div>
+    <div class="input-group"><label>Amount (QAR)</label><input id="m_tx_amt" type="number" placeholder="0.00"></div>
+    <div class="input-group"><label>Category</label><select id="m_tx_cat"></select></div>
+    <div class="btn-row">
+      <button class="btn-full btn-cancel" onclick="closeModal('modal-tx')">Cancel</button>
+      <button class="btn-full btn-confirm" onclick="submitTx()">Save Transaction</button>
+    </div>
+  </div>
+</div>
+
+<!-- 2. SALARY MODAL -->
+<div id="modal-salary" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header"><span>Record Salary</span><span class="modal-close" onclick="closeModal('modal-salary')">&times;</span></div>
+    <p class="mut" style="margin-bottom:15px; font-size:12px;">Confirm receipt for <b id="salary_month_label">this month</b>.</p>
+    <div class="input-group"><label>Net Amount Received</label><input id="m_sal_amt" type="number" placeholder="e.g. 19000"></div>
+    <div class="btn-row">
+      <button class="btn-full btn-cancel" onclick="closeModal('modal-salary')">Cancel</button>
+      <button class="btn-full btn-confirm" onclick="submitSalary()">Confirm Receipt</button>
+    </div>
+  </div>
+</div>
+
+<!-- 3. LOAN MANAGER MODAL -->
+<div id="modal-loan" class="modal-overlay">
+  <div class="modal-card" style="max-width: 500px;">
+    <div class="modal-header"><span>Manage Liability</span><span class="modal-close" onclick="closeModal('modal-loan')">&times;</span></div>
+    <div id="loan_content"></div> <!-- Dynamic Content -->
+  </div>
+</div>
+
+<!-- 4. FUND EDITOR MODAL -->
+<div id="modal-fund" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-header"><span>Edit Fund</span><span class="modal-close" onclick="closeModal('modal-fund')">&times;</span></div>
+    <input type="hidden" id="m_fund_key">
+    <div class="input-group"><label>Fund Name</label><input id="m_fund_name"></div>
+    <div class="input-group"><label>Current Balance</label><input id="m_fund_bal" type="number"></div>
+    <div class="btn-row">
+      <button class="btn-full btn-cancel" onclick="closeModal('modal-fund')">Cancel</button>
+      <button class="btn-full btn-confirm" onclick="submitFund()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// --- HELPER: OPEN/CLOSE MODALS ---
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+// --- FIX: POPULATE CATEGORIES ---
+function populateCategories() {
+  const sel = document.getElementById('m_tx_cat');
+  if(!sel) return;
+  sel.innerHTML = Object.keys(DATA.variable).map(c => `<option>${c}</option>`).join('');
+}
+
+// --- FIX: SUBMIT TRANSACTION ---
+function submitTx() {
+  const type = document.getElementById('m_tx_type').value;
+  const desc = document.getElementById('m_tx_desc').value;
+  const amt = parseFloat(document.getElementById('m_tx_amt').value);
+  const cat = document.getElementById('m_tx_cat').value;
+  
+  if(!desc || !amt) return alert('Please fill all fields');
+  
+  // Add to history
+  DATA.tx.push([desc, amt, cat, new Date().toISOString().slice(0,10), type]);
+  
+  // Update Balance (Simple logic: adds to first account or cash)
+  if(type === 'income') {
+    if(DATA.accounts && DATA.accounts.length) DATA.accounts[0].balance += amt;
+    else DATA.cash += amt;
+  } else {
+    if(DATA.accounts && DATA.accounts.length) DATA.accounts[0].balance -= amt;
+    else DATA.cash -= amt;
+  }
+  
+  persist(); syncPush(); init(); closeModal('modal-tx');
+  // Reset form
+  document.getElementById('m_tx_desc').value = '';
+  document.getElementById('m_tx_amt').value = '';
+}
+
+// --- FIX: SUBMIT SALARY ---
+function submitSalary() {
+  const amt = parseFloat(document.getElementById('m_sal_amt').value);
+  if(!amt) return;
+  
+  const monthLabel = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+  DATA.tx.push(["Salary: " + monthLabel, amt, "Income", new Date().toISOString().slice(0,10), "income"]);
+  
+  if(DATA.accounts && DATA.accounts.length) DATA.accounts[0].balance += amt;
+  
+  // Mark month as active in a simple way (could be expanded)
+  DATA.lastSalaryDate = new Date().toISOString();
+  
+  persist(); syncPush(); init(); closeModal('modal-salary');
+  document.getElementById('m_sal_amt').value = '';
+}
+
+// --- FIX: LOAN MANAGER UI ---
+function openLoanManager(index) {
+  const loan = DATA.loans[index];
+  const content = document.getElementById('loan_content');
+  
+  let chequesHtml = '';
+  if(loan.cheques && loan.cheques.length) {
+    chequesHtml = '<h4 style="margin:15px 0 10px; font-size:12px; color:var(--muted)">UPCOMING CHEQUES</h4>';
+    loan.cheques.forEach((c, i) => {
+      chequesHtml += `
+        <div class="breakdown-item">
+          <span>${c.date} <b style="color:${c.paid?'var(--green)':'var(--red)'}">${c.paid?'(PAID)':''}</b></span>
+          <span>${fmt(c.amount)}</span>
+          ${!c.paid ? `<button class="copyb" onclick="payCheque(${index}, ${i})">Pay</button>` : ''}
+        </div>`;
+    });
+  } else {
+    chequesHtml = '<p class="mut">No cheques scheduled.</p>';
+  }
+
+  content.innerHTML = `
+    <div style="background:var(--track); padding:15px; border-radius:12px; margin-bottom:15px;">
+      <div style="display:flex; justify-content:space-between; font-weight:700; font-size:15px;">
+        <span>${loan.name}</span>
+        <span style="color:var(--red)">${fmt(loan.total - loan.paid)} Left</span>
+      </div>
+      <div style="font-size:11px; color:var(--muted); margin-top:5px;">Total: ${fmt(loan.total)} | Paid: ${fmt(loan.paid)}</div>
+    </div>
+    ${chequesHtml}
+    <div class="btn-row" style="margin-top:20px;">
+      <button class="btn-full btn-cancel" onclick="addChequePrompt(${index})">+ Add Cheque</button>
+      <button class="btn-full btn-confirm" onclick="makePaymentPrompt(${index})">Make Payment</button>
+    </div>
+  `;
+  openModal('modal-loan');
+}
+
+function payCheque(lIndex, cIndex) {
+  DATA.loans[lIndex].cheques[cIndex].paid = true;
+  DATA.loans[lIndex].paid += DATA.loans[lIndex].cheques[cIndex].amount;
+  // Deduct from cash
+  if(DATA.accounts && DATA.accounts.length) DATA.accounts[0].balance -= DATA.loans[lIndex].cheques[cIndex].amount;
+  else DATA.cash -= DATA.loans[lIndex].cheques[cIndex].amount;
+  
+  persist(); syncPush(); init(); openLoanManager(lIndex); // Refresh modal
+}
+
+function addChequePrompt(idx) {
+  const date = prompt("Cheque Date (YYYY-MM-DD):");
+  if(!date) return;
+  const amt = parseFloat(prompt("Amount:"));
+  if(!amt) return;
+  if(!DATA.loans[idx].cheques) DATA.loans[idx].cheques = [];
+  DATA.loans[idx].cheques.push({date, amount: amt, paid: false});
+  persist(); syncPush(); init(); openLoanManager(idx);
+}
+
+function makePaymentPrompt(idx) {
+  const amt = parseFloat(prompt("Payment Amount:"));
+  if(!amt) return;
+  DATA.loans[idx].paid += amt;
+  if(DATA.accounts && DATA.accounts.length) DATA.accounts[0].balance -= amt;
+  else DATA.cash -= amt;
+  persist(); syncPush(); init(); openLoanManager(idx);
+}
+
+// --- FIX: FUND EDITOR ---
+function openFundEditor(key) {
+  const fund = DATA.funds[key];
+  document.getElementById('m_fund_key').value = key;
+  document.getElementById('m_fund_name').value = key; // Simple name edit
+  document.getElementById('m_fund_bal').value = fund[0];
+  openModal('modal-fund');
+}
+
+function submitFund() {
+  const key = document.getElementById('m_fund_key').value;
+  const newName = document.getElementById('m_fund_name').value;
+  const newBal = parseFloat(document.getElementById('m_fund_bal').value);
+  
+  if(newName !== key) {
+    // Rename key (simple swap)
+    DATA.funds[newName] = [newBal, DATA.funds[key][1]];
+    delete DATA.funds[key];
+  } else {
+    DATA.funds[key][0] = newBal;
+  }
+  
+  persist(); syncPush(); init(); closeModal('modal-fund');
+}
+
+// --- UPDATE INIT TO HOOK BUTTONS ---
+// We need to override the render functions to use these new modals
+const oldRenderLoans = renderLoans;
+renderLoans = function() {
+  const list = document.getElementById('loans_list');
+  if(!list) return;
+  if((DATA.loans||[]).length === 0) { list.innerHTML = '<p class="mut">No active loans.</p>'; return; }
+  list.innerHTML = DATA.loans.map((l,i) => `
+    <div style="background:var(--track);padding:12px;border-radius:12px;margin-bottom:8px; cursor:pointer;" onclick="openLoanManager(${i})">
+      <div style="display:flex;justify-content:space-between;font-weight:700;font-size:13px;"><span>${l.name}</span><span style="color:var(--red)">${fmt(l.total-l.paid)}</span></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px;">Next: ${l.nextDue||'None'}</div>
+    </div>
+  `).join("");
+}
+
+const oldRenderFunds = renderFunds;
+renderFunds = function() {
+  const list = document.getElementById('funds_list');
+  if(!list) return;
+  const funds = DATA.funds || {};
+  list.innerHTML = Object.entries(funds).map(([key, val]) => `
+    <div style="margin-bottom:12px; cursor:pointer;" onclick="openFundEditor('${key}')">
+      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;text-transform:capitalize">
+        <span>${key}</span>
+        <span>${fmt(val[0])}</span>
+      </div>
+      <div class="prog" style="height:6px;"><i style="width:${Math.min((val[0]/val[1])*100,100)}%"></i></div>
+      <div style="font-size:10px;color:var(--muted);text-align:right;margin-top:2px;">Tap to edit</div>
+    </div>
+  `).join("");
+}
+
+// Hook the buttons in Money Tab Header
+// Note: Ensure your HTML buttons have onclick="openModal('modal-tx')" etc.
+</script>
 </html>
