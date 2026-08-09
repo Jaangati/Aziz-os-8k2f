@@ -231,7 +231,7 @@ textarea.rev{min-height:60px}
         <button class="btn o" style="width:100%;font-size:11px" onclick="addLoanPrompt()">+ Add Loan / Debt</button>
         <h2 style="margin-top:20px">🟢 SAFE FUNDS</h2>
         <div id="funds_list" style="margin-bottom:15px"></div>
-        <button class="btn o" style="width:100%;font-size:11px" onclick="addFundPrompt()">+ Add Fund</button>
+        <button class="btn o" style="width:100%;font-size:11px" onclick="openAddFund()">+ Add Fund</button>
         <h2 style="margin-top:20px">📅 UPCOMING CHEQUES</h2>
         <div id="cheque_list" style="font-size:12px"></div>
       </div>
@@ -345,11 +345,12 @@ textarea.rev{min-height:60px}
 
 <div id="modal-fund" class="modal-overlay">
   <div class="modal-card">
-    <div class="modal-header"><span>Edit Fund</span><span class="modal-close" onclick="closeModal('modal-fund')">&times;</span></div>
+    <div class="modal-header"><span id="m_fund_title">Edit Fund</span><span class="modal-close" onclick="closeModal('modal-fund')">&times;</span></div>
     <input type="hidden" id="m_fund_key">
     <div class="input-group"><label>Fund Name</label><input id="m_fund_name"></div>
     <div class="input-group"><label>Current Balance</label><input id="m_fund_bal" type="number"></div>
     <div class="input-group"><label>Target Goal (QAR)</label><input id="m_fund_target" type="number"></div>
+ <button class="btn-full" id="m_fund_del" style="background:var(--red);color:#fff;display:none" onclick="deleteFund()">Delete</button>
     <div class="btn-row"><button class="btn-full btn-cancel" onclick="closeModal('modal-fund')">Cancel</button><button class="btn-full btn-confirm" onclick="submitFund()">Save</button></div>
   </div>
 </div>
@@ -756,7 +757,11 @@ function openFundEditor(key) {
   openModal('modal-fund');
 }
 
-function submitFund() {
+function openAddFund(){g("m_fund_key").value="";g("m_fund_name").value="";g("m_fund_bal").value="";g("m_fund_target").value="";var t=g("m_fund_title");if(t)t.textContent="Add Fund";var d=g("m_fund_del");if(d)d.style.display="none";openModal("modal-fund");}
+function openFundEditor(key){var v=Array.isArray(DATA.funds[key])?DATA.funds[key]:[0,10000];g("m_fund_key").value=key;g("m_fund_name").value=key;g("m_fund_bal").value=v[0];g("m_fund_target").value=v[1];var t=g("m_fund_title");if(t)t.textContent="Edit Fund";var d=g("m_fund_del");if(d)d.style.display="block";openModal("modal-fund");}
+function deleteFund(){var k=g("m_fund_key").value;if(!k)return;if(!confirm("Delete this fund?"))return;if(DATA.funds)delete DATA.funds[k];persist();syncPush();closeModal("modal-fund");init();}
+  
+  function submitFund() {
   const oldKey = document.getElementById('m_fund_key').value;
   const newKey = document.getElementById('m_fund_name').value.trim().toLowerCase();
   const bal = parseFloat(document.getElementById('m_fund_bal').value) || 0;
