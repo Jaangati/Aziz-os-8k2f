@@ -355,820 +355,487 @@ textarea.rev{min-height:60px}
 </div>
 
 <script>
-// DASHBOARD CONFIGURATION
-const DASH_CONFIG = {
-  version: "2.0",
-  password: "aziz", // Default unlock password
-  currency: "QAR",
-  locale: "en-QA"
+/* --- 1. CONFIG & DATA --- */
+const SYNC_URL = "https://script.google.com/macros/s/AKfycby5W9DL6iWgvW9bYFR3niMXnvB8cxDw4ELye1brVmAmW68jkqm42RTwYyqqzVLuZ50/exec";
+const THEMES = ["classic", "glass", "midnight", "sidi"];
+const DEFAULTS = {
+  salary: 19000, rent: 5900, budget: 17500,
+  variable: { "Groceries": 2400, "Transport": 700, "Dining out": 1100, "Utilities": 650, "Personal": 900, "Family support": 1500 },
+  savings: 3000, investments: 1000, tunisia: 800, cash: 42310,
+  funds: { emergency: [24600, 30000], tunisia: [20500, 50000] },
+  priority: "Finalize Tunisia business pitch deck",
+  actions: ["Review Q2 savings report", "Schedule mentor call", "Update personal KPI tracker"],
+  objectives: [["Emergency Fund", 82], ["Cut Expenses", 65], ["Tunisia Fund", 41]],
+  attention: ["Kahramaa bill — due Aug 12", "Credit card payment — due Aug 15"],
+  history: [["Mar", 15800], ["Apr", 16900], ["May", 16200], ["Jun", 17400], ["Jul", 16800]],
+  tx: [["Carrefour grocery", 420, "Groceries", "2026-08-07", "expense"], ["Woqod fuel", 250, "Transport", "2026-08-06", "expense"]],
+  docs: [["Qatar ID", "28412345678", "2027-03-15", ""]],
+  cards: [["QNB Visa", "4567890123456782", "6782", "09/29"]],
+  plans: [["Build QAR 30k emergency fund", "2026-12-31", "In progress"]],
+  archive: [["Bank statement — QNB Q2", "Statement", "2026-07-01", "PDF in Drive"]],
+  accounts: [{name:"CBQ Current", type:"bank", balance:15000}, {name:"Cash Wallet", type:"cash", balance:2000}],
+  loans: [],
+  tStage: 3,
+  review: { checks: {}, keep: "", stop: "", start: "", change: "" }
 };
 
-// DATA STRUCTURE
-let appData = {
-  settings: {
-    accounts: ["CBQ Current, 5000", "QIB Savings, 12000"],
-    categories: ["Groceries", "Transport", "Entertainment", "Utilities", "Healthcare", "Dining", "Shopping"],
-    monthlyBudget: 8000,
-    theme: "default"
-  },
-  finances: {
-    cash: 2500,
-    bankTotal: 17000,
-    netWorth: 45000,
-    totalDebt: 8000,
-    emergencyFund: { current: 15000, target: 20000 },
-    tunisiaFund: { current: 8500, target: 15000 },
-    transactions: [
-      { type: "income", desc: "Salary", amount: 19000, date: "2026-08-01", category: "Income" },
-      { type: "expense", desc: "Rent", amount: 4500, date: "2026-08-05", category: "Housing" },
-      { type: "expense", desc: "Car Payment", amount: 1200, date: "2026-08-07", category: "Transport" },
-      { type: "expense", desc: "Groceries", amount: 320, date: "2026-08-08", category: "Groceries" }
-    ],
-    loans: [
-      { name: "Car Loan", balance: 6000, limit: 12000, dueDate: "2027-02-15" },
-      { name: "Credit Card", balance: 2000, limit: 5000, dueDate: "2026-08-20" }
-    ],
-    funds: [
-      { key: "emergency", name: "Emergency Fund", balance: 15000, target: 20000 },
-      { key: "tunisia", name: "Tunisia Business Fund", balance: 8500, target: 15000 }
-    ],
-    cheques: [
-      { desc: "Consulting Fee", amount: 2500, date: "2026-08-15", status: "pending" },
-      { desc: "Freelance Work", amount: 1800, date: "2026-08-22", status: "pending" }
-    ]
-  },
-  documents: [
-    { type: "ID Card", number: "QA123456789", expiry: "2027-05-15", status: "valid" },
-    { type: "Passport", number: "P12345678", expiry: "2030-01-20", status: "valid" },
-    { type: "Driving License", number: "QA987654321", expiry: "2028-11-30", status: "valid" },
-    { type: "Health Insurance", number: "HI-2026-001", expiry: "2027-03-31", status: "valid" }
-  ],
-  cards: [
-    { type: "credit", number: "**** **** **** 1234", expiry: "05/28", cvv: "***", bank: "CBQ" },
-    { type: "debit", number: "**** **** **** 5678", expiry: "12/27", cvv: "***", bank: "QIB" }
-  ],
-  plans: [
-    { title: "Launch Tunisia Branch", date: "2026-12-31", status: "in_progress" },
-    { title: "Complete MBA", date: "2027-06-30", status: "planned" },
-    { title: "Buy Property", date: "2028-03-15", status: "planned" },
-    { title: "Pay Off All Debt", date: "2027-12-31", status: "in_progress" }
-  ],
-  archive: [
-    { title: "Lease Agreement", type: "Contract", date: "2026-01-15", note: "Apartment lease signed" },
-    { title: "Tax Return 2025", type: "Statement", date: "2026-04-30", note: "Filed on time" },
-    { title: "University Degree", type: "Certificate", date: "2020-05-20", note: "Bachelor's degree" },
-    { title: "Insurance Policy", type: "Contract", date: "2026-03-10", note: "Health insurance renewal" }
-  ],
-  reviews: [
-    { week: "W32", date: "2026-08-03", keep: "Daily expense tracking", stop: "Impulse purchases", start: "Weekly budget review", change: "Reduce dining out" },
-    { week: "W31", date: "2026-07-27", keep: "Morning routine", stop: "Late night work", start: "Exercise schedule", change: "Meeting times" }
-  ],
-  tasks: [
-    { text: "Review monthly budget", done: true },
-    { text: "Update document expiries", done: false },
-    { text: "Call insurance provider", done: false },
-    { text: "Check investment portfolio", done: false }
-  ]
-};
+let DATA = load();
 
-// THEME MANAGEMENT
-const themes = [
-  { id: "default", name: "Default", bg: "#f2f1ec" },
-  { id: "glass", name: "Glass", bg: "#e8ecf7" },
-  { id: "midnight", name: "Midnight", bg: "#0b0f14" },
-  { id: "sidi", name: "Sidi", bg: "#f3f6fb" }
-];
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem("azizData"));
+    if (!d) return JSON.parse(JSON.stringify(DEFAULTS));
+    // Merge safely
+    return { ...DEFAULTS, ...d, variable: {...DEFAULTS.variable, ...(d.variable||{})}, funds: {...DEFAULTS.funds, ...(d.funds||{})} };
+  } catch (e) { console.error("Load error", e); return JSON.parse(JSON.stringify(DEFAULTS)); }
+}
 
-// MAIN APP FUNCTIONS
+function persist() { localStorage.setItem("azizData", JSON.stringify(DATA)); }
+
+/* --- 2. LOCK SYSTEM --- */
+const getPass = () => localStorage.getItem("azizPass") || "aziz2026";
+
 function runUnlock() {
-  const pw = document.getElementById("pw").value;
-  if (pw === DASH_CONFIG.password) {
-    document.getElementById("lock").classList.add("hidden");
-    document.getElementById("app").classList.add("visible");
-    init();
+  const pwInput = document.getElementById('pw');
+  const errDiv = document.getElementById('err');
+  const lockScreen = document.getElementById('lock');
+  if (!pwInput || !lockScreen) return;
+
+  if (pwInput.value.trim() === getPass()) {
+    lockScreen.style.opacity = '0';
+    setTimeout(() => {
+      lockScreen.style.display = 'none';
+      document.getElementById('app').classList.add('visible');
+      init(); syncPull();
+    }, 400);
   } else {
-    document.getElementById("err").textContent = "Incorrect password";
+    if(errDiv) errDiv.textContent = "Incorrect password.";
+    pwInput.value = ''; pwInput.focus();
+    lockScreen.querySelector('.box').animate([{transform:'translateX(0)'},{transform:'translateX(-10px)'},{transform:'translateX(10px)'},{transform:'translateX(0)'}], {duration:250});
   }
 }
 
-function relock() {
-  document.getElementById("lock").classList.remove("hidden");
-  document.getElementById("app").classList.remove("visible");
-  document.getElementById("pw").value = "";
+function relock() { location.reload(); }
+
+window.addEventListener('load', () => {
+  const pwInput = document.getElementById('pw');
+  if(pwInput) pwInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') runUnlock(); });
+});
+
+/* --- 3. CORE FUNCTIONS --- */
+function syncPull() {
+  if(!SYNC_URL) return;
+  fetch(SYNC_URL, {mode:"cors"}).then(r=>r.json()).then(d=>{
+    if(d && d.salary) { DATA = {...DEFAULTS, ...d}; persist(); init(); }
+  }).catch(e=>{});
+}
+function syncPush() {
+  if(!SYNC_URL) return;
+  fetch(SYNC_URL, {method:"POST", body:JSON.stringify(DATA), mode:"cors"}).catch(e=>{});
 }
 
-function cycleTheme() {
-  const current = document.body.getAttribute("data-theme") || "default";
-  const nextThemes = { "": "glass", "glass": "midnight", "midnight": "sidi", "sidi": "default" };
-  setTheme(nextThemes[current] || "default");
-}
+const fmt = n => "QAR " + Math.round(n).toLocaleString();
+const g = id => document.getElementById(id);
 
-function setTheme(themeId) {
-  document.body.setAttribute("data-theme", themeId);
-  appData.settings.theme = themeId;
-}
-
-// NOTIFICATION SYSTEM
-let notifications = [];
-let notificationCount = 0;
-
-function addNotification(text) {
-  notifications.push({ text, time: new Date().toLocaleTimeString() });
-  notificationCount++;
-  updateNotificationBadge();
-}
-
-function updateNotificationBadge() {
-  document.getElementById("bellN").textContent = notificationCount > 0 ? notificationCount : "";
-}
-
-function toggleNotif(e) {
-  e.stopPropagation();
-  const notifBox = document.getElementById("notif");
-  notifBox.classList.toggle("open");
+/* --- 4. INITIALIZATION --- */
+function init() {
+  console.log("System Ready");
+  const currentMonth = new Date().toISOString().slice(0, 7);
   
-  if (notifBox.classList.contains("open")) {
-    let html = "";
-    notifications.slice().reverse().forEach(n => {
-      html += `<div>${n.text}</div>`;
-    });
-    document.getElementById("notif").innerHTML = html + `<div style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px">${notifications.length} total</div>`;
-    notificationCount = 0;
-    updateNotificationBadge();
-  }
-}
-
-// TAB NAVIGATION
-function switchTab(tabId) {
-  document.querySelectorAll(".tab").forEach(t => t.classList.remove("on"));
-  document.querySelectorAll(`[data-tab="${tabId}"]`).forEach(b => b.classList.remove("on"));
-  
-  document.getElementById(`tab-${tabId}`).classList.add("on");
-  document.querySelectorAll(`[data-tab="${tabId}"]`).forEach(b => b.classList.add("on"));
-}
-
-// CLOCK UPDATE
-function updateClock() {
-  const now = new Date();
-  document.getElementById("clock").textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  
-  // Update greeting based on time
-  const hour = now.getHours();
-  if (hour < 12) document.getElementById("hello").textContent = "Good morning, Aziz";
-  else if (hour < 18) document.getElementById("hello").textContent = "Good afternoon, Aziz";
-  else document.getElementById("hello").textContent = "Good evening, Aziz";
-}
-
-// RENDERING FUNCTIONS
-function renderOverview() {
-  // Stats
-  document.getElementById("s_cash").textContent = formatCurrency(appData.finances.cash);
-  document.getElementById("s_rate").textContent = calculateSavingsRate() + "%";
-  document.getElementById("s_left").textContent = formatCurrency(calculateLeftover());
-  document.getElementById("s_exp").textContent = formatCurrency(appData.settings.monthlyBudget);
-  
-  // Chart
-  renderChart();
-  
-  // Priority task
-  const priority = appData.tasks.find(t => !t.done);
-  document.getElementById("prio").textContent = priority ? priority.text : "No pending tasks";
-  
-  // Actions
-  const actions = appData.tasks.filter(t => !t.done).slice(0, 3);
-  document.getElementById("acts").innerHTML = actions.map(a => 
-    `<li class="act ${a.done ? 'done' : ''}" onclick="toggleTask('${a.text}')">
-      <div class="cb">${a.done ? '✓' : ''}</div>
-      <span>${a.text}</span>
-    </li>`
-  ).join("");
-  
-  // Funds
-  updateFundProgress("ef", appData.finances.emergencyFund);
-  updateFundProgress("tf", appData.finances.tunisiaFund);
-  
-  // Needs attention
-  document.getElementById("chips").innerHTML = getAttentionItems().map(item => 
-    `<div class="chip" style="background:linear-gradient(135deg,${item.color},${item.darkColor})">${item.text}</div>`
-  ).join("");
-}
-
-function calculateSavingsRate() {
-  const income = appData.finances.transactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
-  const savings = appData.finances.cash + appData.finances.bankTotal - appData.finances.totalDebt;
-  return income > 0 ? Math.round((savings / income) * 100) : 0;
-}
-
-function calculateLeftover() {
-  const income = appData.finances.transactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0);
-  const expenses = appData.finances.transactions.filter(t => t.type === "expense").reduce((sum, t) => sum + t.amount, 0);
-  return income - expenses - appData.settings.monthlyBudget;
-}
-
-function renderChart() {
-  const container = document.getElementById("chart");
-  const labels = document.getElementById("chartL");
-  
-  // Mock data for last 6 months
-  const months = ["Feb", "Mar", "Apr", "May", "Jun", "Jul"];
-  const income = [18000, 19000, 18500, 19000, 18800, 19000];
-  const expenses = [15000, 16000, 14000, 17000, 15500, 16200];
-  
-  let chartHtml = '<div class="cm">';
-  for (let i = 0; i < 6; i++) {
-    const inHeight = (income[i] / 20000) * 100;
-    const exHeight = (expenses[i] / 20000) * 100;
-    chartHtml += `
-      <div>
-        <i class="in" style="height:${inHeight}%"></i>
-        <i class="ex" style="height:${exHeight}%"></i>
-      </div>
-    `;
-  }
-  chartHtml += '</div>';
-  
-  container.innerHTML = chartHtml;
-  labels.innerHTML = months.map(m => `<span>${m}</span>`).join("");
-}
-
-function updateFundProgress(id, fund) {
-  const percent = Math.min(100, (fund.current / fund.target) * 100);
-  document.getElementById(`${id}_t`).textContent = `${formatCurrency(fund.current)} / ${formatCurrency(fund.target)}`;
-  document.getElementById(`${id}_b`).style.width = percent + "%";
-  document.getElementById(`${id}_p`).textContent = `Progress: ${Math.round(percent)}%`;
-}
-
-function getAttentionItems() {
-  const items = [];
-  
-  // Low emergency fund
-  if (appData.finances.emergencyFund.current < appData.finances.emergencyFund.target * 0.8) {
-    items.push({
-      text: "Emergency fund low",
-      color: "#c03434",
-      darkColor: "#a02b2b"
-    });
-  }
-  
-  // Upcoming document expiry
-  const soonExpiry = appData.documents.filter(d => {
-    const daysLeft = (new Date(d.expiry) - new Date()) / (1000 * 60 * 60 * 24);
-    return daysLeft < 30 && daysLeft > 0;
+  const monthlyTx = DATA.tx.filter(t => {
+    const dateStr = t[3] || ""; 
+    return typeof dateStr === 'string' && dateStr.startsWith(currentMonth);
   });
   
-  if (soonExpiry.length > 0) {
-    items.push({
-      text: `${soonExpiry.length} doc(s) expiring soon`,
-      color: "#e0a10c",
-      darkColor: "#b8860b"
-    });
-  }
+  const incomeThisMonth = monthlyTx.filter(t => t[4] === 'income').reduce((sum, t) => sum + (parseFloat(t[1])||0), 0);
+  const expenseThisMonth = monthlyTx.filter(t => t[4] === 'expense').reduce((sum, t) => sum + (parseFloat(t[1])||0), 0);
   
-  // High debt ratio
-  if (appData.finances.totalDebt > appData.finances.netWorth * 0.3) {
-    items.push({
-      text: "High debt ratio",
-      color: "#1d5c43",
-      darkColor: "#154431"
-    });
-  }
-  
-  return items;
-}
+  const bankTotal = (DATA.accounts||[]).filter(a => a.type === 'bank').reduce((sum, a) => sum + (a.balance||0), 0);
+  const cashTotal = (DATA.accounts||[]).filter(a => a.type === 'cash').reduce((sum, a) => sum + (a.balance||0), 0);
+  const totalDebt = (DATA.loans||[]).reduce((sum, l) => sum + ((l.total||0) - (l.paid||0)), 0);
+  const netWorth = (bankTotal + cashTotal + (DATA.funds.emergency ? DATA.funds.emergency[0] : 0)) - totalDebt;
 
-function renderMoney() {
-  document.getElementById("net_worth").textContent = formatCurrency(appData.finances.netWorth);
-  document.getElementById("cash_hand").textContent = formatCurrency(appData.finances.cash);
-  document.getElementById("bank_total").textContent = formatCurrency(appData.finances.bankTotal);
-  document.getElementById("total_debt").textContent = formatCurrency(appData.finances.totalDebt);
+  if(g("s_cash")) g("s_cash").textContent = fmt(cashTotal);
+  if(g("net_worth")) g("net_worth").textContent = fmt(netWorth);
+  if(g("bank_total")) g("bank_total").textContent = fmt(bankTotal);
+  if(g("total_debt")) g("total_debt").textContent = fmt(totalDebt);
   
-  // Bank breakdown
-  document.getElementById("bank_breakdown").innerHTML = appData.settings.accounts.map(acc => {
-    const [name, balance] = acc.split(", ");
-    return `<div class="breakdown-item"><span>${name}</span><span>${formatCurrency(parseFloat(balance))}</span></div>`;
-  }).join("");
-  
-  // Debt breakdown
-  document.getElementById("debt_breakdown").innerHTML = appData.finances.loans.map(loan => {
-    return `<div class="breakdown-item"><span>${loan.name}</span><span>${formatCurrency(loan.balance)}</span></div>`;
-  }).join("");
-  
-  // Month status
-  updateMonthStatus();
-  
-  // Transactions
+  renderChart();
   renderTransactions();
-  
-  // Loans
+  renderAccounts();
   renderLoans();
-  
-  // Funds
   renderFunds();
+  renderDocs();
+  renderSettings();
   
-  // Cheques
-  renderCheques();
-}
-
-function updateMonthStatus() {
-  const expenses = appData.finances.transactions
-    .filter(t => t.type === "expense" && new Date(t.date).getMonth() === new Date().getMonth())
-    .reduce((sum, t) => sum + t.amount, 0);
-    
-  const budget = appData.settings.monthlyBudget;
-  const percent = Math.min(100, (expenses / budget) * 100);
-  
-  document.getElementById("spent_amt").textContent = formatCurrency(expenses);
-  document.getElementById("budget_amt").textContent = formatCurrency(budget);
-  document.getElementById("month_prog").style.width = percent + "%";
-  
-  let statusText = "On track";
-  let statusColor = "var(--green)";
-  
-  if (percent > 90) {
-    statusText = "Overspending!";
-    statusColor = "var(--red)";
-  } else if (percent > 75) {
-    statusText = "Approaching limit";
-    statusColor = "var(--amber)";
+  if(incomeThisMonth === 0 && new Date().getDate() > 5) {
+    if(g("status_text")) { g("status_text").textContent = "⚠️ Salary Not Recorded Yet!"; g("status_text").style.color = "var(--red)"; }
+  } else {
+    if(g("status_text")) { g("status_text").textContent = "✅ Month Active"; g("status_text").style.color = "var(--green)"; }
   }
   
-  document.getElementById("status_text").textContent = statusText;
-  document.getElementById("status_text").style.color = statusColor;
+  if(g("spent_amt")) g("spent_amt").textContent = fmt(expenseThisMonth);
+  if(g("budget_amt")) g("budget_amt").textContent = fmt(DATA.budget);
+  if(g("month_prog")) g("month_prog").style.width = Math.min((expenseThisMonth/DATA.budget)*100, 100) + "%";
+}
+
+/* --- 5. RENDERERS --- */
+function renderChart() {
+  const ctx = g("chart");
+  if(!ctx) return;
+  const data = DATA.history.slice(-5);
+  const max = Math.max(...data.map(d=>d[1]), 20000);
+  const pts = data.map((d,i) => {
+    const x = (i / (data.length-1)) * 100;
+    const y = 100 - ((d[1]/max)*100);
+    return `${x},${y}`;
+  }).join(" ");
+  
+  ctx.innerHTML = `
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="width:100%;height:100%;overflow:visible">
+      <polyline points="${pts}" fill="none" stroke="var(--acc)" stroke-width="2" vector-effect="non-scaling-stroke"/>
+      ${data.map((d,i) => {
+        const x = (i / (data.length-1)) * 100;
+        const y = 100 - ((d[1]/max)*100);
+        return `<circle cx="${x}" cy="${y}" r="3" fill="var(--bg)" stroke="var(--acc)" stroke-width="2" />`;
+      }).join('')}
+    </svg>
+    <div class="cl">${data.map(d=>`<span>${d[0]}</span>`).join("")}</div>
+  `;
 }
 
 function renderTransactions() {
-  const list = document.getElementById("tx_list");
-  const recent = [...appData.finances.transactions]
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
-    .slice(0, 10);
-    
-  list.innerHTML = recent.map(tx => `
-    <tr>
-      <td><span class="pill s-${tx.type === 'income' ? 'done' : 'bad'}">${tx.type}</span></td>
-      <td>${tx.desc}</td>
-      <td style="color:${tx.type === 'income' ? 'var(--green)' : 'var(--red)'}">${tx.type === 'income' ? '+' : '-'}${formatCurrency(tx.amount)}</td>
-      <td>${new Date(tx.date).toLocaleDateString()}</td>
-      <td><button class="copyb" onclick="deleteTransaction('${tx.desc}', '${tx.date}')">✕</button></td>
-    </tr>
+  const list = g("tx_list");
+  if(!list) return;
+  list.innerHTML = DATA.tx.slice().reverse().map((t,i) => {
+    const originalIdx = DATA.tx.length - 1 - i;
+    const type = t[4] || 'expense';
+    const color = type === 'income' ? 'var(--green)' : 'var(--ink)';
+    const sign = type === 'income' ? '+' : '-';
+    return `<tr>
+      <td><b style="color:${color}">${t[0]}</b></td>
+      <td class="mut">${t[2]||'-'}</td>
+      <td style="font-weight:700;color:${color}">${sign}${fmt(t[1])}</td>
+      <td class="mut">${t[3]||'-'}</td>
+      <td><button class="copyb" onclick="delTx(${originalIdx})">✕</button></td>
+    </tr>`;
+  }).join("");
+}
+
+function renderAccounts() {
+  const list = g("accounts_editor");
+  if(!list) return;
+  list.innerHTML = (DATA.accounts||[]).map((a,i) => `
+    <div style="display:flex;gap:10px;margin-bottom:10px;align-items:center">
+      <input value="${a.name}" onchange="updateAccount(${i},'name',this.value)" placeholder="Bank Name" style="flex:2">
+      <select onchange="updateAccount(${i},'type',this.value)" style="flex:1">
+        <option value="bank" ${a.type==='bank'?'selected':''}>Bank</option>
+        <option value="cash" ${a.type==='cash'?'selected':''}>Cash</option>
+      </select>
+      <input type="number" value="${a.balance}" onchange="updateAccount(${i},'balance',this.value)" placeholder="Balance" style="flex:1">
+      <button class="btn o" style="padding:8px" onclick="delAccount(${i})">✕</button>
+    </div>
   `).join("");
+  
+  const breakdown = g("bank_count");
+  if(breakdown) breakdown.textContent = (DATA.accounts||[]).length + " Accounts";
+  
+  // Update Bank Breakdown in Money Tab
+  const bankBreakdown = g("bank_breakdown");
+  if(bankBreakdown) {
+    bankBreakdown.innerHTML = (DATA.accounts||[]).filter(a => a.type === 'bank').map(a => 
+      `<div class="breakdown-item"><span>${a.name}</span><span>${fmt(a.balance)}</span></div>`
+    ).join("");
+  }
+  
+  // Update Debt Breakdown
+  const debtBreakdown = g("debt_breakdown");
+  if(debtBreakdown) {
+    debtBreakdown.innerHTML = (DATA.loans||[]).map(l => 
+      `<div class="breakdown-item"><span>${l.name}</span><span>${fmt(l.total - l.paid)}</span></div>`
+    ).join("");
+  }
 }
 
 function renderLoans() {
-  const list = document.getElementById("loans_list");
-  list.innerHTML = appData.finances.loans.map(loan => `
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--track);">
-      <div>
-        <div style="font-weight:600">${loan.name}</div>
-        <div style="font-size:11px;color:var(--muted)">${formatCurrency(loan.balance)} of ${formatCurrency(loan.limit)}</div>
+  const list = g("loans_list");
+  if(!list) return;
+  if((DATA.loans||[]).length === 0) { list.innerHTML = `<p class="mut">No active loans.</p>`; return; }
+  list.innerHTML = DATA.loans.map((l,i) => `
+    <div style="background:var(--track);padding:10px;border-radius:8px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;font-weight:700"><span>${l.name}</span><span style="color:var(--red)">-${fmt(l.total - l.paid)}</span></div>
+      <div class="prog" style="height:4px;margin:5px 0"><i style="width:${(l.paid/l.total)*100}%"></i></div>
+      <div style="font-size:11px;display:flex;justify-content:space-between">
+        <span>Paid: ${fmt(l.paid)}</span>
+        <span>Next: ${l.nextDue||'None'}</span>
       </div>
-      <div style="text-align:right">
-        <div style="font-size:11px;color:var(--muted)">Due: ${loan.dueDate}</div>
-        <button class="btn o" style="font-size:10px;padding:3px 6px;margin-top:4px" onclick="editLoan('${loan.name}')">Edit</button>
-      </div>
+      <button class="btn o" style="font-size:10px;padding:4px 8px;margin-top:5px" onclick="manageLoan(${i})">Manage Cheques/Payments</button>
     </div>
   `).join("");
 }
 
 function renderFunds() {
-  const list = document.getElementById("funds_list");
-  list.innerHTML = appData.finances.funds.map(fund => `
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--track);">
-      <div>
-        <div style="font-weight:600">${fund.name}</div>
-        <div class="prog" style="width:100px;margin-top:4px"><i style="width:${(fund.balance/fund.target)*100}%"></i></div>
+  const list = g("funds_list");
+  if(!list) return;
+  const funds = DATA.funds || {};
+  list.innerHTML = Object.entries(funds).map(([key, val]) => {
+    // Safe access for array elements
+    const bal = (Array.isArray(val) ? val[0] : 0);
+    const target = (Array.isArray(val) ? val[1] : 10000);
+    const dateStr = (Array.isArray(val) && val[2]) ? val[2] : null;
+    
+    const pct = Math.min(Math.round(bal / target * 100), 100);
+    const left = Math.max(target - bal, 0);
+    const upd = dateStr ? new Date(dateStr).toLocaleDateString("en-GB", {day:"numeric", month:"short", year:"numeric"}) : "Never";
+    
+    return `
+    <div style="margin-bottom:14px; cursor:pointer;" onclick="openFundEditor('${key}')">
+      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;text-transform:capitalize">
+        <span>${key}</span>
+        <span>${fmt(bal)}</span>
       </div>
-      <div style="text-align:right">
-        <div>${formatCurrency(fund.balance)} / ${formatCurrency(fund.target)}</div>
-        <button class="btn o" style="font-size:10px;padding:3px 6px;margin-top:4px" onclick="editFund('${fund.key}')">Edit</button>
+      <div class="prog" style="height:6px;"><i style="width:${pct}%"></i></div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:2px">
+        <span><b style="color:var(--green2)">${pct}% reached</b> · ${100-pct}% left (${fmt(left)})</span>
+        <span>Updated ${upd}</span>
       </div>
-    </div>
-  `).join("");
+    </div>`;
+  }).join("");
 }
 
-function renderCheques() {
-  const list = document.getElementById("cheque_list");
-  list.innerHTML = appData.finances.cheques.map(ch => `
-    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--track);">
-      <span>${ch.desc}</span>
-      <span style="color:${ch.status === 'pending' ? 'var(--amber)' : 'var(--green')}">${formatCurrency(ch.amount)} · ${ch.date}</span>
-    </div>
-  `).join("");
-}
-
-function renderDocuments() {
-  const docsList = document.getElementById("docsL");
-  docsList.innerHTML = appData.documents.map(doc => `
+function renderDocs() {
+  const list = g("docsL");
+  if(!list) return;
+  list.innerHTML = (DATA.docs||[]).map((d,i) => `
     <tr>
-      <td>${doc.type}</td>
-      <td>${doc.number}</td>
-      <td>${doc.expiry}</td>
-      <td><span class="pill s-${doc.status === 'valid' ? 'done' : 'bad'}">${doc.status}</span></td>
-      <td><button class="copyb">View</button></td>
+      <td><b>${d[0]}</b></td>
+      <td class="mut">••• ${String(d[1]).slice(-4)}</td>
+      <td class="mut">${d[2]||'N/A'}</td>
+      <td><span class="pill s-done">Valid</span></td>
+      <td>
+        ${d[3] ? `<a href="${d[3]}" target="_blank" class="copyb">View</a>` : '<button class="copyb" onclick="uploadDoc('+i+')">Upload</button>'}
+      </td>
     </tr>
   `).join("");
-  
-  const cardsList = document.getElementById("cardsL");
-  cardsList.innerHTML = appData.cards.map(card => `
-    <div class="cc ${card.type === 'credit' ? 'o' : ''}">
-      <div class="top">
-        <span>${card.bank}</span>
-        <span>${card.type.toUpperCase()}</span>
-      </div>
-      <div class="num">${card.number}</div>
-      <div class="row">
-        <span>Expires: ${card.expiry}</span>
-        <span>CVV: ***</span>
-      </div>
-    </div>
-  `).join("");
-}
-
-function renderPlans() {
-  const planList = document.getElementById("planL");
-  planList.innerHTML = appData.plans.map(plan => `
-    <div class="it ${plan.status === 'in_progress' ? 'now' : ''}">
-      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-        <b>${plan.title}</b>
-        <span class="pill s-${plan.status === 'done' ? 'done' : plan.status === 'in_progress' ? 'prog' : 'pend'}">${plan.status.replace('_', ' ')}</span>
-      </div>
-      <div style="font-size:11px;color:var(--muted)">Target: ${plan.date}</div>
-    </div>
-  `).join("");
-}
-
-function renderArchive(filter = "") {
-  let filtered = appData.archive;
-  if (filter) {
-    filtered = appData.archive.filter(a => a.type.toLowerCase().includes(filter.toLowerCase()));
-  }
-  
-  const archList = document.getElementById("archL");
-  archList.innerHTML = filtered.map(arch => `
-    <tr>
-      <td>${arch.title}</td>
-      <td><span class="pill">${arch.type}</span></td>
-      <td>${arch.date}</td>
-      <td>${arch.note}</td>
-    </tr>
-  `).join("");
-}
-
-function renderReviews() {
-  const revList = document.getElementById("revList");
-  revList.innerHTML = appData.reviews.map(review => `
-    <div style="border-bottom:1px solid var(--track);padding:12px 0">
-      <div style="display:flex;gap:8px;margin-bottom:8px">
-        <span class="pill s-done">${review.week}</span>
-        <span style="color:var(--muted);font-size:11px">${review.date}</span>
-      </div>
-      <div style="display:flex;gap:12px;flex-wrap:wrap">
-        <div><b>Keep:</b> ${review.keep}</div>
-        <div><b>Stop:</b> ${review.stop}</div>
-        <div><b>Start:</b> ${review.start}</div>
-        <div><b>Change:</b> ${review.change}</div>
-      </div>
-    </div>
-  `).join("");
-  
-  // Load latest review into form
-  if (appData.reviews.length > 0) {
-    const latest = appData.reviews[0];
-    document.getElementById("rv_keep").value = latest.keep;
-    document.getElementById("rv_stop").value = latest.stop;
-    document.getElementById("rv_start").value = latest.start;
-    document.getElementById("rv_change").value = latest.change;
-  }
 }
 
 function renderSettings() {
-  // Populate financial settings
-  document.getElementById("set_accounts").value = appData.settings.accounts.join("\\n");
-  document.getElementById("set_cats").value = appData.settings.categories.join(", ");
-  document.getElementById("set_budget").value = appData.settings.monthlyBudget;
-  
-  // Render themes
-  const themeRow = document.getElementById("themeRow");
-  themeRow.innerHTML = themes.map(theme => `
-    <button class="thb ${appData.settings.theme === theme.id ? 'on' : ''}" onclick="setTheme('${theme.id}')">
-      <i style="background:${theme.bg}"></i>
-      ${theme.name}
-    </button>
-  `).join("");
-}
-
-// FORM HANDLERS
-function addTxQuick() {
-  const name = document.getElementById("t_name").value.trim();
-  const amount = parseFloat(document.getElementById("t_amt").value);
-  const category = document.getElementById("t_cat").value;
-  
-  if (!name || isNaN(amount) || amount <= 0) {
-    alert("Please enter valid transaction details");
-    return;
+  const themeRow = g("themeRow");
+  if(themeRow) {
+    themeRow.innerHTML = THEMES.map(t => `
+      <button class="thb ${(document.body.dataset.theme||'classic')===t?'on':''}" onclick="setTheme('${t}')">
+        <span style="text-transform:capitalize">${t}</span>
+      </button>
+    `).join("");
   }
   
-  appData.finances.transactions.push({
-    type: "expense",
-    desc: name,
-    amount: amount,
-    date: new Date().toISOString().split('T')[0],
-    category: category || "Uncategorized"
-  });
-  
-  document.getElementById("t_name").value = "";
-  document.getElementById("t_amt").value = "";
-  
-  addNotification(`Added expense: ${name} (${formatCurrency(amount)})`);
-  init(); // Refresh view
+  if(g("set_budget")) g("set_budget").value = DATA.budget;
+  if(g("set_cats")) g("set_cats").value = Object.keys(DATA.variable).join(", ");
 }
 
-function addPlan() {
-  const title = document.getElementById("p_title").value.trim();
-  const date = document.getElementById("p_date").value;
-  const status = document.getElementById("p_st").value;
-  
-  if (!title || !date) {
-    alert("Please fill all required fields");
-    return;
-  }
-  
-  appData.plans.push({ title, date, status: status.toLowerCase().replace(' ', '_') });
-  
-  document.getElementById("p_title").value = "";
-  document.getElementById("p_date").value = "";
-  document.getElementById("p_st").value = "Planned";
-  
-  addNotification(`Added plan: ${title}`);
-  init(); // Refresh view
+/* --- 6. ACTIONS --- */
+function openModal(id) { 
+  const el = document.getElementById(id);
+  if(el) el.classList.add('active'); 
+  if(id === 'modal-tx') populateCategories();
+}
+function closeModal(id) { 
+  const el = document.getElementById(id);
+  if(el) el.classList.remove('active'); 
 }
 
-function saveReview() {
-  const keep = document.getElementById("rv_keep").value;
-  const stop = document.getElementById("rv_stop").value;
-  const start = document.getElementById("rv_start").value;
-  const change = document.getElementById("rv_change").value;
-  
-  if (!keep || !stop || !start || !change) {
-    alert("Please fill all sections");
-    return;
-  }
-  
-  const newReview = {
-    week: `W${getWeekNumber(new Date())}`,
-    date: new Date().toISOString().split('T')[0],
-    keep, stop, start, change
-  };
-  
-  appData.reviews.unshift(newReview);
-  addNotification("Weekly review saved");
-  init(); // Refresh view
-}
-
-function saveFinSettings() {
-  appData.settings.accounts = document.getElementById("set_accounts").value.split("\\n").filter(a => a.trim() !== "");
-  appData.settings.categories = document.getElementById("set_cats").value.split(",").map(c => c.trim()).filter(c => c !== "");
-  appData.settings.monthlyBudget = parseFloat(document.getElementById("set_budget").value) || 0;
-  
-  addNotification("Financial settings updated");
-  init(); // Refresh view
-}
-
-// MODAL FUNCTIONS
-function openModal(modalId) {
-  document.getElementById(modalId).classList.add("active");
-}
-
-function closeModal(modalId) {
-  document.getElementById(modalId).classList.remove("active");
+function populateCategories() {
+  const sel = document.getElementById('m_tx_cat');
+  if(!sel) return;
+  sel.innerHTML = Object.keys(DATA.variable).map(c => `<option>${c}</option>`).join('');
 }
 
 function submitTx() {
-  const type = document.getElementById("m_tx_type").value;
-  const desc = document.getElementById("m_tx_desc").value.trim();
-  const amount = parseFloat(document.getElementById("m_tx_amt").value);
-  const cat = document.getElementById("m_tx_cat").value;
+  const type = document.getElementById('m_tx_type').value;
+  const desc = document.getElementById('m_tx_desc').value;
+  const amt = parseFloat(document.getElementById('m_tx_amt').value);
+  const cat = document.getElementById('m_tx_cat').value;
   
-  if (!desc || isNaN(amount) || amount <= 0) {
-    alert("Please enter valid transaction details");
-    return;
+  if(!desc || !amt) return alert('Please fill all fields');
+  
+  DATA.tx.push([desc, amt, cat, new Date().toISOString().slice(0,10), type]);
+  
+  if(type === 'income') {
+    if(DATA.accounts && DATA.accounts.length) DATA.accounts[0].balance += amt;
+    else DATA.cash += amt;
+  } else {
+    if(DATA.accounts && DATA.accounts.length) DATA.accounts[0].balance -= amt;
+    else DATA.cash -= amt;
   }
   
-  appData.finances.transactions.push({
-    type,
-    desc,
-    amount,
-    date: new Date().toISOString().split('T')[0],
-    category: cat || "Uncategorized"
-  });
-  
-  closeModal("modal-tx");
-  addNotification(`Added ${type}: ${desc} (${formatCurrency(amount)})`);
-  init(); // Refresh view
+  persist(); syncPush(); init(); closeModal('modal-tx');
+  document.getElementById('m_tx_desc').value = '';
+  document.getElementById('m_tx_amt').value = '';
 }
 
 function submitSalary() {
-  const amount = parseFloat(document.getElementById("m_sal_amt").value);
+  const amt = parseFloat(document.getElementById('m_sal_amt').value);
+  if(!amt) return;
   
-  if (isNaN(amount) || amount <= 0) {
-    alert("Please enter valid salary amount");
-    return;
-  }
+  const monthLabel = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+  DATA.tx.push(["Salary: " + monthLabel, amt, "Income", new Date().toISOString().slice(0,10), "income"]);
   
-  appData.finances.transactions.push({
-    type: "income",
-    desc: "Salary",
-    amount,
-    date: new Date().toISOString().split('T')[0],
-    category: "Income"
-  });
+  if(DATA.accounts && DATA.accounts.length) DATA.accounts[0].balance += amt;
+  DATA.lastSalaryDate = new Date().toISOString();
   
-  closeModal("modal-salary");
-  addNotification(`Salary recorded: ${formatCurrency(amount)}`);
-  init(); // Refresh view
+  persist(); syncPush(); init(); closeModal('modal-salary');
+  document.getElementById('m_sal_amt').value = '';
 }
 
-function editFund(key) {
-  const fund = appData.finances.funds.find(f => f.key === key);
-  if (fund) {
-    document.getElementById("m_fund_key").value = fund.key;
-    document.getElementById("m_fund_name").value = fund.name;
-    document.getElementById("m_fund_bal").value = fund.balance;
-    document.getElementById("m_fund_target").value = fund.target;
-    openModal("modal-fund");
-  }
+function addTxQuick() {
+  const n = g("t_name").value.trim();
+  const a = parseFloat(g("t_amt").value);
+  const c = g("t_cat").value;
+  if(!n || !a) return alert("Enter details");
+  DATA.tx.push([n, a, c, new Date().toISOString().slice(0,10), "expense"]);
+  if(DATA.accounts && DATA.accounts.length) DATA.accounts[0].balance -= a;
+  else DATA.cash -= a;
+  persist(); syncPush(); init();
+  g("t_name").value = ""; g("t_amt").value = "";
 }
 
-function submitFund() {
-  const key = document.getElementById("m_fund_key").value;
-  const name = document.getElementById("m_fund_name").value.trim();
-  const bal = parseFloat(document.getElementById("m_fund_bal").value);
-  const target = parseFloat(document.getElementById("m_fund_target").value);
-  
-  if (!name || isNaN(bal) || isNaN(target)) {
-    alert("Please enter valid fund details");
-    return;
-  }
-  
-  const fundIndex = appData.finances.funds.findIndex(f => f.key === key);
-  if (fundIndex !== -1) {
-    appData.finances.funds[fundIndex] = { ...appData.finances.funds[fundIndex], name, balance: bal, target };
-  }
-  
-  closeModal("modal-fund");
-  addNotification(`Fund updated: ${name}`);
-  init(); // Refresh view
+function delTx(i) {
+  if(confirm("Delete?")) { DATA.tx.splice(i, 1); persist(); syncPush(); init(); }
 }
 
-// UTILITY FUNCTIONS
-function formatCurrency(amount) {
-  return new Intl.NumberFormat(DASH_CONFIG.locale, {
-    style: 'currency',
-    currency: DASH_CONFIG.currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(amount);
+function updateAccount(i, key, val) {
+  DATA.accounts[i][key] = key==='balance'?parseFloat(val):val;
+  persist(); syncPush(); init();
 }
-
-function getWeekNumber(d) {
-  d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
-  return Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
-}
-
-function toggleTask(text) {
-  const task = appData.tasks.find(t => t.text === text);
-  if (task) {
-    task.done = !task.done;
-    init(); // Refresh view
-  }
-}
-
-function deleteTransaction(desc, date) {
-  appData.finances.transactions = appData.finances.transactions.filter(t => !(t.desc === desc && t.date === date));
-  addNotification(`Deleted transaction: ${desc}`);
-  init(); // Refresh view
-}
+function delAccount(i) { DATA.accounts.splice(i,1); persist(); init(); }
 
 function addLoanPrompt() {
-  const name = prompt("Loan/Debt name:");
-  const balance = parseFloat(prompt("Current balance:"));
-  const limit = parseFloat(prompt("Total limit:"));
-  const dueDate = prompt("Due date (YYYY-MM-DD):");
-  
-  if (name && !isNaN(balance) && !isNaN(limit) && dueDate) {
-    appData.finances.loans.push({ name, balance, limit, dueDate });
-    addNotification(`Added liability: ${name}`);
-    init(); // Refresh view
+  const name = prompt("Loan Name:");
+  if(!name) return;
+  const total = parseFloat(prompt("Total Amount:"));
+  const paid = parseFloat(prompt("Amount Paid:")||"0");
+  DATA.loans.push({name, total, paid, nextDue:"", cheques:[]});
+  persist(); init();
+}
+
+function manageLoan(i) {
+  const l = DATA.loans[i];
+  const action = prompt(`Manage ${l.name}:\n1. Add Cheque\n2. Mark Paid\n3. Edit Details\n(Type 1, 2, or 3)`);
+  if(action === '1') {
+    const date = prompt("Cheque Date (YYYY-MM-DD):");
+    const amt = parseFloat(prompt("Amount:"));
+    if(!l.cheques) l.cheques = [];
+    l.cheques.push({date, amount:amt, paid:false});
+  } else if (action === '2') {
+    const amt = parseFloat(prompt("Payment Amount:"));
+    l.paid = (l.paid||0) + amt;
+  } else if (action === '3') {
+    l.name = prompt("Name:", l.name) || l.name;
+    l.total = parseFloat(prompt("Total:", l.total)) || l.total;
   }
+  persist(); init();
 }
 
 function addFundPrompt() {
-  const name = prompt("Fund name:");
-  const balance = parseFloat(prompt("Current balance:"));
-  const target = parseFloat(prompt("Target amount:"));
+  const key = prompt("Fund Name (e.g. emergency):");
+  if(!key) return;
+  const bal = parseFloat(prompt("Current Balance:"));
+  const target = parseFloat(prompt("Target Goal:"));
+  if(!DATA.funds) DATA.funds = {};
+  DATA.funds[key.toLowerCase()] = [bal, target, new Date().toISOString()];
+  persist(); init();
+}
+
+function openFundEditor(key) {
+  const fund = DATA.funds[key];
+  if(!fund) return;
+  document.getElementById('m_fund_key').value = key;
+  document.getElementById('m_fund_name').value = key;
+  document.getElementById('m_fund_bal').value = Array.isArray(fund) ? fund[0] : 0;
+  document.getElementById('m_fund_target').value = Array.isArray(fund) ? fund[1] : 10000;
+  openModal('modal-fund');
+}
+
+function submitFund() {
+  const oldKey = document.getElementById('m_fund_key').value;
+  const newKey = document.getElementById('m_fund_name').value.trim().toLowerCase();
+  const bal = parseFloat(document.getElementById('m_fund_bal').value) || 0;
+  const target = parseFloat(document.getElementById('m_fund_target').value) || 10000;
   
-  if (name && !isNaN(balance) && !isNaN(target)) {
-    const key = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-    appData.finances.funds.push({ key, name, balance, target });
-    addNotification(`Added fund: ${name}`);
-    init(); // Refresh view
+  if(!newKey) return alert("Fund name required");
+  if(!DATA.funds) DATA.funds = {};
+  
+  DATA.funds[newKey] = [bal, target, new Date().toISOString()];
+  if(oldKey && oldKey !== newKey) delete DATA.funds[oldKey];
+  
+  persist(); syncPush(); init(); closeModal('modal-fund');
+}
+
+function uploadDoc(i) {
+  const url = prompt("Paste Google Drive / Dropbox Link:");
+  if(url) {
+    DATA.docs[i][3] = url;
+    persist(); init();
   }
 }
 
-function syncTest() {
-  document.getElementById("sync_txt").textContent = "Connected";
-  document.getElementById("syncT").textContent = "Synced with Google";
-  addNotification("Connection test successful");
+function setTheme(t) { document.body.dataset.theme = t; localStorage.setItem("azizTheme", t); }
+function cycleTheme() {
+  const i = THEMES.indexOf(document.body.dataset.theme || "classic");
+  setTheme(THEMES[(i+1)%THEMES.length]);
 }
 
 function exportData() {
-  const dataStr = JSON.stringify(appData, null, 2);
-  const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-  
-  const exportFileDefaultName = 'dashboard_backup.json';
-  const linkElement = document.createElement('a');
-  linkElement.setAttribute('href', dataUri);
-  linkElement.setAttribute('download', exportFileDefaultName);
-  linkElement.click();
+  const blob = new Blob([JSON.stringify(DATA)], {type:"application/json"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+  a.download = "aziz-backup.json"; a.click();
 }
 
 function hardReset() {
-  if (confirm("Are you sure? This will delete all data permanently.")) {
-    localStorage.clear();
-    location.reload();
-  }
+  if(confirm("DELETE ALL DATA?")) { localStorage.removeItem("azizData"); location.reload(); }
 }
 
-// INITIALIZATION
-function init() {
-  // Set up event listeners
-  document.querySelectorAll("[data-tab]").forEach(btn => {
-    btn.onclick = () => switchTab(btn.getAttribute("data-tab"));
-  });
-  
-  // Populate category dropdown
-  const catSelects = document.querySelectorAll("#t_cat, #m_tx_cat");
-  catSelects.forEach(select => {
-    select.innerHTML = appData.settings.categories.map(cat => 
-      `<option value="${cat}">${cat}</option>`
-    ).join("");
-  });
-  
-  // Render current tab
-  const currentTab = document.querySelector(".tab.on").id.replace("tab-", "");
-  switch(currentTab) {
-    case "overview":
-      renderOverview();
-      break;
-    case "money":
-      renderMoney();
-      break;
-    case "docs":
-      renderDocuments();
-      break;
-    case "plans":
-      renderPlans();
-      break;
-    case "archive":
-      const filter = document.getElementById("archF").value;
-      renderArchive(filter);
-      break;
-    case "review":
-      renderReviews();
-      break;
-    case "settings":
-      renderSettings();
-      break;
-  }
-  
-  // Apply saved theme
-  setTheme(appData.settings.theme);
+function saveFinSettings() {
+  DATA.budget = parseFloat(g("set_budget").value) || 0;
+  const cats = {};
+  g("set_cats").value.split(",").forEach(c => { if(c.trim()) cats[c.trim()] = 1000; });
+  DATA.variable = cats;
+  persist(); syncPush(); init(); alert("Saved!");
 }
 
-// STARTUP
-updateClock();
-setInterval(updateClock, 60000); // Update clock every minute
+function addPlan() {
+  const t = g("p_title").value.trim();
+  const d = g("p_date").value;
+  if(!t||!d) return;
+  DATA.plans.push([t,d,g("p_st").value]);
+  g("p_title").value=""; persist(); syncPush(); init();
+}
 
-// Close notifications when clicking outside
-document.addEventListener("click", (e) => {
-  if (!e.target.closest("#notif") && !e.target.closest(".icobtn")) {
-    document.getElementById("notif").classList.remove("open");
-  }
+function saveReview() {
+  ["keep","stop","start","change"].forEach(k=>DATA.review[k]=g("rv_"+k).value);
+  persist(); syncPush(); init(); alert("Review Saved!");
+}
+
+function toggleNotif(e){e.stopPropagation();g("notif").classList.toggle("open");}
+document.addEventListener("click",()=>g("notif").classList.remove("open"));
+
+// Tabs
+document.querySelectorAll("[data-tab]").forEach(b=>{
+  b.onclick = () => {
+    document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("on", x.dataset.tab===b.dataset.tab));
+    document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on", t.id==="tab-"+b.dataset.tab));
+    if(b.dataset.tab === 'settings') renderSettings();
+  };
 });
 
-// Initialize app after DOM loads
-document.addEventListener("DOMContentLoaded", () => {
-  // Set default values if not already set
-  if (!localStorage.getItem("dashboard_data")) {
-    localStorage.setItem("dashboard_data", JSON.stringify(appData));
-  } else {
-    appData = JSON.parse(localStorage.getItem("dashboard_data"));
-  }
-  
-  // Set initial theme
-  setTheme(appData.settings.theme);
-});
+// Clock
+setInterval(()=>{
+  const n = new Date();
+  const h = n.getHours();
+  const greet = (h<12?"Good morning":h<17?"Good afternoon":"Good evening");
+  if(g("hello")) g("hello").textContent = `${greet}, Aziz`;
+  if(g("clock")) g("clock").textContent = n.toLocaleDateString("en-GB", {weekday:"short",day:"2-digit",month:"short"}) + " • " + n.toLocaleTimeString("en-GB", {hour:"2-digit",minute:"2-digit"});
+}, 1000);
 </script>
 </body>
 </html>
