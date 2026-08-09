@@ -183,22 +183,71 @@ textarea.rev{min-height:60px}
     </div>
   </section>
 
-  <section class="tab" id="tab-money">
-    <div class="g g23">
-      <div class="card"><h2>FINANCIAL COMMAND CENTER</h2>
-        <div id="rows"></div>
-        <div style="display:flex;height:14px;border-radius:7px;overflow:hidden;margin:14px 0 6px" id="stack"></div><div class="chips" style="gap:12px" id="legend"></div>
-        <h2 style="margin-top:20px">REGISTER AN EXPENSE</h2>
-        <div class="prow" style="grid-template-columns:1fr 1fr 1fr auto;gap:8px"><input id="t_name" placeholder="What did you pay?"><input id="t_amt" type="number" placeholder="QAR" inputmode="decimal"><select id="t_cat"></select><button class="btn g" onclick="addTx()">+ Add</button></div>
-        <h2 style="margin-top:20px">RECENT TRANSACTIONS</h2>
-        <div class="twrap"><table><thead><tr><th>Activity</th><th>Amount</th><th>Category</th><th>Date</th><th></th></tr></thead><tbody id="tx"></tbody></table></div>
+<section class="tab" id="tab-money">
+  <!-- TOP ROW: LIVE BALANCES -->
+  <div class="g g4" style="margin-bottom:20px">
+    <div class="card grad stat"><span class="mut">TOTAL NET WORTH</span><b id="net_worth">—</b><span class="badge" style="background:rgba(255,255,255,.2)">Assets - Debts</span></div>
+    <div class="card stat"><span class="mut">CASH ON HAND</span><b id="cash_hand">—</b><button class="badge" style="border:0;background:transparent;color:var(--acc);cursor:pointer" onclick="quickAdjust('cash')">✎ Edit</button></div>
+    <div class="card stat"><span class="mut">BANK TOTAL</span><b id="bank_total">—</b><span class="badge b-up" id="bank_count">0 Accounts</span></div>
+    <div class="card stat" style="border-left:4px solid var(--red)"><span class="mut">TOTAL DEBT</span><b id="total_debt" style="color:var(--red)">—</b><span class="badge b-dn">Loans + Cards</span></div>
+  </div>
+
+  <div class="g g23">
+    <!-- LEFT: OPERATIONS -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
+        <h2>COMMAND CENTER</h2>
+        <button class="btn g" style="font-size:12px;padding:6px 12px" onclick="toggleSalaryModal()">💰 Salary Received?</button>
       </div>
-      <div class="card"><h2>ACTUAL VS BUDGET (THIS MONTH)</h2>
-        <b id="bud_t" style="font-size:18px"></b><div class="prog"><i id="bud_b" style="background:linear-gradient(90deg,var(--acc2),var(--acc))"></i></div><p class="mut" id="bud_p"></p>
-        <h2 style="margin-top:18px">BUDGET BY CATEGORY</h2><div id="cats"></div>
+      
+      <!-- Monthly Status -->
+      <div id="month_status" class="card" style="background:var(--track);padding:15px;border-radius:12px;margin-bottom:20px">
+        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700"><span>Status:</span> <span id="status_text">Waiting for Salary...</span></div>
+        <div class="prog" style="margin-top:8px"><i id="month_prog" style="width:0%"></i></div>
+        <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:11px;color:var(--muted)">
+          <span>Spent: <b id="spent_amt">0</b></span>
+          <span>Budget: <b id="budget_amt">0</b></span>
+        </div>
       </div>
+
+      <h2>REGISTER EXPENSE</h2>
+      <div class="prow" style="grid-template-columns:1.5fr 1fr 1fr auto;gap:8px">
+        <input id="t_name" placeholder="What? (e.g. Dinner)" inputmode="text">
+        <input id="t_amt" type="number" placeholder="QAR" inputmode="decimal">
+        <select id="t_cat"><option value="">Category</option></select>
+        <button class="btn g" onclick="addTx()">Add</button>
+      </div>
+      
+      <h2 style="margin-top:20px">RECENT ACTIVITY</h2>
+      <div class="twrap"><table><thead><tr><th>Item</th><th>Cat</th><th>Amount</th><th>Date</th><th></th></tr></thead><tbody id="tx_list"></tbody></table></div>
     </div>
-  </section>
+
+    <!-- RIGHT: LOANS & FUNDS -->
+    <div class="card">
+      <h2>🔴 LIABILITIES (Loans)</h2>
+      <div id="loans_list" style="margin-bottom:20px"></div>
+      <button class="btn o" style="width:100%;font-size:12px" onclick="addLoanPrompt()">+ Add Loan/Card</button>
+
+      <h2 style="margin-top:20px">🟢 SAFE FUNDS</h2>
+      <p class="mut" style="font-size:11px;margin-bottom:10px">Cash stored physically (Emergency/Tunisia)</p>
+      <div id="funds_list"></div>
+      <button class="btn o" style="width:100%;font-size:12px;margin-top:10px" onclick="addFundPrompt()">+ Add to Safe</button>
+    </div>
+  </div>
+</section>
+
+<!-- Hidden Modal for Salary -->
+<div id="salary_modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center">
+  <div class="card" style="width:90%;max-width:400px;text-align:center">
+    <h2>NEW MONTH START</h2>
+    <p class="mut">Has your salary been deposited?</p>
+    <input type="number" id="salary_input" placeholder="Amount (e.g. 19000)" style="margin:15px 0;font-size:18px;text-align:center">
+    <div class="btns" style="justify-content:center">
+      <button class="btn o" onclick="document.getElementById('salary_modal').style.display='none'">Cancel</button>
+      <button class="btn g" onclick="confirmSalary()">Confirm Receipt</button>
+    </div>
+  </div>
+</div>
 
   <section class="tab" id="tab-docs">
     <div class="g g2">
@@ -234,39 +283,42 @@ textarea.rev{min-height:60px}
     </div>
   </section>
 
-  <section class="tab" id="tab-settings">
-    <div class="g g2">
-      <div class="card"><h2>APPEARANCE</h2>
-        <div class="chips" id="themeRow"></div>
-        <h2 style="margin-top:20px">SECURITY</h2>
-        <label>Change password</label><div class="prow" style="grid-template-columns:1fr auto"><input id="npass" type="password" placeholder="New password"><button class="btn g" onclick="savePass()">Save</button></div>
-        <h2 style="margin-top:20px"> SYNC</h2>
-        <p class="mut" id="syncMsg">Status shown top-right. URL lives in the code (SYNC_URL). Deployment must be: Execute as Me · Access: Anyone · ends with /exec.</p>
-        <div class="btns"><button class="btn o" onclick="syncTest()">Test connection</button></div>
-        <h2 style="margin-top:20px">DATA</h2>
-        <div class="btns"><button class="btn o" onclick="exportData()">⬇ Export backup</button><button class="btn o" onclick="document.getElementById('file').click()">⬆ Import</button><button class="btn o" onclick="resetData()">↺ Reset</button><input type="file" id="file" hidden accept=".json"></div>
-      </div>
-      <div class="card"><h2>EDIT EVERYTHING</h2>
-        <div class="prow"><div><label>Salary</label><input id="f_salary" type="number"></div><div><label>Rent</label><input id="f_rent" type="number"></div></div>
-        <div class="prow"><div><label>Savings/mo</label><input id="f_sav" type="number"></div><div><label>Investments/mo</label><input id="f_inv" type="number"></div></div>
-        <div class="prow"><div><label>Tunisia/mo</label><input id="f_tun" type="number"></div><div><label>Available cash</label><input id="f_cash" type="number"></div></div>
-        <div class="prow"><div><label>Spending limit/mo</label><input id="f_bud" type="number"></div><div><label>Tunisia stage 1-8</label><input id="f_stage" type="number"></div></div>
-        <div class="prow"><div><label>Emergency now</label><input id="f_ef" type="number"></div><div><label>Emergency target</label><input id="f_eft" type="number"></div></div>
-        <div class="prow"><div><label>Tunisia fund now</label><input id="f_tf" type="number"></div><div><label>Tunisia target</label><input id="f_tft" type="number"></div></div>
-        <label>Variable budget (Name, amount)</label><textarea id="f_var"></textarea>
-        <label>Chart history (Mon, spending)</label><textarea id="f_hist"></textarea>
-        <label>Objectives (Name, %)</label><textarea id="f_obj"></textarea>
-        <label>Needs attention (one/line)</label><textarea id="f_attn"></textarea>
-        <label>Top priority</label><input id="f_pri">
-        <label>Top 3 actions (one/line)</label><textarea id="f_act"></textarea>
-        <label>Documents (Name, Number, YYYY-MM-DD)</label><textarea id="f_docs"></textarea>
-        <label>Cards (Bank, FullNumber, Last4, MM/YY)</label><textarea id="f_cards"></textarea>
-        <label>Objectives timeline (Title, YYYY-MM-DD, Status)</label><textarea id="f_plans"></textarea>
-        <label>Archive (Title, Type, Date, Note)</label><textarea id="f_arch"></textarea>
-        <div class="btns"><button class="btn g" onclick="saveForm()">Save & Sync</button></div>
+<section class="tab" id="tab-settings">
+  <div class="g g2">
+    <!-- LEFT: CONFIG -->
+    <div class="card">
+      <h2>🏦 ACCOUNT MANAGER</h2>
+      <p class="mut" style="margin-bottom:15px">Define your banks, cash, and debts. The dashboard calculates the rest.</p>
+      <div id="accounts_editor"></div>
+      <button class="btn g" style="width:100%;margin-top:15px" onclick="addAccountRow()">+ Add New Account</button>
+
+      <h2 style="margin-top:25px">⚙️ PREFERENCES</h2>
+      <label>Monthly Budget Limit (QAR)</label>
+      <input type="number" id="set_budget" onchange="saveConfig()" style="margin-bottom:10px">
+      
+      <label>Expense Categories (comma separated)</label>
+      <textarea id="set_cats" onchange="saveConfig()" style="height:60px"></textarea>
+      
+      <div class="btns" style="margin-top:15px">
+        <button class="btn o" onclick="exportData()">⬇ Backup Data</button>
+        <button class="btn o" onclick="document.getElementById('file').click()">⬆ Restore</button>
+        <input type="file" id="file" hidden accept=".json">
       </div>
     </div>
-  </section>
+
+    <!-- RIGHT: INFO -->
+    <div class="card">
+      <h2>SYSTEM STATUS</h2>
+      <div id="sync_status" style="padding:15px;background:var(--track);border-radius:12px;margin-bottom:15px">
+        <b>Sync:</b> <span id="sync_txt">Local Only</span>
+      </div>
+      <h2>ABOUT</h2>
+      <p class="mut" style="font-size:13px;line-height:1.6">Aziz OS v2.0<br>Dynamic Financial Engine.<br>All calculations are automatic based on your Accounts and Transactions.</p>
+      <button class="btn o" style="width:100%;color:var(--red);border-color:var(--red)" onclick="hardReset()">⚠ Factory Reset</button>
+    </div>
+  </div>
+</section>
+
 </div>
 </div>
 <nav id="bnav">
@@ -278,150 +330,276 @@ textarea.rev{min-height:60px}
   <button data-tab="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>Settings</button>
 </nav>
 <script>
-const SYNC_URL="https://script.google.com/macros/s/AKfycby5W9DL6iWgvW9bYFR3niMXnvB8cxDw4ELye1brVmAmW68jkqm42RTwYyqqzVLuZ50/exec";
-const THEMES=["classic","glass","midnight","sidi"],TNAMES={classic:"Executive",glass:"Liquid Glass",midnight:"Midnight",sidi:"Sidi Blue"},TDOTS={classic:"#1d5c43",glass:"#818cf8",midnight:"#2dd4bf",sidi:"#1d4ed8"};
-const DEFAULTS={salary:19000,rent:5900,budget:17500,
-variable:{Groceries:2400,Transport:700,"Dining out":1100,Utilities:650,Personal:900,"Family support":1500},
-savings:3000,investments:1000,tunisia:800,cash:42310,funds:{emergency:[24600,30000],tunisia:[20500,50000]},
-priority:"Finalize Tunisia business pitch deck",actions:["Review Q2 savings report","Schedule mentor call","Update personal KPI tracker"],
-objectives:[["Emergency Fund",82],["Cut Expenses",65],["Tunisia Fund",41],["Career Goal",73],["Personal Goal",55]],
-attention:["Kahramaa bill — due Aug 12","Credit card payment — due Aug 15","Lease renewal decision","Pitch deck deadline — Aug 20"],
-history:[["Mar",15800],["Apr",16900],["May",16200],["Jun",17400],["Jul",16800]],
-tx:[["Carrefour grocery",420,"Groceries","2026-08-07"],["Woqod fuel",250,"Transport","2026-08-06"],["Lunch with team",180,"Dining out","2026-08-06"]],
-docs:[["Qatar ID","28412345678","2027-03-15"],["Passport","T1234567","2029-11-02"],["Residence Permit","RP-554433","2026-09-30"],["Driving Licence","DL-991122","2028-05-20"]],
-cards:[["QNB Visa","4567890123456782","6782","09/29"],["CIB Mastercard","5123456789014356","4356","05/28"]],
-plans:[["Build QAR 30k emergency fund","2026-12-31","In progress"],["Tunisia research trip","2026-11-15","Planned"],["Invest first QAR 10k","2027-06-30","Planned"]],
-archive:[["Bank statement — QNB Q2","Statement","2026-07-01","PDF in Drive"],["Employment contract","Contract","2024-09-01","Signed copy"],["Salary certificate","Certificate","2026-05-10","HR portal"]],
-tStage:3,review:{checks:{},keep:"",stop:"",start:"",change:""}};
-let DATA=load();
-function load(){try{const d=JSON.parse(localStorage.getItem("azizData"));if(d&&d.salary)return d;}catch(e){}return JSON.parse(JSON.stringify(DEFAULTS));}
-function persist(){localStorage.setItem("azizData",JSON.stringify(DATA));}
-const PASS=()=>localStorage.getItem("azizPass")||"aziz2026";
+/* AZIZ OS V2.0 ENGINE */
+const SYNC_URL = "https://script.google.com/macros/s/AKfycby5W9DL6iWgvW9bYFR3niMXnvB8cxDw4ELye1brVmAmW68jkqm42RTwYyqqzVLuZ50/exec"; 
+const THEMES = ["classic","glass","midnight","sidi"];
 
-// LOCK SYSTEM
-function unlock(){
-  const input=document.getElementById("pw");
-  const err=document.getElementById("err");
-  if(input.value===PASS()){
-    // Success: Hide lock, Show app, Load data
-    document.getElementById("lock").classList.add("hidden");
-    setTimeout(()=>{document.getElementById("lock").style.display="none";},500);
-    document.getElementById("app").classList.add("visible");
-    init();
-    syncPull(); // Fetch latest data from Google Sheets
-    input.value="";
-    err.textContent="";
-  }else{
-    err.textContent="Incorrect password";
-    input.value="";
-    input.focus();
+// DEFAULT STATE
+const DEFAULTS = {
+  config: { budget: 17500, cats: "Groceries,Transport,Dining,Utilities,Shopping,Health,Other" },
+  accounts: [ // Assets (+) and Liabilities (-)
+    {name:"Cash on Hand", type:"cash", balance: 2000},
+    {name:"CBQ Current", type:"bank", balance: 15000},
+    {name:"CBQ Savings", type:"bank", balance: 10000},
+    {name:"Credit Card", type:"debt", balance: -4500},
+    {name:"Car Loan", type:"debt", balance: -60000}
+  ],
+  transactions: [], // {id, date, desc, cat, amount, month}
+  funds: [], // {name, target, current} e.g. Emergency Fund
+  loans: [], // {name, total, paid, monthly, nextDue}
+  docs: [], // {name, type, expiry, link}
+  plans: [],
+  theme: "classic",
+  lastSalaryMonth: "" // e.g. "2024-05"
+};
+
+let DB = loadDB();
+
+// --- CORE FUNCTIONS ---
+function loadDB() {
+  try { return JSON.parse(localStorage.getItem("azizDataV2")) || JSON.parse(JSON.stringify(DEFAULTS)); } 
+  catch(e) { return JSON.parse(JSON.stringify(DEFAULTS)); }
+}
+function saveDB() { localStorage.setItem("azizDataV2", JSON.stringify(DB)); syncPush(); init(); }
+function syncPush() { if(!SYNC_URL) return; fetch(SYNC_URL, {method:"POST", body:JSON.stringify(DB), mode:"cors"}).catch(console.error); }
+function syncPull() { if(!SYNC_URL) return; fetch(SYNC_URL, {mode:"cors"}).then(r=>r.json()).then(d=>{if(d.config) DB=d; saveDB();}).catch(console.error); }
+
+// --- INITIALIZATION ---
+function init() {
+  renderAccountsEditor();
+  renderMoney();
+  renderSettings();
+  setupTheme();
+  checkLock(); // Ensure lock screen logic runs
+}
+
+// --- MONEY LOGIC ---
+function getTotals() {
+  let assets = 0, debts = 0;
+  DB.accounts.forEach(a => {
+    if(a.type === 'debt') debts += Math.abs(a.balance);
+    else assets += a.balance;
+  });
+  // Add Safe Funds
+  DB.funds.forEach(f => assets += f.current);
+  
+  // Current Month Stats
+  const now = new Date().toISOString().slice(0,7); // "2024-05"
+  const monthTx = DB.transactions.filter(t => t.month === now);
+  const spent = monthTx.reduce((sum, t) => sum + t.amount, 0);
+  
+  return { assets, debts, net: assets - debts, spent, month: now };
+}
+
+function renderMoney() {
+  const t = getTotals();
+  document.getElementById('net_worth').textContent = fmt(t.net);
+  document.getElementById('cash_hand').textContent = fmt(DB.accounts.find(a=>a.type==='cash')?.balance || 0);
+  const banks = DB.accounts.filter(a=>a.type==='bank').reduce((s,a)=>s+a.balance,0);
+  document.getElementById('bank_total').textContent = fmt(banks);
+  document.getElementById('bank_count').textContent = DB.accounts.filter(a=>a.type==='bank').length + " Accts";
+  document.getElementById('total_debt').textContent = fmt(t.debts);
+  
+  // Month Status
+  const statusTxt = DB.lastSalaryMonth === t.month ? "Salary Received ✅" : "Waiting for Salary ⏳";
+  document.getElementById('status_text').textContent = statusTxt;
+  document.getElementById('status_text').style.color = DB.lastSalaryMonth === t.month ? "var(--green)" : "var(--orange)";
+  
+  document.getElementById('spent_amt').textContent = fmt(t.spent);
+  document.getElementById('budget_amt').textContent = fmt(DB.config.budget);
+  const pct = Math.min((t.spent / DB.config.budget) * 100, 100);
+  document.getElementById('month_prog').style.width = pct + "%";
+  document.getElementById('month_prog').style.background = pct > 90 ? "var(--red)" : (pct > 70 ? "var(--amber)" : "var(--green)");
+
+  // Transactions List
+  const txList = document.getElementById('tx_list');
+  txList.innerHTML = DB.transactions.slice().reverse().slice(0,10).map(tx => `
+    <tr>
+      <td><b>${tx.desc}</b><br><span class="mut" style="font-size:10px">${tx.month}</span></td>
+      <td><span class="pill s-prog">${tx.cat}</span></td>
+      <td style="color:var(--red);font-weight:700">-${fmt(tx.amount)}</td>
+      <td class="mut">${tx.date}</td>
+      <td><button class="copyb" onclick="delTx(${tx.id})">×</button></td>
+    </tr>
+  `).join("");
+  if(DB.transactions.length===0) txList.innerHTML = "<tr><td colspan='5' class='mut'>No expenses yet.</td></tr>";
+
+  // Loans
+  const loansDiv = document.getElementById('loans_list');
+  loansDiv.innerHTML = DB.loans.map((l, i) => {
+    const remaining = l.total - l.paid;
+    const monthsLeft = Math.ceil(remaining / l.monthly);
+    return `<div style="background:var(--track);padding:10px;border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+      <div><b>${l.name}</b><br><span class="mut" style="font-size:11px">${monthsLeft} months left • ${fmt(l.monthly)}/mo</span></div>
+      <div style="text-align:right"><b style="color:var(--red)">${fmt(remaining)}</b><br><button class="badge" style="border:0;background:var(--green);color:#fff;font-size:9px;cursor:pointer" onclick="payLoan(${i})">Paid Month</button></div>
+    </div>`;
+  }).join("");
+  if(DB.loans.length===0) loansDiv.innerHTML = "<p class='mut'>No active loans.</p>";
+
+  // Funds
+  const fundsDiv = document.getElementById('funds_list');
+  fundsDiv.innerHTML = DB.funds.map((f, i) => {
+    const pct = Math.round((f.current / f.target) * 100);
+    return `<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700"><span>${f.name}</span><span>${fmt(f.current)} / ${fmt(f.target)}</span></div>
+      <div class="prog"><i style="width:${pct}%"></i></div>
+      <button class="badge" style="border:0;background:transparent;color:var(--acc);padding:0;cursor:pointer;font-size:10px" onclick="addFundVal(${i})">+ Add Cash</button>
+    </div>`;
+  }).join("");
+  if(DB.funds.length===0) fundsDiv.innerHTML = "<p class='mut'>No safe funds tracked.</p>";
+
+  // Populate Categories
+  const catSelect = document.getElementById('t_cat');
+  if(catSelect.options.length <= 1) {
+    catSelect.innerHTML = DB.config.cats.split(',').map(c => `<option value="${c.trim()}">${c.trim()}</option>`).join("");
   }
 }
-function relock(){location.reload();}
 
-// Initialize Clock & Greeting immediately (runs behind lock)
-setInterval(()=>{
-  const n=new Date();
-  document.getElementById("clock").textContent=n.toLocaleDateString("en-GB",{weekday:"short",day:"2-digit",month:"short"})+" • "+n.toLocaleTimeString("en-GB");
-  const h=n.getHours();
-  document.getElementById("hello").textContent=(h<12?"Good morning":h<17?"Good afternoon":"Good evening")+", Aziz";
-},1000);
-
-// Theme Setup
-const savedTh=localStorage.getItem("azizTheme");if(savedTh&&savedTh!=="classic")document.body.dataset.theme=savedTh;
-function setTheme(t){document.body.dataset.theme=t;localStorage.setItem("azizTheme",t);init();}
-function cycleTheme(){const i=THEMES.indexOf(document.body.dataset.theme||"classic");setTheme(THEMES[(i+1)%THEMES.length]);}
-function savePass(){const v=document.getElementById("npass").value.trim();if(v.length>=4){localStorage.setItem("azizPass",v);document.getElementById("npass").value="";alert("Password updated. Remember it!");}else alert("Min 4 characters.");}
-
-// SYNC FUNCTIONS
-function setSync(t){document.getElementById("syncT").textContent={local:"Local only",sync:"Syncing…",ok:"Synced · Google",err:"Sync error"}[t];}
-function syncPush(){if(!SYNC_URL)return;setSync("sync");fetch(SYNC_URL,{method:"POST",body:JSON.stringify(DATA),mode:"cors"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.text();}).then(()=>setSync("ok")).catch(e=>{console.error("Sync push failed:",e);setSync("err");});}
-function syncPull(){if(!SYNC_URL)return setSync("local");setSync("sync");fetch(SYNC_URL,{mode:"cors"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();}).then(d=>{if(d&&d.salary){DATA=Object.assign(JSON.parse(JSON.stringify(DEFAULTS)),d);persist();init();}setSync("ok");}).catch(e=>{console.error("Sync pull failed:",e);setSync("err");});}
-function syncTest(){if(!SYNC_URL)return alert("SYNC_URL is empty.");fetch(SYNC_URL,{mode:"cors"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.text();}).then(t=>{document.getElementById("syncMsg").textContent="✅ Connected. Server says: "+t.slice(0,80);}).catch(e=>{document.getElementById("syncMsg").textContent="❌ Failed. Check deployment.";});}
-
-// NAVIGATION
-document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{
-  document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("on",x.dataset.tab===b.dataset.tab));
-  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.id==="tab-"+b.dataset.tab));
-  if(b.dataset.tab==="settings")fillSet();
-});
-function toggleNotif(e){e.stopPropagation();document.getElementById("notif").classList.toggle("open");}
-document.addEventListener("click",()=>document.getElementById("notif").classList.remove("open"));
-
-// UTILS
-const q=s=>document.querySelector(s),g=id=>document.getElementById(id),fmt=n=>"QAR "+Math.round(n).toLocaleString();
-const num=id=>parseFloat(g(id).value)||0,lines=id=>g(id).value.split("\n").map(s=>s.trim()).filter(Boolean);
-const csv=(id,n)=>lines(id).map(l=>l.split(",").map(s=>s.trim()).slice(0,n));
-function anim(el,val,pre){const t0=performance.now();(function f(t){const p=Math.min((t-t0)/800,1);el.textContent=pre+Math.round(val*p*(2-p)).toLocaleString();if(p<1)requestAnimationFrame(f);})(t0);}
-function copyTxt(t,b){navigator.clipboard.writeText(t);const o=b.textContent;b.textContent="✓ Copied";setTimeout(()=>b.textContent=o,1200);}
-function expSt(d){const days=Math.ceil((new Date(d)-new Date())/864e5);if(days<0)return["Expired","s-bad"];if(days<=60)return["Expires in "+days+"d","s-pend"];return["Valid","s-done"];}
-const YM=()=>new Date().toISOString().slice(0,7);
-
-// MAIN RENDER
-function init(){
-const varT=Object.values(DATA.variable).reduce((a,b)=>a+b,0),saved=DATA.savings+DATA.investments+DATA.tunisia,spend=DATA.rent+varT,left=DATA.salary-spend-saved,rate=saved/DATA.salary*100;
-anim(q("#s_cash"),DATA.cash,"QAR ");q("#s_rate").textContent=rate.toFixed(1)+"%";anim(q("#s_left"),Math.max(left,0),"QAR ");anim(q("#s_exp"),spend,"QAR ");q("#s_expB").textContent=Math.round(spend/DATA.salary*100)+"% of salary";
-const hist=[...DATA.history,["Now",spend]],mx=Math.max(...hist.map(h=>h[1]),DATA.salary);
-q("#chart").innerHTML=hist.map(h=>`<div class="cm"><i class="in" style="height:${DATA.salary/mx*100}%"></i><i class="ex" style="height:${h[1]/mx*100}%"></i></div>`).join("");
-q("#chartL").innerHTML=hist.map(h=>`<span>${h[0]}</span>`).join("");
-q("#prio").textContent=DATA.priority;
-q("#acts").innerHTML=DATA.actions.map((a,i)=>`<li class="act ${DATA.review["a"+i]?"done":""}" onclick="tickAct(${i})"><span class="cb">✓</span><span>${a}</span></li>`).join("");
-const ef=DATA.funds.emergency,tf=DATA.funds.tunisia;
-q("#ef_t").textContent=fmt(ef[0]);q("#ef_b").style.width=Math.min(ef[0]/ef[1]*100,100)+"%";q("#ef_p").textContent=Math.round(ef[0]/ef[1]*100)+"% of "+fmt(ef[1]);
-q("#tf_t").textContent=fmt(tf[0]);q("#tf_b").style.width=Math.min(tf[0]/tf[1]*100,100)+"%";q("#tf_p").textContent=Math.round(tf[0]/tf[1]*100)+"% of "+fmt(tf[1]);
-const expDocs=DATA.docs.filter(d=>{const s=expSt(d[2]);return s[0]!=="Valid";}).map(d=>d[0]+" — "+expSt(d[2])[0]);
-const attnAll=[...DATA.attention,...expDocs];
-q("#chips").innerHTML=attnAll.map(a=>`<div class="chip">${a}</div>`).join("");
-q("#bellN").textContent=attnAll.length;q("#notif").innerHTML=attnAll.map(a=>`<div>🔔 ${a}</div>`).join("");
-q("#rows").innerHTML=[["Salary",DATA.salary],["Rent",DATA.rent],["Variable budget",varT],["Savings + Invest + Tunisia",saved],["Left over (plan)",left]].map(r=>`<div style="display:flex;justify-content:space-between;font-size:14px;padding:8px 0;border-bottom:1px solid var(--track)"><span>${r[0]}</span><b>${fmt(r[1])}</b></div>`).join("");
-q("#stack").innerHTML=[["Rent",DATA.rent,"var(--green)"],["Variable",varT,"var(--sage)"],["Saved",saved,"var(--green2)"],["Left",Math.max(left,0),"var(--track)"]].map(s=>`<i style="width:${Math.max(s[1]/DATA.salary*100,0)}%;background:${s[2]}" title="${s[0]}"></i>`).join("");
-q("#legend").innerHTML=[["Rent","var(--green)"],["Variable","var(--sage)"],["Saved","var(--green2)"]].map(l=>`<span class="mut"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${l[1]};margin-right:5px"></span>${l[0]}</span>`).join("");
-const logged=DATA.tx.filter(t=>(t[3]||"").slice(0,7)===YM()).reduce((a,t)=>a+(+t[1]||0),0)+DATA.rent;
-q("#bud_t").textContent=fmt(logged);q("#bud_b").style.width=Math.min(logged/DATA.budget*100,100)+"%";q("#bud_p").textContent="logged spend of "+fmt(DATA.budget)+" monthly limit";
-const byCat={};DATA.tx.filter(t=>(t[3]||"").slice(0,7)===YM()).forEach(t=>byCat[t[2]]=(byCat[t[2]]||0)+ +t[1]);
-q("#cats").innerHTML=Object.entries(DATA.variable).map(c=>`<p class="mut" style="margin:4px 0">${c[0]} — logged ${fmt(byCat[c[0]]||0)} of ${fmt(c[1])}</p><div class="prog"><i style="width:${Math.min((byCat[c[0]]||0)/c[1]*100,100)}%"></i></div>`).join("");
-q("#t_cat").innerHTML=Object.keys(DATA.variable).map(c=>`<option>${c}</option>`).join("");
-q("#tx").innerHTML=DATA.tx.slice().reverse().map((t,ri)=>{const i=DATA.tx.length-1-ri;return `<tr><td>${t[0]}</td><td><b>${fmt(t[1])}</b></td><td class="mut">${t[2]}</td><td class="mut">${t[3]}</td><td><button class="copyb" onclick="delTx(${i})">✕</button></td></tr>`;}).join("");
-q("#docsL").innerHTML=DATA.docs.map((d,i)=>{const s=expSt(d[2]);return `<tr><td><b>${d[0]}</b></td><td class="mut">••• ${String(d[1]).slice(-4)}</td><td class="mut">${d[2]}</td><td><span class="pill ${s[1]}">${s[0]}</span></td><td><button class="copyb" onclick="copyTxt('${d[1]}',this)">Copy</button></td></tr>`;}).join("");
-q("#cardsL").innerHTML=DATA.cards.map((c,i)=>`<div class="cc ${i%2?"o":""}"><div class="top"><span>${c[0]}</span><span>●●</span></div><div class="num">•••• •••• •••• ${c[2]}</div><div class="row"><span>EXP ${c[3]}</span><button class="copyb" onclick="copyTxt('${c[1]}',this)">Copy number</button></div></div>`).join("");
-q("#planL").innerHTML=DATA.plans.slice().sort((a,b)=>a[1]<b[1]?-1:1).map(p=>`<div class="it ${p[2]==="In progress"?"now":""}"><b>${p[0]}</b><br><span class="mut">${p[1]}</span> <span class="pill ${p[2]==="Done"?"s-done":p[2]==="In progress"?"s-prog":"s-pend"}">${p[2]}</span></div>`).join("");
-const af=q("#archF").value;
-q("#archL").innerHTML=DATA.archive.filter(a=>!af||a[1]===af).map(a=>`<tr><td><b>${a[0]}</b></td><td><span class="pill s-prog">${a[1]}</span></td><td class="mut">${a[2]}</td><td class="mut">${a[3]||""}</td></tr>`).join("");
-const ST=["Research","Shortlist","Validate","Estimate capital","Choose","Plan","Fund","Launch"];
-const RV=[["Financial",["Reviewed this week's spending","Confirmed savings transfer","Checked upcoming bills"]],["Work",["Noted what moved forward","Noted what's stuck","Identified one opportunity"]],["Personal",["Contacted someone I've been neglecting","Planned one personal moment"]],["Goals",["Checked objective progress","Set 3 priorities for next week"]]];
-let html="",tot=0,done=0;RV.forEach(s=>{html+=`<p class="mut" style="margin:12px 0 4px;font-weight:700">${s[0].toUpperCase()}</p>`;s[1].forEach((it,i)=>{const k=s[0]+i;tot++;if(DATA.review.checks[k])done++;html+=`<li class="act ${DATA.review.checks[k]?"done":""}" onclick="tickRev('${k}')"><span class="cb">✓</span><span>${it}</span></li>`;});});
-q("#revList").innerHTML=html;q("#revP").textContent=done+"/"+tot;
-["keep","stop","start","change"].forEach(k=>g("rv_"+k).value=DATA.review[k]||"");
-q("#themeRow").innerHTML=THEMES.map(t=>`<button class="thb ${(document.body.dataset.theme||"classic")===t?"on":""}" onclick="setTheme('${t}')"><i style="background:${TDOTS[t]}"></i>${TNAMES[t]}</button>`).join("");
-if(document.querySelector("#tab-settings").classList.contains("on"))fillSet();
-document.querySelectorAll(".card").forEach((c,i)=>c.style.animationDelay=(i*0.04)+"s");
+// --- ACTIONS ---
+function addTx() {
+  const desc = document.getElementById('t_name').value.trim();
+  const amt = parseFloat(document.getElementById('t_amt').value);
+  const cat = document.getElementById('t_cat').value;
+  if(!desc || !amt || !cat) return alert("Fill all fields");
+  
+  const now = new Date();
+  DB.transactions.push({
+    id: Date.now(),
+    date: now.toISOString().slice(0,10),
+    month: now.toISOString().slice(0,7),
+    desc, amount: amt, cat
+  });
+  
+  // Auto-deduct from Cash on Hand (Simple Logic)
+  const cashAcc = DB.accounts.find(a => a.type === 'cash');
+  if(cashAcc) cashAcc.balance -= amt;
+  
+  document.getElementById('t_name').value = "";
+  document.getElementById('t_amt').value = "";
+  saveDB();
 }
 
-function fillSet(){g("f_salary").value=DATA.salary;g("f_rent").value=DATA.rent;g("f_sav").value=DATA.savings;g("f_inv").value=DATA.investments;g("f_tun").value=DATA.tunisia;g("f_cash").value=DATA.cash;g("f_bud").value=DATA.budget;g("f_stage").value=DATA.tStage;g("f_ef").value=DATA.funds.emergency[0];g("f_eft").value=DATA.funds.emergency[1];g("f_tf").value=DATA.funds.tunisia[0];g("f_tft").value=DATA.funds.tunisia[1];
-g("f_var").value=Object.entries(DATA.variable).map(e=>e[0]+", "+e[1]).join("\n");g("f_hist").value=DATA.history.map(h=>h.join(", ")).join("\n");
-g("f_obj").value=DATA.objectives.map(o=>o.join(", ")).join("\n");g("f_attn").value=DATA.attention.join("\n");g("f_pri").value=DATA.priority;g("f_act").value=DATA.actions.join("\n");
-g("f_docs").value=DATA.docs.map(d=>d.join(", ")).join("\n");g("f_cards").value=DATA.cards.map(c=>c.join(", ")).join("\n");
-g("f_plans").value=DATA.plans.map(p=>p.join(", ")).join("\n");g("f_arch").value=DATA.archive.map(a=>a.join(", ")).join("\n");}
-function pObj(t){const o={};t.split("\n").filter(Boolean).forEach(l=>{l=l.replace(":",",");const i=l.lastIndexOf(",");if(i>0){const k=l.slice(0,i).trim(),v=parseFloat(l.slice(i+1));if(k&&!isNaN(v))o[k]=v;}});return o;}
-function pArr(t){const a=[];t.split("\n").filter(Boolean).forEach(l=>{l=l.replace(":",",");const i=l.lastIndexOf(",");if(i>0){const k=l.slice(0,i).trim(),v=parseFloat(l.slice(i+1));if(k&&!isNaN(v))a.push([k,v]);}});return a;}
-function saveForm(){DATA.salary=num("f_salary");DATA.rent=num("f_rent");DATA.savings=num("f_sav");DATA.investments=num("f_inv");DATA.tunisia=num("f_tun");DATA.cash=num("f_cash");DATA.budget=num("f_bud");DATA.tStage=Math.min(Math.max(num("f_stage"),1),8);
-DATA.funds.emergency=[num("f_ef"),num("f_eft")];DATA.funds.tunisia=[num("f_tf"),num("f_tft")];
-DATA.variable=pObj(g("f_var").value);DATA.history=pArr(g("f_hist").value);DATA.objectives=pArr(g("f_obj").value);DATA.attention=lines("f_attn");
-DATA.priority=g("f_pri").value.trim()||DATA.priority;DATA.actions=lines("f_act");
-DATA.docs=csv("f_docs",3);DATA.cards=csv("f_cards",4);DATA.plans=csv("f_plans",3);DATA.archive=csv("f_arch",4);
-persist();syncPush();init();alert("Saved.");}
-function addTx(){const n=g("t_name").value.trim(),a=parseFloat(g("t_amt").value);if(!n||!a)return;DATA.tx.push([n,a,g("t_cat").value,new Date().toISOString().slice(0,10)]);g("t_name").value="";g("t_amt").value="";persist();syncPush();init();}
-function delTx(i){DATA.tx.splice(i,1);persist();syncPush();init();}
-function addPlan(){const t=g("p_title").value.trim(),d=g("p_date").value;if(!t||!d)return;DATA.plans.push([t,d,g("p_st").value]);g("p_title").value="";persist();syncPush();init();}
-function tickAct(i){DATA.review["a"+i]=!DATA.review["a"+i];persist();syncPush();init();}
-function tickRev(k){DATA.review.checks[k]=!DATA.review.checks[k];persist();syncPush();init();}
-function saveReview(){["keep","stop","start","change"].forEach(k=>DATA.review[k]=g("rv_"+k).value);persist();syncPush();init();}
-function exportData(){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(DATA,null,1)],{type:"application/json"}));a.download="aziz-os-backup.json";a.click();}
-function resetData(){if(confirm("Reset ALL data to dummy?")){localStorage.removeItem("azizData");DATA=JSON.parse(JSON.stringify(DEFAULTS));persist();init();}}
-g("file").addEventListener("change",e=>{const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(d&&d.salary){DATA=d;persist();syncPush();init();}}catch(_){alert("Invalid file")}};r.readAsText(e.target.files[0]);e.target.value="";});
+function delTx(id) {
+  const tx = DB.transactions.find(t => t.id === id);
+  if(tx) {
+    // Refund cash
+    const cashAcc = DB.accounts.find(a => a.type === 'cash');
+    if(cashAcc) cashAcc.balance += tx.amount;
+    DB.transactions = DB.transactions.filter(t => t.id !== id);
+    saveDB();
+  }
+}
 
-// Handle Enter key on lock screen
-document.getElementById("pw").addEventListener("keydown",e=>{if(e.key==="Enter")unlock()});
+function toggleSalaryModal() { document.getElementById('salary_modal').style.display = 'flex'; }
+function confirmSalary() {
+  const amt = parseFloat(document.getElementById('salary_input').value);
+  if(!amt) return;
+  const now = new Date().toISOString().slice(0,7);
+  DB.lastSalaryMonth = now;
+  // Add to Cash or Bank? Let's add to Cash on Hand for simplicity, user can move later
+  const cashAcc = DB.accounts.find(a => a.type === 'cash') || DB.accounts[0];
+  cashAcc.balance += amt;
+  document.getElementById('salary_modal').style.display = 'none';
+  document.getElementById('salary_input').value = '';
+  saveDB();
+}
+
+function addLoanPrompt() {
+  const name = prompt("Loan Name (e.g. Car Loan):");
+  if(!name) return;
+  const total = parseFloat(prompt("Total Loan Amount:"));
+  const monthly = parseFloat(prompt("Monthly Installment:"));
+  DB.loans.push({name, total, paid:0, monthly, nextDue: new Date().toISOString().slice(0,10)});
+  // Add corresponding debt account if not exists
+  if(!DB.accounts.find(a=>a.name===name)) DB.accounts.push({name, type:'debt', balance:-total});
+  saveDB();
+}
+
+function payLoan(idx) {
+  const l = DB.loans[idx];
+  if(confirm(`Mark ${fmt(l.monthly)} as paid for ${l.name}?`)) {
+    l.paid += l.monthly;
+    // Update debt account balance
+    const acc = DB.accounts.find(a=>a.name===l.name);
+    if(acc) acc.balance = -(l.total - l.paid);
+    saveDB();
+  }
+}
+
+function addFundPrompt() {
+  const name = prompt("Fund Name (e.g. Emergency):");
+  if(!name) return;
+  const target = parseFloat(prompt("Target Amount:"));
+  DB.funds.push({name, target, current:0});
+  saveDB();
+}
+
+function addFundVal(idx) {
+  const val = parseFloat(prompt(`Add amount to ${DB.funds[idx].name}:`));
+  if(val) { DB.funds[idx].current += val; saveDB(); }
+}
+
+// --- SETTINGS & ACCOUNTS ---
+function renderSettings() {
+  document.getElementById('set_budget').value = DB.config.budget;
+  document.getElementById('set_cats').value = DB.config.cats;
+}
+
+function saveConfig() {
+  DB.config.budget = parseFloat(document.getElementById('set_budget').value) || 0;
+  DB.config.cats = document.getElementById('set_cats').value;
+  saveDB();
+}
+
+function renderAccountsEditor() {
+  const div = document.getElementById('accounts_editor');
+  div.innerHTML = DB.accounts.map((a, i) => `
+    <div style="display:flex;gap:5px;margin-bottom:8px;align-items:center">
+      <select onchange="DB.accounts[${i}].type=this.value;saveDB()" style="width:80px;font-size:11px">
+        <option value="cash" ${a.type==='cash'?'selected':''}>Cash</option>
+        <option value="bank" ${a.type==='bank'?'selected':''}>Bank</option>
+        <option value="debt" ${a.type==='debt'?'selected':''}>Debt</option>
+      </select>
+      <input value="${a.name}" onchange="DB.accounts[${i}].name=this.value;saveDB()" placeholder="Name" style="flex:1;font-size:12px">
+      <input type="number" value="${a.balance}" onchange="DB.accounts[${i}].balance=parseFloat(this.value);saveDB()" placeholder="Bal" style="width:80px;font-size:12px">
+      <button class="copyb" onclick="DB.accounts.splice(${i},1);saveDB()">×</button>
+    </div>
+  `).join("");
+}
+
+function addAccountRow() {
+  DB.accounts.push({name:"New Account", type:"bank", balance:0});
+  saveDB();
+}
+
+// --- UTILS ---
+function fmt(n) { return "QAR " + Math.round(n).toLocaleString(); }
+function setupTheme() { document.body.dataset.theme = DB.theme; }
+function hardReset() { if(confirm("DELETE EVERYTHING?")) { localStorage.removeItem("azizDataV2"); location.reload(); } }
+function exportData() { const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(DB)],{type:'application/json'})); a.download='aziz_backup.json'; a.click(); }
+document.getElementById('file').addEventListener('change', e=>{ const r=new FileReader(); r.onload=()=>{try{DB=JSON.parse(r.result);saveDB();}catch(err){alert('Invalid file')}}; r.readAsText(e.target.files[0]); });
+
+// --- LOCK SCREEN LOGIC (Preserved from before) ---
+const PASS = () => localStorage.getItem("azizPass") || "aziz2026";
+const lockScreen = document.getElementById('lock');
+function checkLock() {
+  if(!lockScreen) return;
+  body.classList.add('locked');
+  lockScreen.style.display = 'flex';
+}
+function unlock() {
+  if(document.getElementById('pw').value === PASS()) {
+    lockScreen.style.display = 'none';
+    body.classList.remove('locked');
+    init();
+    syncPull();
+  } else {
+    document.getElementById('err').textContent = "Wrong password";
+  }
+}
+document.getElementById('pw')?.addEventListener('keydown', e=>{if(e.key==="Enter")unlock()});
+const body = document.body;
+
 </script>
 </body>
 </html>
