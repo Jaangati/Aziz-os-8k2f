@@ -100,8 +100,6 @@ label{display:block;font-size:10.5px;margin:10px 0 4px;color:var(--muted);text-t
 .thb.on{border-color:var(--green)}
 .thb i{width:22px;height:22px;border-radius:50%;display:inline-block}
 textarea.rev{min-height:60px}
-
-/* LOCK SCREEN */
 #lock{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity .5s}
 #lock.hidden{opacity:0;pointer-events:none}
 #lock .box{width:100%;max-width:380px;padding:40px 30px;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,.15);border:1px solid rgba(255,255,255,.4);backdrop-filter:blur(20px);animation:up .6s cubic-bezier(.2,.8,.2,1)}
@@ -110,51 +108,36 @@ textarea.rev{min-height:60px}
 #lock input{margin:24px 0;text-align:center;font-size:16px;letter-spacing:4px;font-weight:600;padding:12px}
 #lock .btn{width:100%;padding:14px;font-size:14px}
 #lock .err{color:var(--red);font-size:12px;margin-top:12px;height:18px;font-weight:600}
-
-/* MODALS */
-.modal{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:2000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(5px)}
-.modal.active{display:flex;animation:up .3s both}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9998;display:none;align-items:center;justify-content:center;backdrop-filter:blur(5px)}
+.modal-overlay.active{display:flex;animation:up 0.3s ease}
+.modal-card{background:var(--card);padding:25px;border-radius:20px;width:90%;max-width:450px;box-shadow:0 20px 50px rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1)}
+.modal-header{font-size:18px;font-weight:800;margin-bottom:15px;display:flex;justify-content:space-between}
+.modal-close{cursor:pointer;color:var(--muted);font-size:20px}
+.input-group{margin-bottom:12px}
+.input-group label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:1px}
+.input-group input,.input-group select{width:100%;padding:10px;border-radius:8px;border:1px solid var(--track);background:var(--bg);color:var(--ink);font-size:14px}
+.btn-row{display:flex;gap:10px;margin-top:20px}
+.btn-full{flex:1;padding:12px;border:0;border-radius:10px;font-weight:700;cursor:pointer;font-size:13px}
+.btn-cancel{background:var(--track);color:var(--ink)}
+.btn-confirm{background:var(--green);color:#fff}
+.breakdown-list{margin-top:8px;font-size:12px;background:var(--bg);border-radius:8px;padding:8px}
+.breakdown-item{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--track)}
+.breakdown-item:last-child{border:0}
+.breakdown-item span:first-child{color:var(--muted)}
+.breakdown-item span:last-child{font-weight:700}
+.tx-form-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr auto;gap:8px}
 .doc-link{color:var(--blue);text-decoration:none;font-weight:600;font-size:11px;border:1px solid var(--track);padding:4px 8px;border-radius:6px}
 .doc-link:hover{background:var(--blue);color:#fff}
-
 #bnav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--card);box-shadow:0 -4px 20px rgba(0,0,0,.1);z-index:25;justify-content:space-around;padding:7px 4px}
 #bnav button{border:0;background:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;font-size:9px;gap:3px;cursor:pointer}
 #bnav button.on{color:var(--ink)}
 @media(max-width:1000px){#side{display:none}#bnav{display:flex}#main{padding:14px 14px 76px}.g4,.g3,.g23,.g2{grid-template-columns:1fr}}
 @media(min-width:1001px){.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:480px){#greet h1{font-size:22px}#greet p{font-size:12px}.stat b{font-size:20px}.card{padding:16px}#topbar{gap:8px}.pills button{padding:6px 10px;font-size:12px}#me{padding:4px 10px 4px 4px}#me .av{width:28px;height:28px;font-size:12px}#me b{font-size:12px}#me span{font-size:10px}#clock{font-size:11px}.icobtn{width:36px;height:36px}#bellN{font-size:9px;padding:1px 4px}#sync{padding:6px 10px;font-size:11px}}
-/* --- ENHANCED MODAL STYLES --- */
-.modal-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.6); 
-  z-index: 3000; display: none; align-items: center; justify-content: center;
-  backdrop-filter: blur(4px); animation: fadein 0.2s ease;
-}
-.modal-overlay.active { display: flex; }
-.modal-card {
-  background: var(--card); width: 90%; max-width: 450px; 
-  border-radius: 20px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-  animation: up 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-  max-height: 90vh; overflow-y: auto;
-}
-.modal-header { font-size: 18px; font-weight: 800; margin-bottom: 5px; }
-.modal-sub { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
-.modal-body { display: flex; flex-direction: column; gap: 12px; }
-.modal-footer { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
-/* Breakdown Lists */
-.breakdown-list { margin-top: 8px; font-size: 12px; background: var(--bg); border-radius: 8px; padding: 8px; }
-.breakdown-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--track); }
-.breakdown-item:last-child { border: 0; }
-.breakdown-item span:first-child { color: var(--muted); }
-.breakdown-item span:last-child { font-weight: 700; }
-/* Transaction Form */
-.tx-form-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr auto; gap: 8px; }
-@media(max-width: 600px) { .tx-form-grid { grid-template-columns: 1fr 1fr; } .tx-form-grid button { grid-column: span 2; } }
-
-  
+@media(max-width:600px){.tx-form-grid{grid-template-columns:1fr 1fr}.tx-form-grid button{grid-column:span 2}}
 </style>
 </head>
 <body>
-<!-- LOCK SCREEN -->
 <div id="lock">
   <div class="box card">
     <div style="font-size:32px;font-weight:800;margin-bottom:4px">AZIZ OS</div>
@@ -165,7 +148,6 @@ textarea.rev{min-height:60px}
   </div>
 </div>
 
-<!-- MAIN APP -->
 <div id="app">
 <nav id="side">
   <div class="logo">A</div>
@@ -197,7 +179,6 @@ textarea.rev{min-height:60px}
     <div id="sync"><svg viewBox="0 0 24 24"><path d="M17.5 19a4.5 4.5 0 1 0-.4-9A7 7 0 0 0 4 12.5 3.5 3.5 0 0 0 6.5 19z"/></svg><span id="syncT">Local only</span></div>
   </div>
 
-  <!-- OVERVIEW TAB -->
   <section class="tab on" id="tab-overview">
     <div class="g g4" style="margin-bottom:16px">
       <div class="card grad stat"><span class="mut">AVAILABLE CASH</span><b id="s_cash">—</b><span class="badge" style="background:rgba(255,255,255,.25);color:#fff">your capital</span></div>
@@ -216,20 +197,14 @@ textarea.rev{min-height:60px}
     </div>
   </section>
 
-<!-- MONEY TAB -->
 <section class="tab" id="tab-money">
-  <!-- TOP ROW: NET WORTH & BREAKDOWNS -->
   <div class="g g4" style="margin-bottom:20px">
     <div class="card grad stat"><span class="mut">NET WORTH</span><b id="net_worth">—</b><span class="badge" style="background:rgba(255,255,255,.2)">Assets - Debts</span></div>
-    <div class="card stat"><span class="mut">LIQUID CASH</span><b id="cash_hand">—</b><button class="badge" style="border:0;background:transparent;color:var(--acc);cursor:pointer" onclick="openModal('edit_cash_modal')">✎</button></div>
-    
-    <!-- Bank Breakdown (Always Visible) -->
+    <div class="card stat"><span class="mut">LIQUID CASH</span><b id="cash_hand">—</b></div>
     <div class="card stat" style="display:block">
       <span class="mut">BANK TOTAL</span><b id="bank_total">—</b>
       <div id="bank_breakdown" class="breakdown-list"></div>
     </div>
-    
-    <!-- Debt Breakdown (Always Visible) -->
     <div class="card stat" style="border-left:4px solid var(--red); display:block">
       <span class="mut">TOTAL DEBT</span><b id="total_debt" style="color:var(--red)">—</b>
       <div id="debt_breakdown" class="breakdown-list"></div>
@@ -237,17 +212,15 @@ textarea.rev{min-height:60px}
   </div>
 
   <div class="g g23">
-    <!-- LEFT: OPERATIONS -->
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
         <h2>COMMAND CENTER</h2>
         <div style="display:flex;gap:8px">
-          <button class="btn o" style="font-size:11px;padding:6px 10px" onclick="openModal('income_modal')">💰 Income</button>
-          <button class="btn g" style="font-size:11px;padding:6px 10px" onclick="openSalaryModal()">🏦 Salary</button>
+          <button class="btn o" style="font-size:11px;padding:6px 10px" onclick="openModal('modal-income')">💰 Income</button>
+          <button class="btn g" style="font-size:11px;padding:6px 10px" onclick="openModal('modal-salary')">🏦 Salary</button>
         </div>
       </div>
       
-      <!-- Monthly Status -->
       <div id="month_status" class="card" style="background:var(--track);padding:15px;border-radius:12px;margin-bottom:20px; cursor:pointer;" onclick="toggleMonthDetails()">
         <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700">
           <span>Status:</span> <span id="status_text">Waiting...</span>
@@ -258,7 +231,6 @@ textarea.rev{min-height:60px}
           <span>Spent: <b id="spent_amt">0</b></span>
           <span>Budget: <b id="budget_amt">0</b></span>
         </div>
-        <!-- Hidden Details List -->
         <div id="month_details" style="display:none; margin-top:10px; border-top:1px solid var(--track); padding-top:8px;"></div>
       </div>
 
@@ -278,15 +250,14 @@ textarea.rev{min-height:60px}
       <div class="twrap"><table><thead><tr><th>Type</th><th>Item</th><th>Amount</th><th>Date</th><th></th></tr></thead><tbody id="tx_list"></tbody></table></div>
     </div>
 
-    <!-- RIGHT: LOANS & FUNDS -->
     <div class="card">
       <h2>🔴 LIABILITIES</h2>
       <div id="loans_list" style="margin-bottom:15px;max-height:200px;overflow-y:auto"></div>
-      <button class="btn o" style="width:100%;font-size:11px" onclick="openModal('loan_modal')">+ Add Loan / Debt</button>
+      <button class="btn o" style="width:100%;font-size:11px" onclick="openModal('modal-loan')">+ Add Loan / Debt</button>
 
       <h2 style="margin-top:20px">🟢 SAFE FUNDS</h2>
       <div id="funds_list" style="margin-bottom:15px"></div>
-      <button class="btn o" style="width:100%;font-size:11px" onclick="openFundModal()">+ Add Fund</button>
+      <button class="btn o" style="width:100%;font-size:11px" onclick="openModal('modal-fund')">+ Add Fund</button>
       
       <h2 style="margin-top:20px">📅 UPCOMING CHEQUES</h2>
       <div id="cheque_list" style="font-size:12px"></div>
@@ -294,75 +265,6 @@ textarea.rev{min-height:60px}
   </div>
 </section>
 
-<!-- MODALS (Place these before closing </body>) -->
-<div id="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:2000;backdrop-filter:blur(4px)" onclick="closeAllModals()"></div>
-
-<!-- Income Modal -->
-<div id="modal-income" class="custom-modal" style="display:none">
-  <div class="card" style="width:90%;max-width:400px">
-    <h2>ADD INCOME</h2>
-    <label>Source</label><input id="inc_source" placeholder="Freelance, Refund...">
-    <label>Amount</label><input id="inc_amt" type="number">
-    <div class="btns"><button class="btn o" onclick="closeAllModals()">Cancel</button><button class="btn g" onclick="confirmIncome()">Save</button></div>
-  </div>
-</div>
-
-<!-- Salary Modal -->
-<div id="modal-salary" class="custom-modal" style="display:none">
-  <div class="card" style="width:90%;max-width:400px">
-    <h2>RECORD SALARY</h2>
-    <p class="mut" style="margin-bottom:10px">This will mark the current month as active.</p>
-    <label>Month</label><input id="sal_month" type="month">
-    <label>Amount</label><input id="sal_amt" type="number">
-    <div class="btns"><button class="btn o" onclick="closeAllModals()">Cancel</button><button class="btn g" onclick="confirmSalary()">Confirm Receipt</button></div>
-  </div>
-</div>
-
-<!-- Loan Modal -->
-<div id="modal-loan" class="custom-modal" style="display:none">
-  <div class="card" style="width:95%;max-width:500px;max-height:90vh;overflow-y:auto">
-    <h2>ADD LIABILITY</h2>
-    <label>Name</label><input id="l_name" placeholder="Car Loan, Credit Card...">
-    <label>Total Amount</label><input id="l_total" type="number">
-    <label>Paid So Far</label><input id="l_paid" type="number" value="0">
-    <label>Next Due Date</label><input id="l_due" type="date">
-    <div class="btns"><button class="btn o" onclick="closeAllModals()">Cancel</button><button class="btn g" onclick="saveLoan()">Create</button></div>
-  </div>
-</div>
-
-<!-- Loan Manager Modal (Detailed) -->
-<div id="modal-loan-manage" class="custom-modal" style="display:none">
-  <div class="card" style="width:95%;max-width:600px;max-height:90vh;overflow-y:auto">
-    <h2 id="manage_title">Manage Loan</h2>
-    <div id="manage_content"></div>
-    <div class="btns"><button class="btn g" onclick="closeAllModals()">Done</button></div>
-  </div>
-</div>
-
-<!-- Cash Editor Modal -->
-<div id="modal-cash" class="custom-modal" style="display:none">
-  <div class="card" style="width:90%;max-width:400px">
-    <h2>UPDATE CASH ON HAND</h2>
-    <label>New Balance</label><input id="cash_input" type="number">
-    <div class="btns"><button class="btn o" onclick="closeAllModals()">Cancel</button><button class="btn g" onclick="saveCash()">Update</button></div>
-  </div>
-</div>
-
-<!-- Fund Editor Modal -->
-<div id="modal-fund" class="custom-modal" style="display:none">
-  <div class="card" style="width:95%;max-width:500px;max-height:90vh;overflow-y:auto">
-    <h2>MANAGE SAFE FUNDS</h2>
-    <div id="fund_editor_content"></div>
-    <button class="btn o" style="width:100%;margin-top:10px" onclick="addNewFundRow()">+ Add New Fund</button>
-    <div class="btns"><button class="btn g" onclick="closeAllModals()">Done</button></div>
-  </div>
-</div>
-
-<style>
-.custom-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2001;display:none;animation:up 0.3s ease}
-</style>
-
-  <!-- DOCUMENTS TAB -->
   <section class="tab" id="tab-docs">
     <div class="g g2">
       <div class="card">
@@ -377,7 +279,6 @@ textarea.rev{min-height:60px}
     </div>
   </section>
 
-  <!-- PLANS TAB -->
   <section class="tab" id="tab-plans">
     <div class="g g23">
       <div class="card"><h2>BIG OBJECTIVES — TIMELINE</h2><div class="tl" id="planL"></div></div>
@@ -385,7 +286,6 @@ textarea.rev{min-height:60px}
     </div>
   </section>
 
-  <!-- ARCHIVE TAB -->
   <section class="tab" id="tab-archive">
     <div class="card"><h2>ARCHIVE — PAPER TRAIL</h2>
       <div style="max-width:240px;margin-bottom:10px"><select id="archF" onchange="init()"><option value="">All types</option><option>Statement</option><option>Contract</option><option>Certificate</option><option>Other</option></select></div>
@@ -393,7 +293,6 @@ textarea.rev{min-height:60px}
     </div>
   </section>
 
-  <!-- REVIEW TAB -->
   <section class="tab" id="tab-review">
     <div class="g g23">
       <div class="card"><h2>WEEKLY CEO REVIEW <span class="badge b-up" id="revP"></span></h2><div id="revList"></div></div>
@@ -407,7 +306,6 @@ textarea.rev{min-height:60px}
     </div>
   </section>
 
-  <!-- SETTINGS TAB -->
   <section class="tab" id="tab-settings">
     <div class="g g2">
       <div class="card">
@@ -443,49 +341,6 @@ textarea.rev{min-height:60px}
 </div>
 </div>
 
-<!-- MODALS -->
-<div id="salary_modal" class="modal">
-  <div class="card" style="width:90%;max-width:400px;text-align:center">
-    <h2>NEW MONTH START</h2>
-    <p class="mut">Has your salary been deposited?</p>
-    <input type="number" id="salary_input" placeholder="Amount (e.g. 19000)" style="margin:15px 0;font-size:18px;text-align:center">
-    <div class="btns" style="justify-content:center">
-      <button class="btn o" onclick="toggleModal('salary_modal')">Cancel</button>
-      <button class="btn g" onclick="confirmSalary()">Confirm Receipt</button>
-    </div>
-  </div>
-</div>
-
-<div id="income_modal" class="modal">
-  <div class="card" style="width:90%;max-width:400px;text-align:center">
-    <h2>ADD INCOME</h2>
-    <p class="mut">Freelance, Refund, Gift, etc.</p>
-    <input type="text" id="inc_source" placeholder="Source (e.g. Freelance)" style="margin:10px 0">
-    <input type="number" id="inc_amt" placeholder="Amount" style="margin-bottom:10px">
-    <div class="btns" style="justify-content:center">
-      <button class="btn o" onclick="toggleModal('income_modal')">Cancel</button>
-      <button class="btn g" onclick="confirmIncome()">Confirm</button>
-    </div>
-  </div>
-</div>
-
-<div id="loan_modal" class="modal">
-  <div class="card" style="width:95%;max-width:600px;max-height:90vh;overflow-y:auto">
-    <h2>ADD NEW LIABILITY</h2>
-    <label>Lender Name / Bank</label><input id="l_name" placeholder="e.g. CBQ Car Loan">
-    <label>Total Amount (QAR)</label><input id="l_total" type="number">
-    <label>Interest Rate (%)</label><input id="l_rate" type="number" value="0">
-    <label>Start Date</label><input id="l_date" type="date">
-    <label>Duration (Months)</label><input id="l_months" type="number">
-    <label>Cheque Dates (YYYY-MM-DD, one per line)</label>
-    <textarea id="l_cheques" placeholder="2024-09-01&#10;2024-10-01"></textarea>
-    <div class="btns">
-      <button class="btn o" onclick="toggleModal('loan_modal')">Cancel</button>
-      <button class="btn g" onclick="saveLoan()">Create Loan Plan</button>
-    </div>
-  </div>
-</div>
-
 <nav id="bnav">
   <button data-tab="overview" class="on"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>Home</button>
   <button data-tab="money"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>Money</button>
@@ -495,911 +350,23 @@ textarea.rev{min-height:60px}
   <button data-tab="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>Settings</button>
 </nav>
 
-<script>
-/* --- 1. CONFIG & DATA --- */
-const SYNC_URL = "https://script.google.com/macros/s/AKfycby5W9DL6iWgvW9bYFR3niMXnvB8cxDw4ELye1brVmAmW68jkqm42RTwYyqqzVLuZ50/exec";
-const THEMES = ["classic", "glass", "midnight", "sidi", "ios"];
-const DEFAULTS = {
-  salary: 19000, rent: 5900, budget: 17500,
-  variable: { "Groceries": 2400, "Transport": 700, "Dining out": 1100, "Utilities": 650, "Personal": 900, "Family support": 1500 },
-  savings: 3000, investments: 1000, tunisia: 800, cash: 42310,
-  funds: { emergency: [24600, 30000], tunisia: [20500, 50000] },
-  priority: "Finalize Tunisia business pitch deck",
-  actions: ["Review Q2 savings report", "Schedule mentor call", "Update personal KPI tracker"],
-  objectives: [["Emergency Fund", 82], ["Cut Expenses", 65], ["Tunisia Fund", 41]],
-  attention: ["Kahramaa bill — due Aug 12", "Credit card payment — due Aug 15"],
-  history: [["Mar", 15800], ["Apr", 16900], ["May", 16200], ["Jun", 17400], ["Jul", 16800]],
-  tx: [["Carrefour grocery", 420, "Groceries", "2026-08-07", "expense"], ["Woqod fuel", 250, "Transport", "2026-08-06", "expense"]],
-  docs: [["Qatar ID", "28412345678", "2027-03-15", ""]],
-  cards: [["QNB Visa", "4567890123456782", "6782", "09/29"]],
-  plans: [["Build QAR 30k emergency fund", "2026-12-31", "In progress"]],
-  archive: [["Bank statement — QNB Q2", "Statement", "2026-07-01", "PDF in Drive"]],
-  accounts: [{name:"CBQ Current", type:"bank", balance:15000}, {name:"Cash Wallet", type:"cash", balance:2000}],
-  loans: [],
-  tStage: 3,
-  review: { checks: {}, keep: "", stop: "", start: "", change: "" }
-};
-
-let DATA = load();
-
-function load() {
-  try {
-    const d = JSON.parse(localStorage.getItem("azizData"));
-    if (!d) return JSON.parse(JSON.stringify(DEFAULTS));
-    return { ...DEFAULTS, ...d, variable: {...DEFAULTS.variable, ...(d.variable||{})}, funds: {...DEFAULTS.funds, ...(d.funds||{})} };
-  } catch (e) { console.error("Load error", e); return JSON.parse(JSON.stringify(DEFAULTS)); }
-}
-
-function persist() { localStorage.setItem("azizData", JSON.stringify(DATA)); }
-
-/* --- 2. LOCK SYSTEM --- */
-const getPass = () => localStorage.getItem("azizPass") || "aziz2026";
-
-function runUnlock() {
-  const pwInput = document.getElementById('pw');
-  const errDiv = document.getElementById('err');
-  const lockScreen = document.getElementById('lock');
-  if (!pwInput || !lockScreen) return;
-
-  if (pwInput.value.trim() === getPass()) {
-    lockScreen.style.opacity = '0';
-    setTimeout(() => {
-      lockScreen.style.display = 'none';
-      document.getElementById('app').classList.add('visible');
-      init(); syncPull();
-    }, 400);
-  } else {
-    if(errDiv) errDiv.textContent = "Incorrect password.";
-    pwInput.value = ''; pwInput.focus();
-    lockScreen.querySelector('.box').animate([{transform:'translateX(0)'},{transform:'translateX(-10px)'},{transform:'translateX(10px)'},{transform:'translateX(0)'}], {duration:250});
-  }
-}
-
-function relock() { location.reload(); }
-
-window.addEventListener('load', () => {
-  const pwInput = document.getElementById('pw');
-  if(pwInput) pwInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') runUnlock(); });
-  // Apply saved theme to lock screen immediately
-  const savedTheme = localStorage.getItem("azizTheme");
-  if(savedTheme) document.body.dataset.theme = savedTheme;
-});
-
-/* --- 3. CORE FUNCTIONS --- */
-function syncPull() {
-  if(!SYNC_URL) return;
-  fetch(SYNC_URL, {mode:"cors"}).then(r=>r.json()).then(d=>{
-    if(d && d.salary) { DATA = {...DEFAULTS, ...d}; persist(); init(); }
-  }).catch(e=>{});
-}
-function syncPush() {
-  if(!SYNC_URL) return;
-  fetch(SYNC_URL, {method:"POST", body:JSON.stringify(DATA), mode:"cors"}).catch(e=>{});
-}
-function syncTest() {
-  if(!SYNC_URL) return alert("No URL configured");
-  fetch(SYNC_URL, {mode:"cors"}).then(r=>r.text()).then(t=>{
-    document.getElementById("sync_txt").textContent = "✅ Connected: " + t.slice(0,20);
-  }).catch(e=>{
-    document.getElementById("sync_txt").textContent = "❌ Failed";
-  });
-}
-
-const fmt = n => "QAR " + Math.round(n).toLocaleString();
-const g = id => document.getElementById(id);
-
-function toggleModal(id) {
-  const m = document.getElementById(id);
-  if(m.style.display === 'flex') {
-    m.style.display = 'none';
-    m.classList.remove('active');
-  } else {
-    m.style.display = 'flex';
-    m.classList.add('active');
-  }
-}
-
-function toggleBreakdown(type) {
-  const el = g(type + '_breakdown');
-  el.style.display = el.style.display === 'block' ? 'none' : 'block';
-  // Populate content
-  if(type === 'bank') {
-    el.innerHTML = (DATA.accounts||[]).filter(a=>a.type==='bank').map(a=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--track)"><span>${a.name}</span><b>${fmt(a.balance)}</b></div>`).join("");
-  } else {
-    el.innerHTML = (DATA.loans||[]).map(l=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--track)"><span>${l.name}</span><b style="color:var(--red)">-${fmt(l.total-l.paid)}</b></div>`).join("");
-  }
-}
-
-function toggleCatSelect() {
-  const type = g("t_type").value;
-  const catSelect = g("t_cat");
-  const cats = Object.keys(DATA.variable);
-  if(type === 'income') {
-    catSelect.innerHTML = '<option value="Income">Income</option><option value="Refund">Refund</option><option value="Gift">Gift</option>';
-  } else {
-    catSelect.innerHTML = cats.map(c=>`<option value="${c}">${c}</option>`).join("");
-  }
-}
-
-/* --- 4. INITIALIZATION --- */
-function init() {
-  console.log("System Ready");
-  const currentMonth = new Date().toISOString().slice(0, 7);
-  
-  const monthlyTx = DATA.tx.filter(t => {
-    const dateStr = t[3] || ""; 
-    return typeof dateStr === 'string' && dateStr.startsWith(currentMonth);
-  });
-  
-  const incomeThisMonth = monthlyTx.filter(t => t[4] === 'income').reduce((sum, t) => sum + (parseFloat(t[1])||0), 0);
-  const expenseThisMonth = monthlyTx.filter(t => t[4] === 'expense').reduce((sum, t) => sum + (parseFloat(t[1])||0), 0);
-  
-  const bankTotal = (DATA.accounts||[]).filter(a => a.type === 'bank').reduce((sum, a) => sum + (a.balance||0), 0);
-  const cashTotal = (DATA.accounts||[]).filter(a => a.type === 'cash').reduce((sum, a) => sum + (a.balance||0), 0);
-  const safeFundsTotal = (DATA.funds.emergency ? DATA.funds.emergency[0] : 0) + (DATA.funds.tunisia ? DATA.funds.tunisia[0] : 0);
-  const totalDebt = (DATA.loans||[]).reduce((sum, l) => sum + ((l.total||0) - (l.paid||0)), 0);
-  
-  const netWorth = (bankTotal + cashTotal + safeFundsTotal) - totalDebt;
-
-  if(g("s_cash")) g("s_cash").textContent = fmt(cashTotal);
-  if(g("net_worth")) g("net_worth").textContent = fmt(netWorth);
-  if(g("bank_total")) g("bank_total").textContent = fmt(bankTotal);
-  if(g("total_debt")) g("total_debt").textContent = fmt(totalDebt);
-  
-  renderChart();
-  renderTransactions();
-  renderAccounts();
-  renderLoans();
-  renderFunds();
-  renderDocs();
-  renderSettings();
-  renderCheques();
-  
-  if(incomeThisMonth === 0 && new Date().getDate() > 5) {
-    if(g("status_text")) {
-      g("status_text").textContent = "⚠️ Salary Not Recorded Yet!";
-      g("status_text").style.color = "var(--red)";
-    }
-  } else {
-    if(g("status_text")) {
-      g("status_text").textContent = "✅ Month Active";
-      g("status_text").style.color = "var(--green)";
-    }
-  }
-  
-  if(g("spent_amt")) g("spent_amt").textContent = fmt(expenseThisMonth);
-  if(g("budget_amt")) g("budget_amt").textContent = fmt(DATA.budget);
-  if(g("month_prog")) g("month_prog").style.width = Math.min((expenseThisMonth/DATA.budget)*100, 100) + "%";
-  
-  // Overview Updates
-  const ef = DATA.funds.emergency;
-  const tf = DATA.funds.tunisia;
-  if(g("ef_t")) g("ef_t").textContent = fmt(ef[0]);
-  if(g("ef_b")) g("ef_b").style.width = Math.min(ef[0]/ef[1]*100, 100) + "%";
-  if(g("ef_p")) g("ef_p").textContent = Math.round(ef[0]/ef[1]*100) + "% of target";
-  
-  if(g("tf_t")) g("tf_t").textContent = fmt(tf[0]);
-  if(g("tf_b")) g("tf_b").style.width = Math.min(tf[0]/tf[1]*100, 100) + "%";
-  if(g("tf_p")) g("tf_p").textContent = Math.round(tf[0]/tf[1]*100) + "% of target";
-  
-  if(g("chips")) g("chips").innerHTML = DATA.attention.map(a=>`<div class="chip">${a}</div>`).join("");
-  if(g("bellN")) g("bellN").textContent = DATA.attention.length;
-  if(g("notif")) g("notif").innerHTML = DATA.attention.map(a=>`<div>🔔 ${a}</div>`).join("");
-  
-  if(g("prio")) g("prio").textContent = DATA.priority;
-  if(g("acts")) {
-    g("acts").innerHTML = DATA.actions.map((a,i)=>`
-      <li class="act ${DATA.review["a"+i]?"done":""}" onclick="tickAct(${i})">
-        <span class="cb">✓</span><span>${a}</span>
-      </li>`).join("");
-  }
-}
-
-function renderChart() {
-  const ctx = g("chart");
-  if(!ctx) return;
-  const data = DATA.history.slice(-5);
-  const max = Math.max(...data.map(d=>d[1]), 20000);
-  const pts = data.map((d,i) => {
-    const x = (i / (data.length-1)) * 100;
-    const y = 100 - ((d[1]/max)*100);
-    return `${x},${y}`;
-  }).join(" ");
-  
-  ctx.innerHTML = `
-    <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="width:100%;height:100%;overflow:visible">
-      <polyline points="${pts}" fill="none" stroke="var(--acc)" stroke-width="2" vector-effect="non-scaling-stroke"/>
-      ${data.map((d,i) => {
-        const x = (i / (data.length-1)) * 100;
-        const y = 100 - ((d[1]/max)*100);
-        return `<circle cx="${x}" cy="${y}" r="3" fill="var(--bg)" stroke="var(--acc)" stroke-width="2" />`;
-      }).join('')}
-    </svg>
-    <div class="cl">${data.map(d=>`<span>${d[0]}</span>`).join("")}</div>
-  `;
-}
-
-function renderTransactions() {
-  const list = g("tx_list");
-  if(!list) return;
-  list.innerHTML = DATA.tx.slice().reverse().map((t,i) => {
-    const originalIdx = DATA.tx.length - 1 - i;
-    const type = t[4] || 'expense';
-    const color = type === 'income' ? 'var(--green)' : 'var(--ink)';
-    const sign = type === 'income' ? '+' : '-';
-    return `<tr>
-      <td><b style="color:${color}">${t[0]}</b></td>
-      <td class="mut">${t[2]||'-'}</td>
-      <td style="font-weight:700;color:${color}">${sign}${fmt(t[1])}</td>
-      <td class="mut">${t[3]||'-'}</td>
-      <td><button class="copyb" onclick="delTx(${originalIdx})">✕</button></td>
-    </tr>`;
-  }).join("");
-}
-
-function renderAccounts() {
-  const list = g("accounts_editor");
-  if(list) {
-    list.innerHTML = (DATA.accounts||[]).map((a,i) => `
-      <div style="display:flex;gap:10px;margin-bottom:10px;align-items:center">
-        <input value="${a.name}" onchange="updateAccount(${i},'name',this.value)" placeholder="Bank Name" style="flex:2">
-        <select onchange="updateAccount(${i},'type',this.value)" style="flex:1">
-          <option value="bank" ${a.type==='bank'?'selected':''}>Bank</option>
-          <option value="cash" ${a.type==='cash'?'selected':''}>Cash</option>
-        </select>
-        <input type="number" value="${a.balance}" onchange="updateAccount(${i},'balance',this.value)" placeholder="Balance" style="flex:1">
-        <button class="btn o" style="padding:8px" onclick="delAccount(${i})">✕</button>
-      </div>
-    `).join("");
-  }
-}
-
-function renderLoans() {
-  const list = g("loans_list");
-  if(!list) return;
-  if((DATA.loans||[]).length === 0) {
-    list.innerHTML = `<p class="mut">No active loans.</p>`;
-    return;
-  }
-  list.innerHTML = DATA.loans.map((l,i) => `
-    <div style="background:var(--track);padding:10px;border-radius:8px;margin-bottom:8px">
-      <div style="display:flex;justify-content:space-between;font-weight:700"><span>${l.name}</span><span style="color:var(--red)">-${fmt(l.total - l.paid)}</span></div>
-      <div class="prog" style="height:4px;margin:5px 0"><i style="width:${(l.paid/l.total)*100}%"></i></div>
-      <div style="font-size:11px;display:flex;justify-content:space-between">
-        <span>Paid: ${fmt(l.paid)}</span>
-        <span>Next: ${l.nextDue||'None'}</span>
-      </div>
-      <button class="btn o" style="font-size:10px;padding:4px 8px;margin-top:5px" onclick="manageLoan(${i})">Manage Cheques/Payments</button>
-    </div>
-  `).join("");
-}
-
-function renderFunds() {
-  const list = g("funds_list");
-  if(!list) return;
-  const funds = DATA.funds || {};
-  list.innerHTML = Object.entries(funds).map(([key, val]) => `
-    <div style="margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;text-transform:capitalize">
-        <span>${key} Fund</span>
-        <span>${fmt(val[0])} / ${fmt(val[1])}</span>
-      </div>
-      <div class="prog"><i style="width:${Math.min((val[0]/val[1])*100,100)}%"></i></div>
-      <button class="mut" style="border:0;background:transparent;font-size:11px;cursor:pointer" onclick="addFund('${key}')">+ Add Money</button>
-    </div>
-  `).join("");
-}
-
-function renderDocs() {
-  const list = g("docsL");
-  if(!list) return;
-  list.innerHTML = (DATA.docs||[]).map((d,i) => `
-    <tr>
-      <td><b>${d[0]}</b></td>
-      <td class="mut">••• ${String(d[1]).slice(-4)}</td>
-      <td class="mut">${d[2]||'N/A'}</td>
-      <td><span class="pill s-done">Valid</span></td>
-      <td>
-        ${d[3] ? `<a href="${d[3]}" target="_blank" class="copyb">View</a>` : '<button class="copyb" onclick="uploadDoc('+i+')">Upload</button>'}
-      </td>
-      <td><button class="copyb" onclick="delDoc(${i})">✕</button></td>
-    </tr>
-  `).join("");
-}
-
-function renderCheques() {
-  const list = g("cheque_list");
-  if(!list) return;
-  const today = new Date().toISOString().slice(0,10);
-  const upcoming = [];
-  (DATA.loans||[]).forEach(l => {
-    (l.cheques||[]).forEach(c => {
-      if(!c.paid && c.date >= today) upcoming.push({date:c.date, amount:c.amount, loan:l.name});
-    });
-  });
-  upcoming.sort((a,b) => a.date.localeCompare(b.date));
-  if(upcoming.length === 0) {
-    list.innerHTML = "<p class='mut'>No upcoming cheques.</p>";
-  } else {
-    list.innerHTML = upcoming.slice(0,5).map(c => `
-      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--track)">
-        <span>${c.date} <b>${c.loan}</b></span>
-        <b style="color:var(--red)">${fmt(c.amount)}</b>
-      </div>
-    `).join("");
-  }
-}
-
-function renderSettings() {
-  const themeRow = g("themeRow");
-  if(themeRow) {
-    themeRow.innerHTML = THEMES.map(t => `
-      <button class="thb ${(document.body.dataset.theme||'classic')===t?'on':''}" onclick="setTheme('${t}')">
-        <span style="text-transform:capitalize">${t}</span>
-      </button>
-    `).join("");
-  }
-  if(g("set_budget")) g("set_budget").value = DATA.budget;
-  if(g("set_cats")) g("set_cats").value = Object.keys(DATA.variable).join(", ");
-  if(g("set_accounts")) {
-    g("set_accounts").value = (DATA.accounts||[]).map(a=>`${a.name}, ${a.balance}`).join("\n");
-  }
-}
-
-/* --- 6. MODAL UTILS --- */
-function openModal(id) {
-  document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
-  const el = document.getElementById(id);
-  if(el) { el.classList.add('active'); el.querySelector('input')?.focus(); }
-}
-function closeModal(id) {
-  const el = document.getElementById(id);
-  if(el) el.classList.remove('active');
-}
-
-/* --- 7. FINANCIAL ACTIONS --- */
-function addTx() {
-  const n = g("t_name").value.trim();
-  const a = parseFloat(g("t_amt").value);
-  const c = g("t_cat").value || "General";
-  const type = g("t_type").value;
-  
-  if(!n || !a) return alert("Please enter description and amount");
-  
-  DATA.tx.push([n, a, c, new Date().toISOString().slice(0,10), type]);
-  
-  // Update Liquid Cash (First 'cash' account or general cash)
-  let cashAcc = DATA.accounts.find(acc => acc.type === 'cash');
-  if(!cashAcc) { cashAcc = {name:"Cash Wallet", type:"cash", balance:0}; DATA.accounts.push(cashAcc); }
-  
-  if(type === 'expense') cashAcc.balance -= a;
-  else cashAcc.balance += a;
-  
-  persist(); syncPush(); init();
-  g("t_name").value = ""; g("t_amt").value = "";
-}
-
-function delTx(i) {
-  if(confirm("Delete this transaction?")) {
-    DATA.tx.splice(i, 1);
-    persist(); syncPush(); init();
-  }
-}
-
-function toggleCatSelect() {
-  // Optional: Change category list based on Income/Expense
-  const sel = g("t_cat");
-  const type = g("t_type").value;
-  const cats = type === 'income' 
-    ? ["Salary", "Freelance", "Refund", "Gift", "Investment Return"]
-    : Object.keys(DATA.variable);
-  sel.innerHTML = cats.map(c => `<option>${c}</option>`).join("");
-}
-
-/* --- 8. SALARY & MONTH LOGIC --- */
-function openSalaryModal() {
-  const currentMonth = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
-  g("salary_month_label").textContent = `Recording Salary for ${currentMonth}`;
-  g("salary_input").value = DATA.salary; // Pre-fill expected
-  openModal('salary_modal');
-}
-
-function confirmSalary() {
-  const amt = parseFloat(g("salary_input").value);
-  if(!amt) return;
-  
-  const today = new Date().toISOString().slice(0,10);
-  const monthKey = today.slice(0,7); // "2026-08"
-  
-  // Check if already recorded this month
-  const exists = DATA.tx.some(t => t[0] === "Monthly Salary" && t[3].startsWith(monthKey));
-  if(exists) { alert("Salary already recorded for this month!"); return; }
-  
-  DATA.tx.push(["Monthly Salary", amt, "Salary", today, "income"]);
-  
-  // Add to Bank Account (Default to first bank)
-  let bankAcc = DATA.accounts.find(acc => acc.type === 'bank');
-  if(!bankAcc) { bankAcc = {name:"Main Bank", type:"bank", balance:0}; DATA.accounts.unshift(bankAcc); }
-  bankAcc.balance += amt;
-  
-  persist(); syncPush(); init();
-  closeModal('salary_modal');
-}
-
-function toggleMonthDetails() {
-  const div = g("month_details");
-  const currentMonth = new Date().toISOString().slice(0, 7);
-  const monthlyTx = DATA.tx.filter(t => (t[3]||"").startsWith(currentMonth));
-  
-  if(div.style.display === "block") { div.style.display = "none"; return; }
-  
-  div.style.display = "block";
-  if(monthlyTx.length === 0) { div.innerHTML = "<p class='mut'>No transactions this month yet.</p>"; return; }
-  
-  div.innerHTML = monthlyTx.map(t => `
-    <div class="breakdown-item">
-      <span>${t[0]} <small class="mut">(${t[2]})</small></span>
-      <span style="color:${t[4]==='income'?'var(--green)':'var(--red)'}">${t[4]==='income'?'+':'-'}${fmt(t[1])}</span>
-    </div>
-  `).join("");
-}
-
-/* --- 9. ACCOUNTS & DEBTS --- */
-function updateAccount(i, key, val) {
-  DATA.accounts[i][key] = key==='balance' ? parseFloat(val) : val;
-  persist(); syncPush(); init();
-}
-function delAccount(i) { 
-  if(confirm("Remove this account?")) { DATA.accounts.splice(i,1); persist(); init(); }
-}
-
-function saveLoan() {
-  const name = g("l_name").value;
-  const total = parseFloat(g("l_total").value);
-  const paid = parseFloat(g("l_paid").value) || 0;
-  const nextDue = g("l_date").value;
-  
-  if(!name || !total) return;
-  
-  DATA.loans.push({ name, total, paid, nextDue, cheques: [] });
-  persist(); syncPush(); init();
-  closeModal('loan_modal');
-  // Clear inputs
-  g("l_name").value = ""; g("l_total").value = ""; g("l_paid").value = "";
-}
-
-function openLoanManager(index) {
-  const l = DATA.loans[index];
-  const modal = g("loan_manage_modal");
-  g("lm_title").textContent = `Manage: ${l.name}`;
-  g("lm_remaining").textContent = `Remaining: ${fmt(l.total - l.paid)}`;
-  
-  // Render Cheques List
-  const list = g("lm_cheques_list");
-  if(!l.cheques || l.cheques.length === 0) {
-    list.innerHTML = "<p class='mut'>No cheques scheduled.</p><button class='btn o' style='width:100%;margin-top:10px;font-size:11px' onclick='addCheque(${index})'>+ Schedule Cheque</button>";
-  } else {
-    list.innerHTML = l.cheques.map((c, ci) => `
-      <div class="breakdown-item" style="align-items:center">
-        <div>
-          <div style="font-weight:600">${c.date}</div>
-          <div class="mut" style="font-size:10px">${fmt(c.amount)}</div>
-        </div>
-        ${c.paid 
-          ? '<span class="pill s-done">Paid</span>' 
-          : `<button class="btn g" style="font-size:10px;padding:4px 8px" onclick="markChequePaid(${index}, ${ci})">Mark Paid</button>`
-        }
-      </div>
-    `).join("") + `<button class="btn o" style="width:100%;margin-top:10px;font-size:11px" onclick='addCheque(${index})'>+ Add Cheque</button>`;
-  }
-  
-  openModal('loan_manage_modal');
-}
-
-function addCheque(loanIdx) {
-  const date = prompt("Cheque Date (YYYY-MM-DD):"); // Keeping simple for date pick
-  const amt = parseFloat(prompt("Amount:"));
-  if(date && amt) {
-    DATA.loans[loanIdx].cheques.push({ date, amount: amt, paid: false });
-    persist(); init(); openLoanManager(loanIdx); // Refresh modal
-  }
-}
-
-function markChequePaid(loanIdx, chequeIdx) {
-  const c = DATA.loans[loanIdx].cheques[chequeIdx];
-  if(confirm(`Mark ${fmt(c.amount)} as paid on ${c.date}? This will deduct from your cash.`)) {
-    c.paid = true;
-    // Deduct from Cash
-    let cashAcc = DATA.accounts.find(acc => acc.type === 'cash');
-    if(cashAcc) cashAcc.balance -= c.amount;
-    
-    // Update Loan Paid Total
-    DATA.loans[loanIdx].paid = (DATA.loans[loanIdx].paid || 0) + c.amount;
-    
-    persist(); syncPush(); init();
-    openLoanManager(loanIdx);
-  }
-}
-
-/* --- 10. FUNDS --- */
-function openFundModal() {
-  g("fund_name").value = ""; g("fund_target").value = ""; g("fund_curr").value = "0";
-  openModal('add_fund_modal');
-}
-
-function saveFund() {
-  const name = g("fund_name").value.toLowerCase().trim();
-  const target = parseFloat(g("fund_target").value);
-  const curr = parseFloat(g("fund_curr").value) || 0;
-  
-  if(!name || !target) return;
-  
-  if(!DATA.funds) DATA.funds = {};
-  DATA.funds[name] = [curr, target, new Date().toISOString()]; // Added timestamp
-  persist(); syncPush(); init();
-  closeModal('add_fund_modal');
-}
-
-function editFund(key) {
-  const f = DATA.funds[key];
-  g("fund_name").value = key;
-  g("fund_target").value = f[1];
-  g("fund_curr").value = f[0];
-  // Store original key to rename if needed (simplified here)
-  const btnSave = g("btn_save_fund");
-  btnSave.onclick = () => {
-    const newCurr = parseFloat(g("fund_curr").value);
-    const newTarget = parseFloat(g("fund_target").value);
-    DATA.funds[key] = [newCurr, newTarget, new Date().toISOString()];
-    persist(); syncPush(); init();
-    closeModal('add_fund_modal');
-  };
-  openModal('add_fund_modal');
-}
-
-/* --- 11. INITIALIZATION (Updated Renders) --- */
-function renderAccounts() {
-  const breakdown = g("bank_breakdown");
-  if(!breakdown) return;
-  
-  const banks = DATA.accounts.filter(a => a.type === 'bank');
-  const cashes = DATA.accounts.filter(a => a.type === 'cash');
-  
-  // Render Bank List
-  breakdown.innerHTML = banks.map(a => `
-    <div class="breakdown-item">
-      <span>${a.name} <small class="mut" onclick="updateAccount(${DATA.accounts.indexOf(a)},'balance',prompt('New Balance:',${a.balance}))" style="cursor:pointer">✎</small></span>
-      <span>${fmt(a.balance)}</span>
-    </div>
-  `).join("") || "<span class='mut'>No bank accounts</span>";
-  
-  // Update Liquid Cash Display
-  const totalCash = cashes.reduce((sum,a)=>sum+a.balance, 0);
-  if(g("cash_hand")) g("cash_hand").textContent = fmt(totalCash);
-}
-
-function renderLoans() {
-  const list = g("loans_list");
-  const debtBreak = g("debt_breakdown");
-  if(!list || !debtBreak) return;
-  
-  if((DATA.loans||[]).length === 0) {
-    list.innerHTML = `<p class="mut">No active loans.</p>`;
-    debtBreak.innerHTML = "<span class='mut'>Debt free!</span>";
-    return;
-  }
-  
-  // List in Right Column
-  list.innerHTML = DATA.loans.map((l,i) => `
-    <div style="background:var(--track);padding:10px;border-radius:8px;margin-bottom:8px">
-      <div style="display:flex;justify-content:space-between;font-weight:700">
-        <span>${l.name}</span>
-        <span style="color:var(--red)">-${fmt(l.total - l.paid)}</span>
-      </div>
-      <div class="prog" style="height:4px;margin:5px 0"><i style="width:${Math.min((l.paid/l.total)*100,100)}%"></i></div>
-      <div style="font-size:11px;display:flex;justify-content:space-between">
-        <span>Next: ${l.nextDue||'None'}</span>
-        <button class="mut" style="border:0;background:transparent;cursor:pointer;text-decoration:underline" onclick="openLoanManager(${i})">Manage Cheques</button>
-      </div>
-    </div>
-  `).join("");
-  
-  // Breakdown in Top Card
-  debtBreak.innerHTML = DATA.loans.map(l => `
-    <div class="breakdown-item">
-      <span>${l.name}</span>
-      <span style="color:var(--red)">-${fmt(l.total - l.paid)}</span>
-    </div>
-  `).join("");
-  
-  if(g("total_debt")) {
-    const total = DATA.loans.reduce((sum,l)=>sum+(l.total-l.paid),0);
-    g("total_debt").textContent = fmt(total);
-  }
-}
-
-function renderFunds() {
-  const list = g("funds_list");
-  if(!list || !DATA.funds) return;
-  
-  list.innerHTML = Object.entries(DATA.funds).map(([key, val]) => {
-    const lastUpd = val[2] ? new Date(val[2]).toLocaleDateString() : 'Never';
-    return `
-    <div style="margin-bottom:12px; background:var(--bg); padding:10px; border-radius:8px;">
-      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;text-transform:capitalize">
-        <span>${key} Fund</span>
-        <button class="mut" style="border:0;background:transparent;cursor:pointer" onclick="editFund('${key}')">✎ Edit</button>
-      </div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Last updated: ${lastUpd}</div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
-        <span>${fmt(val[0])}</span>
-        <span class="mut">of ${fmt(val[1])}</span>
-      </div>
-      <div class="prog"><i style="width:${Math.min((val[0]/val[1])*100,100)}%"></i></div>
-    </div>
-  `}).join("");
-}
-
-// Keep your existing init(), renderChart(), renderTransactions(), renderDocs()...
-// Just ensure renderAccounts, renderLoans, renderFunds are called inside init()
-
-
-</script>
-</body>
-<!-- FIX: ADD THESE MODALS BEFORE </body> TO MAKE CLICKS WORK -->
-<style>
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9998; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-.modal-overlay.active { display: flex; animation: up 0.3s ease; }
-.modal-card { background: var(--card); padding: 25px; border-radius: 20px; width: 90%; max-width: 450px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); }
-.modal-header { font-size: 18px; font-weight: 800; margin-bottom: 15px; display: flex; justify-content: space-between; }
-.modal-close { cursor: pointer; color: var(--muted); font-size: 20px; }
-.input-group { margin-bottom: 12px; }
-.input-group label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
-.input-group input, .input-group select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--track); background: var(--bg); color: var(--ink); font-size: 14px; }
-.btn-row { display: flex; gap: 10px; margin-top: 20px; }
-.btn-full { flex: 1; padding: 12px; border: 0; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 13px; }
-.btn-cancel { background: var(--track); color: var(--ink); }
-.btn-confirm { background: var(--green); color: #fff; }
-.breakdown-list { margin-top: 8px; font-size: 12px; }
-.breakdown-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--track); }
-</style>
-
-<!-- 1. TRANSACTION MODAL -->
-<div id="modal-tx" class="modal-overlay">
+<!-- MODALS -->
+<div id="modal-income" class="modal-overlay">
   <div class="modal-card">
-    <div class="modal-header"><span>Register Transaction</span><span class="modal-close" onclick="closeModal('modal-tx')">&times;</span></div>
-    <div class="input-group">
-      <label>Type</label>
-      <select id="m_tx_type" onchange="toggleTxColor()">
-        <option value="expense">Expense (-)</option>
-        <option value="income">Income (+)</option>
-      </select>
-    </div>
-    <div class="input-group"><label>Description</label><input id="m_tx_desc" placeholder="e.g. Grocery, Freelance"></div>
-    <div class="input-group"><label>Amount (QAR)</label><input id="m_tx_amt" type="number" placeholder="0.00"></div>
-    <div class="input-group"><label>Category</label><select id="m_tx_cat"></select></div>
+    <div class="modal-header"><span>Add Income</span><span class="modal-close" onclick="closeModal('modal-income')">&times;</span></div>
+    <div class="input-group"><label>Source</label><input id="inc_source" placeholder="Freelance, Refund..."></div>
+    <div class="input-group"><label>Amount</label><input id="inc_amt" type="number"></div>
     <div class="btn-row">
-      <button class="btn-full btn-cancel" onclick="closeModal('modal-tx')">Cancel</button>
-      <button class="btn-full btn-confirm" onclick="submitTx()">Save Transaction</button>
+      <button class="btn-full btn-cancel" onclick="closeModal('modal-income')">Cancel</button>
+      <button class="btn-full btn-confirm" onclick="confirmIncome()">Save</button>
     </div>
   </div>
 </div>
 
-<!-- 2. SALARY MODAL -->
 <div id="modal-salary" class="modal-overlay">
   <div class="modal-card">
     <div class="modal-header"><span>Record Salary</span><span class="modal-close" onclick="closeModal('modal-salary')">&times;</span></div>
     <p class="mut" style="margin-bottom:15px; font-size:12px;">Confirm receipt for <b id="salary_month_label">this month</b>.</p>
     <div class="input-group"><label>Net Amount Received</label><input id="m_sal_amt" type="number" placeholder="e.g. 19000"></div>
     <div class="btn-row">
-      <button class="btn-full btn-cancel" onclick="closeModal('modal-salary')">Cancel</button>
-      <button class="btn-full btn-confirm" onclick="submitSalary()">Confirm Receipt</button>
-    </div>
-  </div>
-</div>
-
-<!-- 3. LOAN MANAGER MODAL -->
-<div id="modal-loan" class="modal-overlay">
-  <div class="modal-card" style="max-width: 500px;">
-    <div class="modal-header"><span>Manage Liability</span><span class="modal-close" onclick="closeModal('modal-loan')">&times;</span></div>
-    <div id="loan_content"></div> <!-- Dynamic Content -->
-  </div>
-</div>
-
-<!-- 4. FUND EDITOR MODAL -->
-<div id="modal-fund" class="modal-overlay">
-  <div class="modal-card">
-    <div class="modal-header"><span>Edit Fund</span><span class="modal-close" onclick="closeModal('modal-fund')">&times;</span></div>
-    <input type="hidden" id="m_fund_key">
-    <div class="input-group"><label>Fund Name</label><input id="m_fund_name"></div>
-    <div class="input-group"><label>Current Balance</label><input id="m_fund_bal" type="number"></div>
-    <div class="btn-row">
-      <button class="btn-full btn-cancel" onclick="closeModal('modal-fund')">Cancel</button>
-      <button class="btn-full btn-confirm" onclick="submitFund()">Save Changes</button>
-    </div>
-  </div>
-</div>
-
-<script>
-// --- HELPER: OPEN/CLOSE MODALS ---
-function openModal(id) { document.getElementById(id).classList.add('active'); }
-function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-// --- FIX: POPULATE CATEGORIES ---
-function populateCategories() {
-  const sel = document.getElementById('m_tx_cat');
-  if(!sel) return;
-  sel.innerHTML = Object.keys(DATA.variable).map(c => `<option>${c}</option>`).join('');
-}
-
-// --- FIX: SUBMIT TRANSACTION ---
-function submitTx() {
-  const type = document.getElementById('m_tx_type').value;
-  const desc = document.getElementById('m_tx_desc').value;
-  const amt = parseFloat(document.getElementById('m_tx_amt').value);
-  const cat = document.getElementById('m_tx_cat').value;
-  
-  if(!desc || !amt) return alert('Please fill all fields');
-  
-  // Add to history
-  DATA.tx.push([desc, amt, cat, new Date().toISOString().slice(0,10), type]);
-  
-  // Update Balance (Simple logic: adds to first account or cash)
-  if(type === 'income') {
-    if(DATA.accounts && DATA.accounts.length) DATA.accounts[0].balance += amt;
-    else DATA.cash += amt;
-  } else {
-    if(DATA.accounts && DATA.accounts.length) DATA.accounts[0].balance -= amt;
-    else DATA.cash -= amt;
-  }
-  
-  persist(); syncPush(); init(); closeModal('modal-tx');
-  // Reset form
-  document.getElementById('m_tx_desc').value = '';
-  document.getElementById('m_tx_amt').value = '';
-}
-
-// --- FIX: SUBMIT SALARY ---
-function submitSalary() {
-  const amt = parseFloat(document.getElementById('m_sal_amt').value);
-  if(!amt) return;
-  
-  const monthLabel = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
-  DATA.tx.push(["Salary: " + monthLabel, amt, "Income", new Date().toISOString().slice(0,10), "income"]);
-  
-  if(DATA.accounts && DATA.accounts.length) DATA.accounts[0].balance += amt;
-  
-  // Mark month as active in a simple way (could be expanded)
-  DATA.lastSalaryDate = new Date().toISOString();
-  
-  persist(); syncPush(); init(); closeModal('modal-salary');
-  document.getElementById('m_sal_amt').value = '';
-}
-
-// --- FIX: LOAN MANAGER UI ---
-function openLoanManager(index) {
-  const loan = DATA.loans[index];
-  const content = document.getElementById('loan_content');
-  
-  let chequesHtml = '';
-  if(loan.cheques && loan.cheques.length) {
-    chequesHtml = '<h4 style="margin:15px 0 10px; font-size:12px; color:var(--muted)">UPCOMING CHEQUES</h4>';
-    loan.cheques.forEach((c, i) => {
-      chequesHtml += `
-        <div class="breakdown-item">
-          <span>${c.date} <b style="color:${c.paid?'var(--green)':'var(--red)'}">${c.paid?'(PAID)':''}</b></span>
-          <span>${fmt(c.amount)}</span>
-          ${!c.paid ? `<button class="copyb" onclick="payCheque(${index}, ${i})">Pay</button>` : ''}
-        </div>`;
-    });
-  } else {
-    chequesHtml = '<p class="mut">No cheques scheduled.</p>';
-  }
-
-  content.innerHTML = `
-    <div style="background:var(--track); padding:15px; border-radius:12px; margin-bottom:15px;">
-      <div style="display:flex; justify-content:space-between; font-weight:700; font-size:15px;">
-        <span>${loan.name}</span>
-        <span style="color:var(--red)">${fmt(loan.total - loan.paid)} Left</span>
-      </div>
-      <div style="font-size:11px; color:var(--muted); margin-top:5px;">Total: ${fmt(loan.total)} | Paid: ${fmt(loan.paid)}</div>
-    </div>
-    ${chequesHtml}
-    <div class="btn-row" style="margin-top:20px;">
-      <button class="btn-full btn-cancel" onclick="addChequePrompt(${index})">+ Add Cheque</button>
-      <button class="btn-full btn-confirm" onclick="makePaymentPrompt(${index})">Make Payment</button>
-    </div>
-  `;
-  openModal('modal-loan');
-}
-
-function payCheque(lIndex, cIndex) {
-  DATA.loans[lIndex].cheques[cIndex].paid = true;
-  DATA.loans[lIndex].paid += DATA.loans[lIndex].cheques[cIndex].amount;
-  // Deduct from cash
-  if(DATA.accounts && DATA.accounts.length) DATA.accounts[0].balance -= DATA.loans[lIndex].cheques[cIndex].amount;
-  else DATA.cash -= DATA.loans[lIndex].cheques[cIndex].amount;
-  
-  persist(); syncPush(); init(); openLoanManager(lIndex); // Refresh modal
-}
-
-function addChequePrompt(idx) {
-  const date = prompt("Cheque Date (YYYY-MM-DD):");
-  if(!date) return;
-  const amt = parseFloat(prompt("Amount:"));
-  if(!amt) return;
-  if(!DATA.loans[idx].cheques) DATA.loans[idx].cheques = [];
-  DATA.loans[idx].cheques.push({date, amount: amt, paid: false});
-  persist(); syncPush(); init(); openLoanManager(idx);
-}
-
-function makePaymentPrompt(idx) {
-  const amt = parseFloat(prompt("Payment Amount:"));
-  if(!amt) return;
-  DATA.loans[idx].paid += amt;
-  if(DATA.accounts && DATA.accounts.length) DATA.accounts[0].balance -= amt;
-  else DATA.cash -= amt;
-  persist(); syncPush(); init(); openLoanManager(idx);
-}
-
-// --- FIX: FUND EDITOR ---
-function openFundEditor(key) {
-  const fund = DATA.funds[key];
-  document.getElementById('m_fund_key').value = key;
-  document.getElementById('m_fund_name').value = key; // Simple name edit
-  document.getElementById('m_fund_bal').value = fund[0];
-  openModal('modal-fund');
-}
-
-function submitFund() {
-  const key = document.getElementById('m_fund_key').value;
-  const newName = document.getElementById('m_fund_name').value;
-  const newBal = parseFloat(document.getElementById('m_fund_bal').value);
-  
-  if(newName !== key) {
-    // Rename key (simple swap)
-    DATA.funds[newName] = [newBal, DATA.funds[key][1]];
-    delete DATA.funds[key];
-  } else {
-    DATA.funds[key][0] = newBal;
-  }
-  
-  persist(); syncPush(); init(); closeModal('modal-fund');
-}
-
-// --- UPDATE INIT TO HOOK BUTTONS ---
-// We need to override the render functions to use these new modals
-const oldRenderLoans = renderLoans;
-renderLoans = function() {
-  const list = document.getElementById('loans_list');
-  if(!list) return;
-  if((DATA.loans||[]).length === 0) { list.innerHTML = '<p class="mut">No active loans.</p>'; return; }
-  list.innerHTML = DATA.loans.map((l,i) => `
-    <div style="background:var(--track);padding:12px;border-radius:12px;margin-bottom:8px; cursor:pointer;" onclick="openLoanManager(${i})">
-      <div style="display:flex;justify-content:space-between;font-weight:700;font-size:13px;"><span>${l.name}</span><span style="color:var(--red)">${fmt(l.total-l.paid)}</span></div>
-      <div style="font-size:11px;color:var(--muted);margin-top:4px;">Next: ${l.nextDue||'None'}</div>
-    </div>
-  `).join("");
-}
-
-const oldRenderFunds = renderFunds;
-renderFunds = function() {
-  const list = document.getElementById('funds_list');
-  if(!list) return;
-  const funds = DATA.funds || {};
-  list.innerHTML = Object.entries(funds).map(([key, val]) => `
-    <div style="margin-bottom:12px; cursor:pointer;" onclick="openFundEditor('${key}')">
-      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;text-transform:capitalize">
-        <span>${key}</span>
-        <span>${fmt(val[0])}</span>
-      </div>
-      <div class="prog" style="height:6px;"><i style="width:${Math.min((val[0]/val[1])*100,100)}%"></i></div>
-      <div style="font-size:10px;color:var(--muted);text-align:right;margin-top:2px;">Tap to edit</div>
-    </div>
-  `).join("");
-}
-
-// Hook the buttons in Money Tab Header
-// Note: Ensure your HTML buttons have onclick="openModal('modal-tx')" etc.
-</script>
-</html>
+      <button class
