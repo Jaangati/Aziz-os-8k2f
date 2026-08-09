@@ -231,7 +231,7 @@ textarea.rev{min-height:60px}
         <button class="btn o" style="width:100%;font-size:11px" onclick="addLoanPrompt()">+ Add Loan / Debt</button>
         <h2 style="margin-top:20px">🟢 SAFE FUNDS</h2>
         <div id="funds_list" style="margin-bottom:15px"></div>
-        <button class="btn o" style="width:100%;font-size:11px" onclick="addFundPrompt()">+ Add Fund</button>
+        <button class="btn o" style="width:100%;font-size:11px" onclick="openAddFund()">+ Add Fund</button>
         <h2 style="margin-top:20px">📅 UPCOMING CHEQUES</h2>
         <div id="cheque_list" style="font-size:12px"></div>
       </div>
@@ -345,12 +345,12 @@ textarea.rev{min-height:60px}
 
 <div id="modal-fund" class="modal-overlay">
   <div class="modal-card">
-    <div class="modal-header"><span>Edit Fund</span><span class="modal-close" onclick="closeModal('modal-fund')">&times;</span></div>
+    <div class="modal-header"><span id="m_fund_title">Edit Fund</span><span class="modal-close" onclick="closeModal('modal-fund')">&times;</span></div>
     <input type="hidden" id="m_fund_key">
     <div class="input-group"><label>Fund Name</label><input id="m_fund_name"></div>
     <div class="input-group"><label>Current Balance</label><input id="m_fund_bal" type="number"></div>
     <div class="input-group"><label>Target Goal (QAR)</label><input id="m_fund_target" type="number"></div>
-    <div class="btn-row"><button class="btn-full btn-cancel" onclick="closeModal('modal-fund')">Cancel</button><button class="btn-full btn-confirm" onclick="submitFund()">Save</button></div>
+    <div class="btn-row"><button class="btn-full btn-cancel" onclick="closeModal('modal-fund')">Cancel</button><button class="btn-full btn-confirm" style="background:var(--red);color:#fff;display:none;" id="m_fund_del" onclick="deleteFund()">Delete</button><button class="btn-full btn-confirm" onclick="submitFund()">Save</button></div>
   </div>
 </div>
 
@@ -736,14 +736,14 @@ function manageLoan(i) {
   persist(); init();
 }
 
-function addFundPrompt() {
-  const key = prompt("Fund Name (e.g. emergency):");
-  if(!key) return;
-  const bal = parseFloat(prompt("Current Balance:"));
-  const target = parseFloat(prompt("Target Goal:"));
-  if(!DATA.funds) DATA.funds = {};
-  DATA.funds[key.toLowerCase()] = [bal, target, new Date().toISOString()];
-  persist(); init();
+function openAddFund(){
+  document.getElementById("m_fund_key").value="";
+  document.getElementById("m_fund_name").value="";
+  document.getElementById("m_fund_bal").value="";
+  document.getElementById("m_fund_target").value="";
+  document.getElementById("m_fund_title").textContent="Add Fund";
+  document.getElementById("m_fund_del").style.display="none";
+  openModal("modal-fund");
 }
 
 function openFundEditor(key) {
@@ -753,7 +753,16 @@ function openFundEditor(key) {
   document.getElementById('m_fund_name').value = key;
   document.getElementById('m_fund_bal').value = Array.isArray(fund) ? fund[0] : 0;
   document.getElementById('m_fund_target').value = Array.isArray(fund) ? fund[1] : 10000;
+  document.getElementById("m_fund_title").textContent="Edit Fund";
+  document.getElementById("m_fund_del").style.display="block";
   openModal('modal-fund');
+}
+
+function deleteFund() {
+  if(!confirm("Delete this fund?"))return;
+  const k=document.getElementById("m_fund_key").value;
+  if(k&&DATA.funds){delete DATA.funds[k];persist();syncPush();}
+  closeModal("modal-fund");init();
 }
 
 function submitFund() {
