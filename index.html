@@ -257,7 +257,7 @@ textarea.rev{min-height:60px}
 
       <h2 style="margin-top:20px">🟢 SAFE FUNDS</h2>
       <div id="funds_list" style="margin-bottom:15px"></div>
-      <button class="btn o" style="width:100%;font-size:11px" onclick="openModal('modal-fund')">+ Add Fund</button>
+<button class="btn o" style="width:100%;font-size:11px" onclick="openAddFund()">+ Add Fund</button>
       
       <h2 style="margin-top:20px">📅 UPCOMING CHEQUES</h2>
       <div id="cheque_list" style="font-size:12px"></div>
@@ -608,17 +608,22 @@ function saveLoan() {
 }
 
 function submitFund() {
-  const key = g("m_fund_key").value || g("m_fund_name").value.toLowerCase().trim();
-  const name = g("m_fund_name").value.trim();
+  const oldKey = g("m_fund_key").value;
+  const newKey = g("m_fund_name").value.trim().toLowerCase();
   const bal = parseFloat(g("m_fund_bal").value) || 0;
   const target = parseFloat(g("m_fund_target").value) || 10000;
-  
-  if(!name) return;
-  
+  if(!newKey) return alert("Fund name required");
   if(!DATA.funds) DATA.funds = {};
-  DATA.funds[key] = [bal, target];
+  DATA.funds[newKey] = [bal, target];          // save under NEW name
+  if(oldKey && oldKey !== newKey) delete DATA.funds[oldKey];  // remove old name
   persist(); syncPush(); init();
   closeModal('modal-fund');
+}
+
+function openAddFund(){
+  g("m_fund_key").value=""; g("m_fund_name").value="";
+  g("m_fund_bal").value="0"; g("m_fund_target").value="";
+  openModal('modal-fund');
 }
 
 function toggleMonthDetails() {
