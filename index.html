@@ -216,9 +216,10 @@ textarea.rev{min-height:60px}
           </div>
         </div>
         <h2>REGISTER TRANSACTION</h2>
-        <div class="prow" style="grid-template-columns:1.5fr 1fr 1fr auto;gap:8px">
+        <div class="prow" style="grid-template-columns:1.5fr 1fr 1fr 1fr auto;gap:8px">
           <input id="t_name" placeholder="What?" inputmode="text">
           <input id="t_amt" type="number" placeholder="QAR" inputmode="decimal">
+          <select id="t_type"><option value="withdrawal">Withdrawal (−)</option><option value="deposit">Deposit (+)</option></select>
           <select id="t_cat"><option value="">Category</option></select>
           <button class="btn g" onclick="addTxQuick()">Add</button>
         </div>
@@ -350,8 +351,7 @@ textarea.rev{min-height:60px}
     <div class="input-group"><label>Fund Name</label><input id="m_fund_name"></div>
     <div class="input-group"><label>Current Balance</label><input id="m_fund_bal" type="number"></div>
     <div class="input-group"><label>Target Goal (QAR)</label><input id="m_fund_target" type="number"></div>
- <button class="btn-full" id="m_fund_del" style="background:var(--red);color:#fff;display:none" onclick="deleteFund()">Delete</button>
-    <div class="btn-row"><button class="btn-full btn-cancel" onclick="closeModal('modal-fund')">Cancel</button><button class="btn-full btn-confirm" onclick="submitFund()">Save</button></div>
+    <div class="btn-row"><button class="btn-full btn-cancel" onclick="closeModal('modal-fund')">Cancel</button><button class="btn-full btn-confirm" style="background:var(--red);color:#fff;display:none;" id="m_fund_del" onclick="deleteFund()">Delete</button><button class="btn-full btn-confirm" onclick="submitFund()">Save</button></div>
   </div>
 </div>
 
@@ -443,13 +443,16 @@ function init() {
   console.log("System Ready");
   const currentMonth = new Date().toISOString().slice(0, 7);
   
+  // Populate category select
+  if(g("t_cat")) g("t_cat").innerHTML = Object.keys(DATA.variable).map(c=>`<option value="${c}">${c}</option>`).join("");
+  
   const monthlyTx = DATA.tx.filter(t => {
     const dateStr = t[3] || ""; 
     return typeof dateStr === 'string' && dateStr.startsWith(currentMonth);
   });
   
-  const incomeThisMonth = monthlyTx.filter(t => t[4] === 'income').reduce((sum, t) => sum + (parseFloat(t[1])||0), 0);
-  const expenseThisMonth = monthlyTx.filter(t => t[4] === 'expense').reduce((sum, t) => sum + (parseFloat(t[1])||0), 0);
+  const incomeThisMonth = monthlyTx.filter(t => t[4] === 'income' || t[4] === 'deposit').reduce((sum, t) => sum + (parseFloat(t[1])||0), 0);
+  const expenseThisMonth = monthlyTx.filter(t => t[4] === 'expense' || t[4] === 'withdrawal').reduce((sum, t) => sum + (parseFloat(t[1])||0), 0);
   
   const bankTotal = (DATA.accounts||[]).filter(a => a.type === 'bank').reduce((sum, a) => sum + (a.balance||0), 0);
   const cashTotal = (DATA.accounts||[]).filter(a => a.type === 'cash').reduce((sum, a) => sum + (a.balance||0), 0);
@@ -510,10 +513,15 @@ function renderTransactions() {
   if(!list) return;
   list.innerHTML = DATA.tx.slice().reverse().map((t,i) => {
     const originalIdx = DATA.tx.length - 1 - i;
-    const type = t[4] || 'expense';
-    const color = type === 'income' ? 'var(--green)' : 'var(--ink)';
-    const sign = type === 'income' ? '+' : '-';
+    const type = t[4] || 'withdrawal';
+    const isDeposit = type === 'income' || type === 'deposit';
+    const isWithdrawal = type === 'expense' || type === 'withdrawal';
+    const color = isDeposit ? 'var(--green)' : 'var(--red)';
+    const sign = isDeposit ? '+' : '-';
+    const pillText = isDeposit ? 'Deposit' : 'Withdrawal';
+    const pillColor = isDeposit ? 'var(--green)' : 'var(--red)';
     return `<tr>
+      <td><span style="background:${pillColor};color:#fff;padding:2px 8px;border-radius:10px;font-size:11px">${pillText}</span></td>
       <td><b style="color:${color}">${t[0]}</b></td>
       <td class="mut">${t[2]||'-'}</td>
       <td style="font-weight:700;color:${color}">${sign}${fmt(t[1])}</td>
@@ -692,10 +700,16 @@ function addTxQuick() {
   const n = g("t_name").value.trim();
   const a = parseFloat(g("t_amt").value);
   const c = g("t_cat").value;
+  const type = g("t_type").value || "withdrawal";
   if(!n || !a) return alert("Enter details");
-  DATA.tx.push([n, a, c, new Date().toISOString().slice(0,10), "expense"]);
-  if(DATA.accounts && DATA.accounts.length) DATA.accounts[0].balance -= a;
-  else DATA.cash -= a;
+  DATA.tx.push([n, a, c, new Date().toISOString().slice(0,10), type]);
+  if(type === "deposit") {
+    if(DATA.accounts && DATA.accounts.length) DATA.accounts[0].balance += a;
+    else DATA.cash += a;
+  } else {
+    if(DATA.accounts && DATA.accounts.length) DATA.accounts[0].balance -= a;
+    else DATA.cash -= a;
+  }
   persist(); syncPush(); init();
   g("t_name").value = ""; g("t_amt").value = "";
 }
@@ -737,14 +751,14 @@ function manageLoan(i) {
   persist(); init();
 }
 
-function addFundPrompt() {
-  const key = prompt("Fund Name (e.g. emergency):");
-  if(!key) return;
-  const bal = parseFloat(prompt("Current Balance:"));
-  const target = parseFloat(prompt("Target Goal:"));
-  if(!DATA.funds) DATA.funds = {};
-  DATA.funds[key.toLowerCase()] = [bal, target, new Date().toISOString()];
-  persist(); init();
+function openAddFund(){
+  document.getElementById("m_fund_key").value="";
+  document.getElementById("m_fund_name").value="";
+  document.getElementById("m_fund_bal").value="";
+  document.getElementById("m_fund_target").value="";
+  document.getElementById("m_fund_title").textContent="Add Fund";
+  document.getElementById("m_fund_del").style.display="none";
+  openModal("modal-fund");
 }
 
 function openFundEditor(key) {
@@ -754,14 +768,19 @@ function openFundEditor(key) {
   document.getElementById('m_fund_name').value = key;
   document.getElementById('m_fund_bal').value = Array.isArray(fund) ? fund[0] : 0;
   document.getElementById('m_fund_target').value = Array.isArray(fund) ? fund[1] : 10000;
+  document.getElementById("m_fund_title").textContent="Edit Fund";
+  document.getElementById("m_fund_del").style.display="block";
   openModal('modal-fund');
 }
 
-function openAddFund(){g("m_fund_key").value="";g("m_fund_name").value="";g("m_fund_bal").value="";g("m_fund_target").value="";var t=g("m_fund_title");if(t)t.textContent="Add Fund";var d=g("m_fund_del");if(d)d.style.display="none";openModal("modal-fund");}
-function openFundEditor(key){var v=Array.isArray(DATA.funds[key])?DATA.funds[key]:[0,10000];g("m_fund_key").value=key;g("m_fund_name").value=key;g("m_fund_bal").value=v[0];g("m_fund_target").value=v[1];var t=g("m_fund_title");if(t)t.textContent="Edit Fund";var d=g("m_fund_del");if(d)d.style.display="block";openModal("modal-fund");}
-function deleteFund(){var k=g("m_fund_key").value;if(!k)return;if(!confirm("Delete this fund?"))return;if(DATA.funds)delete DATA.funds[k];persist();syncPush();closeModal("modal-fund");init();}
-  
-  function submitFund() {
+function deleteFund() {
+  if(!confirm("Delete this fund?"))return;
+  const k=document.getElementById("m_fund_key").value;
+  if(k&&DATA.funds){delete DATA.funds[k];persist();syncPush();}
+  closeModal("modal-fund");init();
+}
+
+function submitFund() {
   const oldKey = document.getElementById('m_fund_key').value;
   const newKey = document.getElementById('m_fund_name').value.trim().toLowerCase();
   const bal = parseFloat(document.getElementById('m_fund_bal').value) || 0;
