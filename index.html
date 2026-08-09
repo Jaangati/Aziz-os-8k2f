@@ -330,34 +330,21 @@ textarea.rev{min-height:60px}
   <button data-tab="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>Settings</button>
 </nav>
 <script>
-/* --- 1. CONFIG & DATA --- */
+/* --- 1. CONFIG & SAFE DATA --- */
 const SYNC_URL = "https://script.google.com/macros/s/AKfycby5W9DL6iWgvW9bYFR3niMXnvB8cxDw4ELye1brVmAmW68jkqm42RTwYyqqzVLuZ50/exec";
 const THEMES = ["classic", "glass", "midnight", "sidi"];
 
-// Updated Data Structure with Accounts & Loans
+// Robust Default Data
 const DEFAULTS = {
   salary: 19000, 
   rent: 5900, 
   budget: 17500,
-  // New: Expense Categories List
-  categories: ["Groceries", "Transport", "Dining out", "Utilities", "Personal", "Family support", "Shopping", "Health"],
-  // New: Bank Accounts (Cash, CBQ, etc.)
-  accounts: [
-    { name: "Cash on Hand", type: "cash", balance: 5000 },
-    { name: "CBQ Current", type: "bank", balance: 12000 },
-    { name: "CBQ Savings", type: "savings", balance: 25000 }
-  ],
-  // New: Loans & Debts
-  loans: [
-    { name: "Car Loan", total: 80000, paid: 22000, monthly: 2280, nextDate: "2024-09-01" }
-  ],
-  // New: Safe Funds (Physical Cash)
-  safeFunds: [
-    { name: "Emergency Fund", current: 24600, target: 30000 },
-    { name: "Tunisia Business", current: 20500, target: 50000 }
-  ],
+  // Ensure variable always exists
   variable: { "Groceries": 2400, "Transport": 700, "Dining out": 1100, "Utilities": 650, "Personal": 900, "Family support": 1500 },
-  savings: 3000, investments: 1000, tunisia: 800, cash: 42310,
+  savings: 3000, 
+  investments: 1000, 
+  tunisia: 800, 
+  cash: 42310,
   funds: { emergency: [24600, 30000], tunisia: [20500, 50000] },
   priority: "Finalize Tunisia business pitch deck",
   actions: ["Review Q2 savings report", "Schedule mentor call", "Update personal KPI tracker"],
@@ -371,8 +358,8 @@ const DEFAULTS = {
   archive: [["Bank statement — QNB Q2", "Statement", "2026-07-01", "PDF in Drive"]],
   tStage: 3,
   review: { checks: {}, keep: "", stop: "", start: "", change: "" },
-  salaryReceived: false, // Track if salary arrived this month
-  monthStart: new Date().toISOString().slice(0, 7) // e.g., "2024-08"
+  accounts: [], // New: For bank accounts
+  loans: []     // New: For debts
 };
 
 let DATA = load();
@@ -380,7 +367,10 @@ let DATA = load();
 function load() {
   try {
     const d = JSON.parse(localStorage.getItem("azizData"));
-    if (d && d.salary) return d;
+    if (d && d.salary) {
+      // Merge with defaults to fill any missing keys (like 'variable')
+      return { ...DEFAULTS, ...d, funds: { ...DEFAULTS.funds, ...(d.funds || {}) } };
+    }
   } catch (e) { console.error("Load error", e); }
   return JSON.parse(JSON.stringify(DEFAULTS));
 }
@@ -392,7 +382,7 @@ function persist() {
 /* --- 2. LOCK SYSTEM --- */
 const getPass = () => localStorage.getItem("azizPass") || "aziz2026";
 
-function unlock() {
+function runUnlock() {
   const pwInput = document.getElementById('pw');
   const errDiv = document.getElementById('err');
   const lockScreen = document.getElementById('lock');
@@ -435,7 +425,7 @@ window.addEventListener('load', () => {
     if(pwInput) {
       pwInput.value = '';
       pwInput.focus();
-      pwInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') unlock(); });
+      pwInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') runUnlock(); });
     }
   }
 });
@@ -444,7 +434,11 @@ window.addEventListener('load', () => {
 function syncPull() {
   if(!SYNC_URL) return;
   fetch(SYNC_URL, {mode:"cors"}).then(r=>r.json()).then(d=>{
-    if(d && d.salary) { DATA = Object.assign(DEFAULTS, d); persist(); init(); }
+    if(d && d.salary) { 
+      DATA = { ...DEFAULTS, ...d, funds: { ...DEFAULTS.funds, ...(d.funds || {}) } }; 
+      persist(); 
+      init(); 
+    }
   }).catch(e=>console.log("Sync offline"));
 }
 
@@ -454,326 +448,146 @@ function syncPush() {
 }
 
 const fmt = n => "QAR " + Math.round(n).toLocaleString();
-const q = s => document.querySelector(s);
 const g = id => document.getElementById(id);
 
 function init() {
   console.log("Dashboard Initializing...");
   
-  // --- CALCULATIONS ---
-  const totalAssets = DATA.accounts.reduce((sum, acc) => sum + acc.balance, 0);
-  const totalDebts = DATA.loans.reduce((sum, loan) => sum + (loan.total - loan.paid), 0);
-  const netWorth = totalAssets - totalDebts;
+  // SAFE CALCULATIONS (Handle missing data gracefully)
+  const varObj = DATA.variable || {};
+  const varT = Object.values(varObj).reduce((a,b)=>a+b, 0);
+  const savedTotal = (DATA.savings||0) + (DATA.investments||0) + (DATA.tunisia||0);
+  const spend = (DATA.rent||0) + varT;
+  const left = (DATA.salary||0) - spend - savedTotal;
   
-  const totalSafe = DATA.safeFunds.reduce((sum, f) => sum + f.current, 0);
-  const cashOnHand = DATA.accounts.find(a => a.type === 'cash')?.balance || 0;
+  // Update Overview Stats
+  if(g("s_cash")) g("s_cash").textContent = fmt(DATA.cash||0);
+  if(g("s_rate")) g("s_rate").textContent = (savedTotal/(DATA.salary||1)*100).toFixed(1) + "%";
+  if(g("s_left")) g("s_left").textContent = fmt(Math.max(left, 0));
+  if(g("s_exp")) g("s_exp").textContent = fmt(spend);
   
-  // Monthly Stats
-  const currentMonth = new Date().toISOString().slice(0, 7);
-  const monthTx = DATA.tx.filter(t => t[3].startsWith(currentMonth));
-  const spentThisMonth = monthTx.reduce((sum, t) => sum + t[1], 0);
-  const budgetLeft = DATA.budget - spentThisMonth;
-  const budgetPct = Math.min((spentThisMonth / DATA.budget) * 100, 100);
-
-  // --- OVERVIEW TAB ---
-  if(g("s_cash")) g("s_cash").textContent = fmt(totalAssets); // Show Total Assets now
-  if(g("s_rate")) {
-    const savedTotal = DATA.savings + DATA.investments + DATA.tunisia;
-    g("s_rate").textContent = (savedTotal/DATA.salary*100).toFixed(1) + "%";
-  }
-  if(g("s_left")) g("s_left").textContent = fmt(Math.max(budgetLeft, 0));
-  if(g("s_exp")) g("s_exp").textContent = fmt(spentThisMonth);
-  
-  // Chart
-  const hist = [...DATA.history, ["Now", spentThisMonth]];
-  const mx = Math.max(...hist.map(h=>h[1]), DATA.salary);
+  // Update Chart
+  const hist = [...(DATA.history||[]), ["Now", spend]];
+  const mx = Math.max(...hist.map(h=>h[1]), DATA.salary||1);
   if(g("chart")) {
-    g("chart").innerHTML = hist.map(h=>`<div class="cm"><i class="in" style="height:${DATA.salary/mx*100}%"></i><i class="ex" style="height:${h[1]/mx*100}%"></i></div>`).join("");
+    g("chart").innerHTML = hist.map(h=>`<div class="cm"><i class="in" style="height:${(DATA.salary||1)/mx*100}%"></i><i class="ex" style="height:${h[1]/mx*100}%"></i></div>`).join("");
     g("chartL").innerHTML = hist.map(h=>`<span>${h[0]}</span>`).join("");
   }
   
-  // Priority & Actions
-  if(g("prio")) g("prio").textContent = DATA.priority;
+  // Update Priority & Actions
+  if(g("prio")) g("prio").textContent = DATA.priority||"";
   if(g("acts")) {
-    g("acts").innerHTML = DATA.actions.map((a,i)=>`
-      <li class="act ${DATA.review["a"+i]?"done":""}" onclick="tickAct(${i})">
+    const acts = DATA.actions||[];
+    g("acts").innerHTML = acts.map((a,i)=>`
+      <li class="act ${DATA.review && DATA.review.checks["a"+i]?"done":""}" onclick="tickAct(${i})">
         <span class="cb">✓</span><span>${a}</span>
       </li>`).join("");
   }
   
-  // Funds Progress
-  const ef = DATA.safeFunds[0] || {current:0, target:1};
-  const tf = DATA.safeFunds[1] || {current:0, target:1};
-  if(g("ef_t")) g("ef_t").textContent = fmt(ef.current);
-  if(g("ef_b")) g("ef_b").style.width = Math.min(ef.current/ef.target*100, 100) + "%";
-  if(g("tf_t")) g("tf_t").textContent = fmt(tf.current);
-  if(g("tf_b")) g("tf_b").style.width = Math.min(tf.current/tf.target*100, 100) + "%";
+  // Update Funds
+  const ef = (DATA.funds && DATA.funds.emergency) || [0, 30000];
+  const tf = (DATA.funds && DATA.funds.tunisia) || [0, 50000];
+  if(g("ef_t")) g("ef_t").textContent = fmt(ef[0]);
+  if(g("ef_b")) g("ef_b").style.width = Math.min(ef[0]/ef[1]*100, 100) + "%";
+  if(g("tf_t")) g("tf_t").textContent = fmt(tf[0]);
+  if(g("tf_b")) g("tf_b").style.width = Math.min(tf[0]/tf[1]*100, 100) + "%";
   
-  // Notifications
-  const attn = DATA.attention;
+  // Update Notifications
+  const attn = DATA.attention||[];
   if(g("bellN")) g("bellN").textContent = attn.length;
   if(g("notif")) g("notif").innerHTML = attn.map(a=>`<div>🔔 ${a}</div>`).join("");
   if(g("chips")) g("chips").innerHTML = attn.map(a=>`<div class="chip">${a}</div>`).join("");
-
-  // --- MONEY TAB ---
-  // Top Row Stats
-  if(g("net_worth")) g("net_worth").textContent = fmt(netWorth);
-  if(g("cash_hand")) g("cash_hand").textContent = fmt(cashOnHand);
-  if(g("bank_total")) g("bank_total").textContent = fmt(totalAssets - cashOnHand);
-  if(g("bank_count")) g("bank_count").textContent = DATA.accounts.length + " Accts";
-  if(g("total_debt")) g("total_debt").textContent = fmt(totalDebts);
-
-  // Month Status Bar
-  if(g("status_text")) {
-    g("status_text").textContent = DATA.salaryReceived ? "Salary Received ✅" : "Waiting for Salary ⏳";
-    g("status_text").style.color = DATA.salaryReceived ? "var(--green)" : "var(--amber)";
-  }
-  if(g("month_prog")) g("month_prog").style.width = budgetPct + "%";
-  if(g("spent_amt")) g("spent_amt").textContent = fmt(spentThisMonth);
-  if(g("budget_amt")) g("budget_amt").textContent = fmt(DATA.budget);
-
-  // Transactions List
-  if(g("tx_list")) {
-    g("tx_list").innerHTML = monthTx.slice().reverse().map((t,i)=>`
-      <tr><td>${t[0]}</td><td><span class="pill s-prog">${t[2]}</span></td><td><b>${fmt(t[1])}</b></td>
-      <td class="mut">${t[3]}</td><td><button class="copyb" onclick="delTx(${DATA.tx.indexOf(t)})">✕</button></td></tr>
-    `).join("");
-    if(monthTx.length === 0) g("tx_list").innerHTML = "<tr><td colspan='5' class='mut'>No expenses yet this month.</td></tr>";
-  }
-
-  // Categories Dropdown
+  
+  // Money: Categories Dropdown (FIXES EMPTY DROPDOWN)
   if(g("t_cat")) {
-    g("t_cat").innerHTML = `<option value="">Select Category</option>` + 
-      DATA.categories.map(c=>`<option>${c}</option>`).join("");
+    const cats = Object.keys(varObj);
+    if(cats.length === 0) {
+       g("t_cat").innerHTML = '<option value="General">General</option>';
+    } else {
+       g("t_cat").innerHTML = cats.map(c=>`<option>${c}</option>`).join("");
+    }
   }
-
-  // Loans List
-  if(g("loans_list")) {
-    g("loans_list").innerHTML = DATA.loans.map((l, i) => {
-      const remaining = l.total - l.paid;
-      const pct = (l.paid / l.total) * 100;
-      return `<div style="background:var(--track);padding:12px;border-radius:10px;margin-bottom:10px">
-        <div style="display:flex;justify-content:space-between;font-weight:700"><span>${l.name}</span><span style="color:var(--red)">${fmt(remaining)} left</span></div>
-        <div class="prog" style="margin:8px 0"><i style="width:${pct}%;background:var(--red)"></i></div>
-        <div style="font-size:11px;color:var(--muted);display:flex;justify-content:space-between">
-          <span>Paid: ${fmt(l.paid)}</span><span>Next: ${l.nextDate}</span>
-        </div>
-        <button class="btn o" style="font-size:10px;padding:4px 8px;margin-top:5px" onclick="payLoan(${i})">Pay Installment (${fmt(l.monthly)})</button>
-      </div>`;
-    }).join("");
-    if(DATA.loans.length === 0) g("loans_list").innerHTML = "<p class='mut'>No active loans.</p>";
+  
+  // Money: Transactions List
+  if(g("tx_list")) {
+    const txs = DATA.tx||[];
+    g("tx_list").innerHTML = txs.slice().reverse().map((t,i)=>`
+      <tr><td>${t[0]}</td><td><span class="pill s-prog">${t[2]||'Misc'}</span></td><td><b>${fmt(t[1])}</b></td>
+      <td class="mut">${t[3]}</td><td><button class="copyb" onclick="delTx(${txs.length-1-i})">✕</button></td></tr>
+    `).join("");
   }
-
-  // Safe Funds List
-  if(g("funds_list")) {
-    g("funds_list").innerHTML = DATA.safeFunds.map((f, i) => {
-      const pct = Math.min((f.current / f.target) * 100, 100);
-      return `<div style="background:var(--track);padding:12px;border-radius:10px;margin-bottom:10px">
-        <div style="display:flex;justify-content:space-between;font-weight:700"><span>${f.name}</span><span style="color:var(--green)">${fmt(f.current)}</span></div>
-        <div class="prog" style="margin:8px 0"><i style="width:${pct}%"></i></div>
-        <div style="font-size:11px;color:var(--muted)">Target: ${fmt(f.target)}</div>
-        <button class="btn o" style="font-size:10px;padding:4px 8px;margin-top:5px" onclick="addFund(${i})">+ Add Cash</button>
-      </div>`;
-    }).join("");
-  }
-
-  // --- DOCUMENTS ---
+  
+  // Documents
   if(g("docsL")) {
-    g("docsL").innerHTML = DATA.docs.map(d=>`
+    const docs = DATA.docs||[];
+    g("docsL").innerHTML = docs.map(d=>`
       <tr><td><b>${d[0]}</b></td><td class="mut">••• ${String(d[1]).slice(-4)}</td>
       <td class="mut">${d[2]}</td><td><span class="pill s-done">Valid</span></td>
       <td><button class="copyb" onclick="navigator.clipboard.writeText('${d[1]}');alert('Copied')">Copy</button></td></tr>
     `).join("");
   }
-
-  // --- PLANS ---
+  
+  // Plans
   if(g("planL")) {
-    g("planL").innerHTML = DATA.plans.map(p=>`
+    const plans = DATA.plans||[];
+    g("planL").innerHTML = plans.map(p=>`
       <div class="it"><b>${p[0]}</b><br><span class="mut">${p[1]}</span> 
-      <span class="pill s-prog">${p[2]}</span></div>
+      <span class="pill s-prog">${p[2]||'Planned'}</span></div>
     `).join("");
   }
-
-  // --- REVIEW ---
+  
+  // Review
   if(g("revList")) {
     const RV = [["Financial", ["Reviewed spending", "Confirmed savings"]], ["Work", ["Noted progress", "Identified opportunity"]]];
     let html = "";
+    const checks = (DATA.review && DATA.review.checks) || {};
     RV.forEach(s=>{
       html += `<p class="mut" style="margin:12px 0 4px;font-weight:700">${s[0]}</p>`;
       s[1].forEach((it,i)=>{
         const k = s[0]+i;
-        html += `<li class="act ${DATA.review.checks[k]?"done":""}" onclick="tickRev('${k}')">
+        html += `<li class="act ${checks[k]?"done":""}" onclick="tickRev('${k}')">
           <span class="cb">✓</span><span>${it}</span></li>`;
       });
     });
     g("revList").innerHTML = html;
   }
-
-  // --- SETTINGS: ACCOUNTS EDITOR ---
-  if(g("accounts_editor")) {
-    g("accounts_editor").innerHTML = DATA.accounts.map((a, i) => `
-      <div style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;margin-bottom:8px">
-        <input value="${a.name}" onchange="updateAccount(${i}, 'name', this.value)" placeholder="Name">
-        <select onchange="updateAccount(${i}, 'type', this.value)">
-          <option value="cash" ${a.type==='cash'?'selected':''}>Cash</option>
-          <option value="bank" ${a.type==='bank'?'selected':''}>Bank</option>
-          <option value="savings" ${a.type==='savings'?'selected':''}>Savings</option>
-        </select>
-        <input type="number" value="${a.balance}" onchange="updateAccount(${i}, 'balance', this.value)" placeholder="Balance">
-        <button class="btn o" style="color:var(--red)" onclick="removeAccount(${i})">✕</button>
-      </div>
-    `).join("");
-  }
   
-  // Settings Inputs
-  if(g("set_budget")) g("set_budget").value = DATA.budget;
-  if(g("set_cats")) g("set_cats").value = DATA.categories.join(", ");
-
   console.log("Dashboard Ready.");
 }
 
-// --- ACTIONS ---
-
+// Actions
 function addTx() {
   const n = g("t_name").value.trim();
   const a = parseFloat(g("t_amt").value);
   const c = g("t_cat").value;
-  if(!n || !a || !c) return alert("Please fill all fields");
+  if(!n || !a) return alert("Enter name and amount");
   
+  if(!DATA.tx) DATA.tx = [];
   DATA.tx.push([n, a, c, new Date().toISOString().slice(0,10)]);
-  
-  // Deduct from first "Cash" account or default
-  const cashAcc = DATA.accounts.find(acc => acc.type === 'cash');
-  if(cashAcc) cashAcc.balance -= a;
-  
+  DATA.cash = (DATA.cash||0) - a; 
   persist(); syncPush(); init();
-  g("t_name").value = ""; g("t_amt").value = ""; g("t_cat").value = "";
+  g("t_name").value = ""; g("t_amt").value = "";
 }
 
 function delTx(i) {
-  if(confirm("Delete this transaction?")) {
+  if(confirm("Delete this?")) {
     DATA.tx.splice(i, 1);
     persist(); syncPush(); init();
   }
 }
 
-function toggleSalaryModal() {
-  const modal = document.getElementById('salary_modal');
-  modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
-  g("salary_input").value = DATA.salary;
-}
-
-function confirmSalary() {
-  const amt = parseFloat(g("salary_input").value);
-  if(!amt) return;
-  
-  DATA.salary = amt;
-  DATA.salaryReceived = true;
-  DATA.monthStart = new Date().toISOString().slice(0, 7);
-  
-  // Add Salary as a "Transaction" to main bank account
-  const bankAcc = DATA.accounts.find(a => a.type === 'bank' || a.type === 'savings');
-  if(bankAcc) bankAcc.balance += amt;
-  
-  persist(); syncPush(); init();
-  document.getElementById('salary_modal').style.display = 'none';
-  alert("Salary recorded! Budget reset for new month.");
-}
-
-function payLoan(i) {
-  const loan = DATA.loans[i];
-  if(confirm(`Pay ${fmt(loan.monthly)} towards ${loan.name}?`)) {
-    loan.paid += loan.monthly;
-    // Deduct from bank
-    const bankAcc = DATA.accounts.find(a => a.type === 'bank' || a.type === 'savings');
-    if(bankAcc) bankAcc.balance -= loan.monthly;
-    
-    // Add to transactions
-    DATA.tx.push([loan.name + " Installment", loan.monthly, "Loans", new Date().toISOString().slice(0,10)]);
-    
-    persist(); syncPush(); init();
-  }
-}
-
-function addFund(i) {
-  const amt = prompt("How much cash added to " + DATA.safeFunds[i].name + "?");
-  if(amt && !isNaN(amt)) {
-    DATA.safeFunds[i].current += parseFloat(amt);
-    // Deduct from Cash on Hand
-    const cashAcc = DATA.accounts.find(a => a.type === 'cash');
-    if(cashAcc) cashAcc.balance -= parseFloat(amt);
-    
-    persist(); syncPush(); init();
-  }
-}
-
-function addLoanPrompt() {
-  const name = prompt("Loan Name (e.g. Personal Loan):");
-  if(!name) return;
-  const total = parseFloat(prompt("Total Amount:"));
-  const monthly = parseFloat(prompt("Monthly Installment:"));
-  if(total && monthly) {
-    DATA.loans.push({ name, total, paid: 0, monthly, nextDate: new Date().toISOString().slice(0,10) });
-    persist(); syncPush(); init();
-  }
-}
-
-function addFundPrompt() {
-  const name = prompt("Fund Name (e.g. Car Fund):");
-  const target = parseFloat(prompt("Target Amount:"));
-  if(name && target) {
-    DATA.safeFunds.push({ name, current: 0, target });
-    persist(); syncPush(); init();
-  }
-}
-
-// Settings Functions
-function addAccountRow() {
-  DATA.accounts.push({ name: "New Account", type: "bank", balance: 0 });
-  persist(); syncPush(); init();
-}
-
-function updateAccount(i, field, value) {
-  if(field === 'balance' || field === 'total') value = parseFloat(value) || 0;
-  DATA.accounts[i][field] = value;
-  persist(); syncPush(); init();
-}
-
-function removeAccount(i) {
-  if(confirm("Remove this account?")) {
-    DATA.accounts.splice(i, 1);
-    persist(); syncPush(); init();
-  }
-}
-
-function saveConfig() {
-  DATA.budget = parseFloat(g("set_budget").value) || 0;
-  DATA.categories = g("set_cats").value.split(",").map(s=>s.trim()).filter(Boolean);
-  persist(); syncPush(); init();
-}
-
 function tickAct(i) {
-  DATA.review["a"+i] = !DATA.review["a"+i];
+  if(!DATA.review) DATA.review = {checks:{}};
+  if(!DATA.review.checks) DATA.review.checks = {};
+  DATA.review.checks["a"+i] = !DATA.review.checks["a"+i];
   persist(); init();
 }
 
 function tickRev(k) {
+  if(!DATA.review) DATA.review = {checks:{}};
+  if(!DATA.review.checks) DATA.review.checks = {};
   DATA.review.checks[k] = !DATA.review.checks[k];
   persist(); init();
-}
-
-function exportData() {
-  const blob = new Blob([JSON.stringify(DATA, null, 2)], {type: "application/json"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = "aziz-os-backup.json"; a.click();
-}
-
-function hardReset() {
-  if(confirm("⚠️ FACTORY RESET? This deletes all data.")) {
-    localStorage.removeItem("azizData");
-    location.reload();
-  }
 }
 
 // Theme Toggle
@@ -799,7 +613,7 @@ document.querySelectorAll("[data-tab]").forEach(b=>{
   b.onclick = () => {
     document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("on", x.dataset.tab===b.dataset.tab));
     document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on", t.id==="tab-"+b.dataset.tab));
-    if(b.dataset.tab === "settings" || b.dataset.tab === "money") init();
+    if(b.dataset.tab === "settings") init();
   };
 });
 </script>
