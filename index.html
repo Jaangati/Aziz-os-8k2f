@@ -15,7 +15,7 @@
 
 <div id="app">
 <header class="appHeader">
-  <div class="brandMini"><div class="brandMark">A</div><b>AZIZ OS</b></div>
+  <div class="brandMini"><div class="brandMark">A</div><b>AZIZ OS</b><span id="crumb" hidden>Overview</span></div>
   <nav class="topNav">
     <button class="navbtn on" data-page="today">Overview</button>
     <button class="navbtn" data-page="money">Money</button>
@@ -35,7 +35,7 @@
 <main class="main">
   <section class="page on" id="page-today">
     <div class="overviewTop">
-      <div class="overviewTitle"><span>Data based on your financial system</span><h1>Overview Panel</h1></div>
+      <div class="overviewTitle"><span id="greeting">Good evening, Aziz.</span><h1>Overview Panel</h1></div>
       <div class="insightStack">
         <div class="insightCard back two"></div><div class="insightCard back one"></div>
         <div class="insightCard mainInsight"><small>✦ Account Insight</small><strong>Know what needs your attention before it becomes a problem.</strong><div class="status"><span class="dot"></span><span id="systemStatus">System online</span></div></div>
