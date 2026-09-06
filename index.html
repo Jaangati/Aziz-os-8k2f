@@ -3,69 +3,92 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f4f6f8">
-<title>AZIZ OS — Executive Control System</title>
+<meta name="theme-color" content="#f5f5f3">
+<title>AZIZ OS — Personal Control System</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div id="lock"><div class="lockbox"><div class="monogram">A</div><div class="brand">AZIZ OS<small>Private Executive System</small></div><p>Authenticate to enter your control system.</p><input id="pw" type="password" placeholder="••••••••" autocomplete="current-password"><button class="primary" onclick="unlock()">Enter Aziz OS</button><div id="err" class="err"></div></div></div>
+<div id="lock"><div class="lockbox"><div class="monogram">A</div><div class="brand">AZIZ OS<small>Private Control System</small></div><p>Enter your password to continue.</p><input id="pw" type="password" placeholder="••••••••" autocomplete="current-password"><button class="primary" onclick="unlock()">Enter System</button><div id="err" class="err"></div></div></div>
+
 <div id="app">
-<aside class="sidebar">
- <div class="logoRow"><div class="mark">A</div><div><b>AZIZ OS</b><span>Executive System</span></div></div>
- <div class="navLabel">Control</div>
- <button class="navbtn on" data-page="today"><svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg><span>Today</span></button>
- <button class="navbtn" data-page="money"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 9h18M16 14h2"/></svg><span>Money</span></button>
- <button class="navbtn" data-page="goals"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M18 6l3-3"/></svg><span>Goals</span></button>
- <button class="navbtn" data-page="commitments"><svg viewBox="0 0 24 24"><path d="M6 3h12v18H6zM9 8h6M9 12h6M9 16h4"/></svg><span>Commitments</span></button>
- <div class="navLabel" style="margin-top:10px">System</div>
- <button class="navbtn" data-page="vault"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="15" rx="3"/><path d="M7 5V3h10v2M8 10h8"/></svg><span>Vault</span></button>
- <button class="navbtn" data-page="review"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg><span>Review</span></button>
- <button class="navbtn" data-page="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg><span>Settings</span></button>
- <div class="sideBottom"><button class="navbtn" onclick="relock()"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Lock System</span></button><div class="identity"><div class="avatar">A</div><div><b>Aziz</b><span>Owner / Operator</span></div></div></div>
-</aside>
-<main class="main">
- <div class="topbar"><div class="crumb" id="crumb">Today</div><div class="topRight"><span class="clock" id="clock"></span><button class="iconbtn" title="Export backup" onclick="exportData()"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 20h14"/></svg></button></div></div>
- <section class="page on" id="page-today">
-  <div class="hero"><div class="eyebrow">Executive Overview</div><h1 id="greeting">Good evening, Aziz.</h1><p>Your capital, obligations, goals and decisions—compressed into one clear operating view.</p><div class="status"><span class="dot"></span><span id="systemStatus">System online · Local data protected by device access</span></div></div>
-  <div class="grid g4">
-   <div class="card goldwash"><div class="cardTitle">Net Worth <span class="live">Live</span></div><div class="metric lg gold" id="netWorth">—</div><div class="sub">Liquid assets + protected funds − liabilities</div></div>
-   <div class="card"><div class="cardTitle">Safe to Spend</div><div class="metric" id="safeSpend">—</div><div class="sub">After remaining monthly budget & known obligations</div></div>
-   <div class="card"><div class="cardTitle">Protected Capital</div><div class="metric" id="protectedCapital">—</div><div class="sub">Funds deliberately kept outside daily spending</div></div>
-   <div class="card"><div class="cardTitle">Next 30 Days</div><div class="metric" id="next30">—</div><div class="sub" id="next30sub">Known upcoming commitments</div></div>
+<header class="appHeader">
+  <div class="brandMini"><div class="brandMark">A</div><b>AZIZ OS</b></div>
+  <nav class="topNav">
+    <button class="navbtn on" data-page="today">Overview</button>
+    <button class="navbtn" data-page="money">Money</button>
+    <button class="navbtn" data-page="goals">Goals</button>
+    <button class="navbtn" data-page="commitments">Commitments</button>
+    <button class="navbtn" data-page="vault">Vault</button>
+    <button class="navbtn" data-page="review">Review</button>
+    <button class="navbtn" data-page="settings">Settings</button>
+  </nav>
+  <div class="headActions">
+    <div class="searchFake">⌕ <span>Search Aziz OS</span></div>
+    <button class="iconbtn" onclick="exportData()" title="Export backup">↓</button>
+    <div class="profileChip"><div class="avatar">A</div><div><b>Aziz</b><span>Owner</span></div></div>
   </div>
-  <div class="sectionHead"><div><div class="kicker">Intelligence</div><h2>Executive Brief</h2><p>What deserves your attention now.</p></div></div>
-  <div class="grid g21"><div class="card"><div class="cardTitle">Aziz OS Insight <span class="live">Generated now</span></div><div id="brief"></div></div><div class="card"><div class="cardTitle">Goal Momentum</div><div id="goalPreview"></div></div></div>
-  <div class="sectionHead"><div><div class="kicker">Cash discipline</div><h2>This Month</h2><p>Income versus actual outflow.</p></div></div>
-  <div class="grid g21"><div class="card"><div class="cardTitle">6 Month Spending Trend</div><div id="chart" class="chart"></div><div id="chartLabels" class="chartLabels"></div></div><div class="card"><div class="cardTitle">Attention</div><div id="attention"></div></div></div>
- </section>
- <section class="page" id="page-money">
-  <div class="sectionHead"><div><div class="kicker">Capital</div><h2>Money Command Center</h2><p>Every QAR should have a job.</p></div><div class="actions"><button class="btn" onclick="openModal('accountModal')">+ Account</button><button class="primary" onclick="openTx()">+ Transaction</button></div></div>
-  <div class="grid g4"><div class="card goldwash"><div class="cardTitle">Net Worth</div><div class="metric gold" id="moneyNet">—</div></div><div class="card"><div class="cardTitle">Bank + Cash</div><div class="metric" id="liquid">—</div></div><div class="card"><div class="cardTitle">Month Spend</div><div class="metric" id="monthSpend">—</div><div class="sub" id="budgetUsage">—</div></div><div class="card"><div class="cardTitle">Total Debt</div><div class="metric red" id="debtTotal">—</div></div></div>
-  <div class="sectionHead"><div><h2>Accounts</h2></div></div><div class="grid g2"><div class="card"><div id="accounts"></div></div><div class="card"><div class="cardTitle">Monthly Position</div><div id="monthPosition"></div></div></div>
-  <div class="sectionHead"><div><h2>Transactions</h2><p>Recent movement across your accounts.</p></div><button class="btn" onclick="openTx()">Register</button></div><div class="card"><div class="tableWrap"><table><thead><tr><th>Type</th><th>Description</th><th>Account</th><th>Category</th><th>Date</th><th>Amount</th><th></th></tr></thead><tbody id="txTable"></tbody></table></div></div>
- </section>
- <section class="page" id="page-goals">
-  <div class="sectionHead"><div><div class="kicker">Direction</div><h2>Goals & Capital Allocation</h2><p>Turn intentions into funded outcomes.</p></div><button class="primary" onclick="openGoal()">+ New Goal</button></div><div class="grid g3" id="goalCards"></div>
-  <div class="sectionHead"><div><h2>Long-Range Objectives</h2></div></div><div class="card"><div id="plans"></div><div class="rule"></div><div class="formgrid"><div><label>Objective</label><input id="planTitle" placeholder="e.g. Build investment capital"></div><div><label>Target date</label><input id="planDate" type="date"></div></div><div class="actions" style="margin-top:10px"><button class="btn" onclick="addPlan()">Add objective</button></div></div>
- </section>
- <section class="page" id="page-commitments">
-  <div class="sectionHead"><div><div class="kicker">Obligations</div><h2>Commitments</h2><p>Cheques, liabilities and recurring financial pressure.</p></div><button class="primary" onclick="openCommitment()">+ Add Commitment</button></div>
-  <div class="grid g3"><div class="card"><div class="cardTitle">Next 30 Days</div><div class="metric" id="commit30">—</div></div><div class="card"><div class="cardTitle">Total Outstanding</div><div class="metric red" id="commitDebt">—</div></div><div class="card"><div class="cardTitle">Monthly Rent</div><div class="metric" id="rentMetric">—</div></div></div>
-  <div class="sectionHead"><div><h2>Upcoming</h2></div></div><div class="card"><div id="commitList"></div></div><div class="sectionHead"><div><h2>Liabilities</h2></div></div><div class="card"><div id="loanList"></div><div class="actions" style="margin-top:12px"><button class="btn" onclick="addLoan()">+ Add liability</button></div></div>
- </section>
- <section class="page" id="page-vault"><div class="sectionHead"><div><div class="kicker">Private Records</div><h2>Vault</h2><p>Documents and cards. Sensitive numbers stay masked in the interface.</p></div></div><div class="grid g2"><div class="card vaultCard"><div class="cardTitle">Official Documents</div><div class="tableWrap"><table><thead><tr><th>Document</th><th>Number</th><th>Expiry</th><th>Status</th></tr></thead><tbody id="docTable"></tbody></table></div></div><div class="card vaultCard"><div class="cardTitle">Cards</div><div id="cards"></div></div></div></section>
- <section class="page" id="page-review"><div class="sectionHead"><div><div class="kicker">Governance</div><h2>CEO Review</h2><p>Run your life like an asset you intend to compound.</p></div><button class="primary" onclick="saveReview()">Save Review</button></div><div class="grid g12"><div class="card"><div class="cardTitle">Weekly Controls</div><div id="reviewChecks"></div></div><div class="card"><div class="cardTitle">Monthly Board Notes</div><div class="grid g2"><div><label>Keep</label><textarea id="rvKeep"></textarea></div><div><label>Stop</label><textarea id="rvStop"></textarea></div><div><label>Start</label><textarea id="rvStart"></textarea></div><div><label>Change</label><textarea id="rvChange"></textarea></div></div></div></div></section>
- <section class="page" id="page-settings"><div class="sectionHead"><div><div class="kicker">Configuration</div><h2>System Settings</h2><p>Data, financial baselines and recovery.</p></div></div><div class="grid g2"><div class="card"><div class="cardTitle">Financial Baseline</div><div class="formgrid"><div><label>Monthly Salary</label><input id="setSalary" type="number"></div><div><label>Monthly Rent</label><input id="setRent" type="number"></div><div><label>Monthly Budget</label><input id="setBudget" type="number"></div><div><label>Categories</label><input id="setCats"></div></div><div class="actions" style="margin-top:14px"><button class="primary" onclick="saveSettings()">Save Baseline</button></div></div><div class="card"><div class="cardTitle">Data & Security</div><p class="sub" style="margin-bottom:14px">A repository backup of the previous Aziz OS version exists separately.</p><div class="actions"><button class="btn" onclick="exportData()">Download JSON Backup</button><button class="btn" onclick="document.getElementById('restore').click()">Restore JSON</button><input id="restore" type="file" accept=".json" hidden><button class="btn" onclick="syncPush()">Push Google Sync</button><button class="danger btn" onclick="hardReset()">Factory Reset</button></div><div class="rule"></div><label>Local access password</label><div class="formgrid"><input id="newPass" type="password" placeholder="New password"><button class="btn" onclick="changePass()">Change Password</button></div></div></div></section>
+</header>
+
+<main class="main">
+  <section class="page on" id="page-today">
+    <div class="overviewTop">
+      <div class="overviewTitle"><span>Data based on your financial system</span><h1>Overview Panel</h1></div>
+      <div class="insightStack">
+        <div class="insightCard back two"></div><div class="insightCard back one"></div>
+        <div class="insightCard mainInsight"><small>✦ Account Insight</small><strong>Know what needs your attention before it becomes a problem.</strong><div class="status"><span class="dot"></span><span id="systemStatus">System online</span></div></div>
+      </div>
+      <div class="topMeta"><span class="clock" id="clock"></span><div class="filterPill">This month⌄</div></div>
+    </div>
+
+    <div class="overviewBody">
+      <div class="overviewMain">
+        <div class="metricsGrid">
+          <div class="metricCard"><div class="metricHead"><span>Net Worth</span><b>↗</b></div><div class="metric" id="netWorth">—</div><p>Assets minus liabilities</p><div class="microTrack"><i style="width:78%"></i></div></div>
+          <div class="metricCard"><div class="metricHead"><span>Safe to Spend</span><b>↗</b></div><div class="metric" id="safeSpend">—</div><p>Available after obligations</p><div class="microTrack"><i style="width:54%"></i></div></div>
+          <div class="metricCard"><div class="metricHead"><span>Protected Capital</span><b>↗</b></div><div class="metric" id="protectedCapital">—</div><p>Goal-linked reserves</p><div class="microTrack"><i style="width:68%"></i></div></div>
+          <div class="metricCard"><div class="metricHead"><span>Next 30 Days</span><b>↗</b></div><div class="metric" id="next30">—</div><p id="next30sub">Known obligations</p><div class="microTrack alert"><i style="width:34%"></i></div></div>
+        </div>
+
+        <div class="analyticsGrid">
+          <div class="panel chartPanel"><div class="panelHead"><div><small>Cash Discipline</small><h3>6 Month Spending Trend</h3></div><span>Monthly</span></div><div id="chart" class="chart"></div><div id="chartLabels" class="chartLabels"></div></div>
+          <div class="panel goalPanel"><div class="panelHead"><div><small>Direction</small><h3>Goal Momentum</h3></div><span>Live</span></div><div id="goalPreview"></div></div>
+        </div>
+        <div class="briefStrip panel"><div class="panelHead"><div><small>Intelligence</small><h3>Executive Brief</h3></div><span>Generated now</span></div><div id="brief"></div></div>
+      </div>
+
+      <aside class="assistantPanel panel"><div class="assistantHead"><div class="assistantIcon">✦</div><div><small>AI Assistant</small><h3>Aziz OS</h3></div><span>↗</span></div><div class="assistantIntro"><div class="avatar big">A</div><div><b>Aziz, here’s what matters now.</b><p>Your system is scanning commitments, cash position and goal progress.</p></div></div><div class="assistantFeed" id="attention"></div><div class="assistantTools"><button>Files</button><button>Reports</button><button>Notes</button></div><div class="assistantInput"><span>Ask Aziz OS anything</span><button>↑</button></div></aside>
+    </div>
+  </section>
+
+  <section class="page" id="page-money">
+    <div class="pageHead"><div><small>CAPITAL</small><h1>Money Command Center</h1><p>Every QAR should have a job.</p></div><div class="actions"><button class="btn" onclick="openModal('accountModal')">+ Account</button><button class="primary" onclick="openTx()">+ Transaction</button></div></div>
+    <div class="grid g4"><div class="card"><div class="cardTitle">Net Worth</div><div class="metric" id="moneyNet">—</div></div><div class="card"><div class="cardTitle">Bank + Cash</div><div class="metric" id="liquid">—</div></div><div class="card"><div class="cardTitle">Month Spend</div><div class="metric" id="monthSpend">—</div><div class="sub" id="budgetUsage">—</div></div><div class="card"><div class="cardTitle">Total Debt</div><div class="metric red" id="debtTotal">—</div></div></div>
+    <div class="grid g2 sectionGap"><div class="card"><div class="cardTitle">Accounts</div><div id="accounts"></div></div><div class="card"><div class="cardTitle">Monthly Position</div><div id="monthPosition"></div></div></div>
+    <div class="card sectionGap"><div class="cardTitle"><span>Transactions</span><button class="btn" onclick="openTx()">Register</button></div><div class="tableWrap"><table><thead><tr><th>Type</th><th>Description</th><th>Account</th><th>Category</th><th>Date</th><th>Amount</th><th></th></tr></thead><tbody id="txTable"></tbody></table></div></div>
+  </section>
+
+  <section class="page" id="page-goals"><div class="pageHead"><div><small>DIRECTION</small><h1>Goals & Capital Allocation</h1><p>Turn intentions into funded outcomes.</p></div><button class="primary" onclick="openGoal()">+ New Goal</button></div><div class="grid g3" id="goalCards"></div><div class="card sectionGap"><div class="cardTitle">Long-Range Objectives</div><div id="plans"></div><div class="rule"></div><div class="formgrid"><div><label>Objective</label><input id="planTitle" placeholder="e.g. Build investment capital"></div><div><label>Target date</label><input id="planDate" type="date"></div></div><div class="actions formActions"><button class="btn" onclick="addPlan()">Add objective</button></div></div></section>
+
+  <section class="page" id="page-commitments"><div class="pageHead"><div><small>OBLIGATIONS</small><h1>Commitments</h1><p>Cheques, liabilities and recurring pressure.</p></div><button class="primary" onclick="openCommitment()">+ Add Commitment</button></div><div class="grid g3"><div class="card"><div class="cardTitle">Next 30 Days</div><div class="metric" id="commit30">—</div></div><div class="card"><div class="cardTitle">Total Outstanding</div><div class="metric red" id="commitDebt">—</div></div><div class="card"><div class="cardTitle">Monthly Rent</div><div class="metric" id="rentMetric">—</div></div></div><div class="grid g2 sectionGap"><div class="card"><div class="cardTitle">Upcoming</div><div id="commitList"></div></div><div class="card"><div class="cardTitle"><span>Liabilities</span><button class="btn" onclick="addLoan()">+ Add</button></div><div id="loanList"></div></div></div></section>
+
+  <section class="page" id="page-vault"><div class="pageHead"><div><small>PRIVATE RECORDS</small><h1>Vault</h1><p>Documents and cards, kept clear and masked.</p></div></div><div class="grid g2"><div class="card"><div class="cardTitle">Official Documents</div><div class="tableWrap"><table><thead><tr><th>Document</th><th>Number</th><th>Expiry</th><th>Status</th></tr></thead><tbody id="docTable"></tbody></table></div></div><div class="card"><div class="cardTitle">Cards</div><div id="cards"></div></div></div></section>
+
+  <section class="page" id="page-review"><div class="pageHead"><div><small>GOVERNANCE</small><h1>CEO Review</h1><p>Review the system, then make decisions.</p></div><button class="primary" onclick="saveReview()">Save Review</button></div><div class="grid g12"><div class="card"><div class="cardTitle">Weekly Controls</div><div id="reviewChecks"></div></div><div class="card"><div class="cardTitle">Monthly Board Notes</div><div class="grid g2"><div><label>Keep</label><textarea id="rvKeep"></textarea></div><div><label>Stop</label><textarea id="rvStop"></textarea></div><div><label>Start</label><textarea id="rvStart"></textarea></div><div><label>Change</label><textarea id="rvChange"></textarea></div></div></div></div></section>
+
+  <section class="page" id="page-settings"><div class="pageHead"><div><small>CONFIGURATION</small><h1>System Settings</h1><p>Baselines, backup and local access.</p></div></div><div class="grid g2"><div class="card"><div class="cardTitle">Financial Baseline</div><div class="formgrid"><div><label>Monthly Salary</label><input id="setSalary" type="number"></div><div><label>Monthly Rent</label><input id="setRent" type="number"></div><div><label>Monthly Budget</label><input id="setBudget" type="number"></div><div><label>Categories</label><input id="setCats"></div></div><div class="actions formActions"><button class="primary" onclick="saveSettings()">Save Baseline</button></div></div><div class="card"><div class="cardTitle">Data & Security</div><div class="actions"><button class="btn" onclick="exportData()">Download Backup</button><button class="btn" onclick="document.getElementById('restore').click()">Restore JSON</button><input id="restore" type="file" accept=".json" hidden><button class="btn" onclick="syncPush()">Push Google Sync</button><button class="danger btn" onclick="hardReset()">Factory Reset</button></div><div class="rule"></div><label>Local access password</label><div class="formgrid"><input id="newPass" type="password" placeholder="New password"><button class="btn" onclick="changePass()">Change Password</button></div></div></div></section>
 </main>
-<nav class="mobileNav"><button class="on" data-page="today">Today</button><button data-page="money">Money</button><button data-page="goals">Goals</button><button data-page="commitments">Commit</button><button data-page="review">Review</button></nav>
+
+<nav class="mobileNav"><button class="on" data-page="today">Overview</button><button data-page="money">Money</button><button data-page="goals">Goals</button><button data-page="commitments">Commit</button><button data-page="review">Review</button></nav>
 </div>
+
 <div class="modal" id="txModal"><div class="modalBox"><div class="modalHead"><b>Register Transaction</b><button class="close" onclick="closeModal('txModal')">×</button></div><div class="formgrid"><div><label>Type</label><select id="txType"><option value="expense">Expense</option><option value="income">Income</option><option value="transfer">Transfer</option></select></div><div><label>Amount (QAR)</label><input id="txAmount" type="number"></div><div><label>Description</label><input id="txDesc"></div><div><label>Category</label><select id="txCat"></select></div><div><label>From / Account</label><select id="txAccount"></select></div><div id="toWrap"><label>To account</label><select id="txTo"></select></div><div><label>Date</label><input id="txDate" type="date"></div></div><div class="modalFoot"><button class="btn" onclick="closeModal('txModal')">Cancel</button><button class="primary" onclick="saveTx()">Save Transaction</button></div></div></div>
 <div class="modal" id="accountModal"><div class="modalBox"><div class="modalHead"><b>Add Account</b><button class="close" onclick="closeModal('accountModal')">×</button></div><div class="formgrid"><div><label>Name</label><input id="accName"></div><div><label>Type</label><select id="accType"><option value="bank">Bank</option><option value="cash">Cash</option><option value="investment">Investment</option></select></div><div><label>Balance</label><input id="accBalance" type="number"></div></div><div class="modalFoot"><button class="btn" onclick="closeModal('accountModal')">Cancel</button><button class="primary" onclick="saveAccount()">Add Account</button></div></div></div>
 <div class="modal" id="goalModal"><div class="modalBox"><div class="modalHead"><b id="goalModalTitle">Goal</b><button class="close" onclick="closeModal('goalModal')">×</button></div><input type="hidden" id="goalKey"><div class="formgrid"><div><label>Name</label><input id="goalName"></div><div><label>Current</label><input id="goalCurrent" type="number"></div><div><label>Target</label><input id="goalTarget" type="number"></div><div><label>Target date</label><input id="goalDate" type="date"></div></div><div class="modalFoot"><button class="btn" onclick="closeModal('goalModal')">Cancel</button><button class="primary" onclick="saveGoal()">Save Goal</button></div></div></div>
 <div class="modal" id="commitModal"><div class="modalBox"><div class="modalHead"><b>Add Commitment</b><button class="close" onclick="closeModal('commitModal')">×</button></div><div class="formgrid"><div><label>Name</label><input id="comName"></div><div><label>Amount</label><input id="comAmount" type="number"></div><div><label>Due date</label><input id="comDate" type="date"></div><div><label>Type</label><select id="comType"><option>Cheque</option><option>Bill</option><option>Subscription</option><option>Family</option><option>Other</option></select></div></div><div class="modalFoot"><button class="btn" onclick="closeModal('commitModal')">Cancel</button><button class="primary" onclick="saveCommitment()">Add</button></div></div></div>
 <div class="toast" id="toast"></div>
 <script src="app.js"></script>
-</body></html>
+</body>
+</html>
