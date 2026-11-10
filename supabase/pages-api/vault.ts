@@ -42,11 +42,16 @@ Deno.serve(async(req:Request)=>{
    const state=await rpc('state');const entry=state.entries.find((e:any)=>e.id===input.id&&e.kind==='document');
    if(!entry)throw new Error('Document not found');
    if(input.action==='download'){
+    if(entry.data.deletion_pending)throw new Error('Deletion is pending. Retry Delete to finish cleanup.');
     const {data,error}=await bucket.createSignedUrl(entry.data.path,60,{download:entry.data.title});if(error)throw new Error('Download unavailable');result={url:data.signedUrl};
    }else{
     if(input.version!==entry.version)throw new Error('Document changed. Refresh before deleting.');
-    const {error}=await bucket.remove([entry.data.path]);if(error)throw new Error('File could not be deleted');
-    result=await rpc('delete',{id:entry.id,version:entry.version});
+    const {data:job,error:prepareError}=await userDb.rpc('atlas_document_delete',{p_action:'prepare',p_id:entry.id,p_version:entry.version});
+    if(prepareError)throw new Error('Could not reserve deletion. Refresh and retry.');
+    const {error}=await bucket.remove([job.path]);if(error)throw new Error('Deletion is pending. Retry Delete to finish cleanup.');
+    const {data:finished,error:finishError}=await userDb.rpc('atlas_document_delete',{p_action:'finish',p_id:job.id,p_version:job.version});
+    if(finishError)throw new Error('File removed; metadata cleanup is pending. Refresh and retry Delete.');
+    result=finished;
    }
   }else throw new Error('Unknown action');
   return Response.json(result,{headers:{'Cache-Control':'no-store'}});

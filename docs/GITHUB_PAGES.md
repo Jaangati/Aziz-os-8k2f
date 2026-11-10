@@ -11,3 +11,7 @@ Deploy atlas-pages-api from supabase/pages-api/index.ts plus contracts.ts, and a
 Set the Supabase Auth Site URL and allowed confirmation/recovery redirect to https://jaangati.github.io/Aziz-os-8k2f/ before using email confirmation or recovery. Existing verified accounts can sign in without a new registration. Browser sessions use the Supabase SDK's persisted session and automatic token refresh; browser storage must be protected from XSS. A GitHub project path shares the jaangati.github.io origin with other Pages projects; restrict auth storage keys, avoid untrusted sibling apps and prefer a dedicated domain later for stronger browser isolation.
 
 AI remains disconnected. Records, existing user subjects and the separate Atlas database are retained. GitHub repository privacy is separate from app data privacy; a hidden URL is never an access control.
+
+## Recovery maintenance
+
+Apply supabase/document-recovery.sql. A document delete first reserves a pending state in Postgres, then removes storage content, then finalizes metadata. On failure the entry remains visibly pending and the owner can retry Delete. This is retry-driven recovery, not an unattended cleanup worker. Document paths are unique per owner. tests/document-recovery.sql verifies metadata recovery in a rolled-back fixture transaction. This does not prove file-binary backup restoration. Full snapshots, file backups, real iPhone acceptance, email redirect configuration, and a signed-in end-to-end check remain required before retiring the temporary deployment.
