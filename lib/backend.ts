@@ -1,8 +1,8 @@
-import { getChatGPTUser } from '../app/chatgpt-auth';
+import { atlasUser } from './atlas-auth';
 import { getRuntime } from './runtime';
 export class ApiError extends Error { constructor(public status:number,message:string){super(message);} }
 export async function identity(request:Request,write=false){
- const user=await getChatGPTUser();
+ const user=await atlasUser();
  if(!user)throw new ApiError(401,'Sign in to your private workspace.');
  if(write){
   const origin=request.headers.get('origin');
