@@ -37,6 +37,7 @@ Deno.serve(async(req:Request)=>{
    if(!mimeTypes.includes(mime)||!size||size>10485760)throw new Error('Unsupported stored file');
    const state=await rpc('state');
    const existing=state.entries.find((e:any)=>e.kind==='document'&&e.data.path===input.path);
+   if(input.restore_id){if(!/^[0-9a-f-]{36}$/i.test(input.restore_id))throw Error('Invalid restore ID');const {data:restored,error:restoreError}=await userDb.rpc('atlas_restore_entry',{p_entry:{id:input.restore_id,kind:'document',data:{title:input.title,path:input.path,size,mime,body:input.body||''}}});if(restoreError)throw Error('Document restore conflict or failure. No existing record was overwritten.');return Response.json(restored,{headers:{'Cache-Control':'no-store'}});}
    result=existing?{id:existing.id}:await rpc('save',{kind:'document',data:{title:input.title,path:input.path,size,mime,body:''}});
   }else if(input.action==='download'||input.action==='delete'){
    const state=await rpc('state');const entry=state.entries.find((e:any)=>e.id===input.id&&e.kind==='document');

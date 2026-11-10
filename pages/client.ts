@@ -4,5 +4,5 @@ export async function pagesApi(path:string,body?:any){
  if(path==='auth'&&body.action==='logout'){const {error}=await supabase.auth.signOut();if(error)throw error;window.location.assign(import.meta.env.BASE_URL);return {ok:true};}
  const {data:{session}}=await supabase.auth.getSession();if(!session)throw Error('Please sign in again.');
  const {data,error}=await supabase.functions.invoke('atlas-pages-api',{body:{route:path,...(body?{payload:body}:{})}});
- if(error)throw Error('Request failed. Check your connection or sign in again.');if(data?.error)throw Error(data.error);return data;
+ if(error){let message='Request failed. Check your connection or sign in again.';if(error.context instanceof Response){try{const detail=await error.context.json();if(typeof detail.error==='string')message=detail.error;}catch{}}throw Error(message);}if(data?.error)throw Error(data.error);return data;
 }

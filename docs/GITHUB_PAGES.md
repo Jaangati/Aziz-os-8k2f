@@ -15,3 +15,7 @@ AI remains disconnected. Records, existing user subjects and the separate Atlas 
 ## Recovery maintenance
 
 Apply supabase/document-recovery.sql. A document delete first reserves a pending state in Postgres, then removes storage content, then finalizes metadata. On failure the entry remains visibly pending and the owner can retry Delete. This is retry-driven recovery, not an unattended cleanup worker. Document paths are unique per owner. tests/document-recovery.sql verifies metadata recovery in a rolled-back fixture transaction. This does not prove file-binary backup restoration. Full snapshots, file backups, real iPhone acceptance, email redirect configuration, and a signed-in end-to-end check remain required before retiring the temporary deployment.
+
+## Portable backups
+
+System includes a complete JSON archive with records and file binaries, a SHA-256 checksum per file, and an explicit Restore missing records action. Restore validates the archive before writing; existing IDs are preserved, existing records are kept, and conflicts are rejected by the database. Preferences are optional. History is retained in the archive, not replayed as operational events. Restored records get new timestamps and versions. Current binary total limit is 100 MB; archives are unencrypted. This is an on-demand backup, not an automatic offsite backup subscription. Unit tests cover binary roundtrip and corruption. Database fixture tests cover module CRUD, restore conflicts and metadata restoration. Real user email recovery and iPhone acceptance remain manual gates.

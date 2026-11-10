@@ -1,0 +1,5 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {makeBackup,verifyBackup} from '../lib/backup.mjs';
+const snapshot={entries:[{id:'12345678-1234-4234-8234-123456789012',kind:'document',data:{title:'Fixture',size:5}}]};
+test('backup roundtrip preserves actual document bytes and detects corruption',async()=>{const bytes=new TextEncoder().encode('hello');const backup=await makeBackup(snapshot,async()=>bytes);const restored=await verifyBackup(backup);assert.deepEqual(restored.get(snapshot.entries[0].id),bytes);backup.files[0].base64='aGVsbGE=';await assert.rejects(verifyBackup(backup),/integrity/);});
+test('backup rejects missing files, duplicate IDs and incomplete deletions',async()=>{await assert.rejects(verifyBackup({application:'Atlas',backup_version:1,snapshot,files:[]}),/missing/);await assert.rejects(makeBackup({entries:[{...snapshot.entries[0],data:{size:5,deletion_pending:true}}]},async()=>new Uint8Array()),/pending/);const b=await makeBackup({entries:[]},async()=>new Uint8Array());b.snapshot.entries=[...snapshot.entries,...snapshot.entries];await assert.rejects(verifyBackup(b),/duplicate/);});
