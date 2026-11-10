@@ -73,3 +73,7 @@ See `docs/OPEN_SOURCE.md` for reviewed projects, design lessons, and actual depe
 ## Release verification
 
 TypeScript, six unit tests, transactional database isolation/concurrency/reminder checks, and live vault upload/download/deletion checks passed. Production dependency audit reported zero known vulnerabilities at build time. Hosted sign-in was verified; authenticated browser workflows and iPhone behavior still require acceptance testing because the QA browser has no owner session and local preview outbound database requests failed. AI integration is not live-tested without a configured provider key.
+
+## Foundation maintenance
+
+Apply supabase/foundation.sql after schema.sql and hardening.sql. Briefings have a 15-minute delivery window beginning at the configured local hour; missed windows are skipped. Export now includes complete activity, notifications and runs alongside entries and settings, but file binaries remain separate. CI runs typecheck, unit tests, production dependency audit and build. Logout requests server-side session revocation; existing JWTs may remain valid until expiry under Supabase token semantics. Confirmation resends use the current login URL, which must still be allowed in Supabase Auth settings. Password reset, session refresh, backup restoration and file-deletion reconciliation remain outstanding.
