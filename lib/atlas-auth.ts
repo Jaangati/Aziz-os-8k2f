@@ -1,6 +1,6 @@
 import {cookies} from 'next/headers';
 import {getRuntime} from './runtime';
-export const OWNER_EMAIL='krimiaziz@gmail.com';
+export const OWNER_EMAIL='krimi.aziz@gmail.com';
 export const SESSION_COOKIE='__Host-atlas-session';
 export async function authRequest(path:string,body?:unknown,token?:string){
  const env=getRuntime();

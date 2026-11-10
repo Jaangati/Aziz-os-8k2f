@@ -29,7 +29,8 @@ const worker = {
       const response = new Response(original.body, original);
       response.headers.set('X-Content-Type-Options', 'nosniff');
       response.headers.set('Referrer-Policy', 'no-referrer');
-      response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+      response.headers.delete('X-Frame-Options');
+      response.headers.set('Content-Security-Policy', "frame-ancestors 'self' https://chatgpt.com");
       response.headers.set('Permissions-Policy', 'camera=(), geolocation=(), microphone=(self)');
       if (new URL(request.url).pathname.startsWith('/api/')) response.headers.set('Cache-Control','no-store');
       return response;
