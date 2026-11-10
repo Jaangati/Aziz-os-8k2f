@@ -4,7 +4,7 @@ Private personal workspace rebuilt from the former Aziz OS prototype. It provide
 
 ## Implemented
 
-- Owner-private hosted sign-in, with every API route checking trusted request identity.
+- Atlas email/password sign-in, restricted to the verified owner email. Every API route validates the session with Supabase Auth.
 - Independent Supabase Postgres project; private schema, default-deny RLS, server-only credential and identity-scoped gateway.
 - Tasks with due times, priorities, completion and optimistic concurrency.
 - Editable memory with explicit owner/inference provenance; goals, people and journal records.
@@ -21,7 +21,7 @@ Phone push, wake-up alarms, bank feeds, email/calendar access, social publishing
 
 ## Architecture
 
-The owner-private Sites boundary authenticates the visitor. Server API routes take identity only from platform-provided headers, enforce same-origin JSON writes, validate payloads, and call a Supabase RPC using a secret held only on the server. Every gateway operation scopes records to that identity. Supabase raw tables are not exposed to client roles.
+The login page is public; records require a server-verified Supabase Auth session. Sessions use a Secure, HttpOnly, SameSite=Strict cookie with a one-hour maximum lifetime. Server API routes enforce same-origin JSON writes, validate payloads, and call a Supabase RPC using a secret held only on the server. Every gateway operation scopes records to that identity. Supabase raw tables are not exposed to client roles.
 
 `supabase/schema.sql` is the initial schema. Apply `supabase/hardening.sql` afterward for complete export and serialized AI-run admission. The `atlas_private.gateway` function is deliberately privileged and lives in an unexposed schema; it verifies a high-entropy server credential before every operation. Its public wrapper is security-invoker. No browser receives that credential or a service-role key. The vault Edge Function authenticates the same bridge credential before it uses its platform-provided service role.
 
@@ -54,7 +54,7 @@ Configure these values through the hosting secret manager, then redeploy:
 | `OPENAI_API_KEY` | Optional AI-provider secret |
 | `OPENAI_MODEL` | Optional model; defaults to `gpt-4.1-mini` |
 
-Keep the Site owner-private. The hosted auth helper is not a standalone authentication system for arbitrary servers: another deployment host must implement real authentication before serving this app. Do not trust identity headers received directly from the internet.
+The outer hosting login gate is disabled. The application accepts only a verified Supabase user matching OWNER_EMAIL in lib/atlas-auth.ts; it never trusts incoming identity headers. First visit: register the owner account, confirm the email, then return and sign in. Email confirmation redirects must be configured for the chosen domain in Supabase Auth; the default may redirect to localhost after confirming. Password recovery currently requires the Supabase project administrator. Existing ChatGPT-identity records remain under their original subject and require an explicit identity migration; they are not automatically attached by matching email.
 
 ## Operations and recovery
 
