@@ -1,7 +1,7 @@
 import {LayoutDashboard,CheckCircle2,Target,Wallet,Users,Brain,BookOpen,FolderLock,Sparkles,Settings,ChevronDown,Compass,HeartHandshake,Library,Shield,Orbit} from 'lucide-react';
 export const navigationGroups=[
  {id:'command',label:'Command',icon:Compass,modules:[{id:'task',label:'Tasks',icon:CheckCircle2},{id:'goal',label:'Goals',icon:Target}]},
- {id:'finance',label:'Finance',icon:Wallet,modules:[{id:'transaction',label:'Money',icon:Wallet}]},
+ {id:'finance',label:'Finance',icon:Wallet,modules:[{id:'guardian',label:'Guardian',icon:Shield},{id:'transaction',label:'Money',icon:Wallet}]},
  {id:'relationships',label:'Relationships',icon:HeartHandshake,modules:[{id:'person',label:'Connections',icon:Users}]},
  {id:'knowledge',label:'Knowledge & Memory',icon:Library,modules:[{id:'note',label:'Journal',icon:BookOpen},{id:'memory',label:'Atlas Memory',icon:Brain}]},
  {id:'vault',label:'Vault',icon:Shield,modules:[{id:'document',label:'Documents',icon:FolderLock}]},

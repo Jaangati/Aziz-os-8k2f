@@ -1,11 +1,12 @@
 import { z } from 'zod';
-export const kinds = ['task','memory','transaction','goal','person','document','note'] as const;
+export const kinds = ['task','memory','transaction','goal','person','document','note','guardian'] as const;
 export type Kind = typeof kinds[number];
 const title = z.string().trim().min(1).max(300);
 const body = z.string().max(8000).default('');
 const optionalDate = z.union([z.string().datetime({offset:true}),z.literal('')]).default('');
 const currency = z.enum(['QAR','TND','USD','EUR']);
 export const entrySchemas = {
+ guardian:z.object({title,body,type:z.enum(['position','schedule']),currency,amount_minor:z.number().int().min(0).max(999999999999),date:z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(s=>!isNaN(Date.parse(s))&&new Date(s).toISOString().startsWith(s),'Invalid date'),end_date:z.string().default(''),frequency:z.enum(['once','monthly','weekly']).default('monthly'),direction:z.enum(['income','expense']).default('expense'),category:z.enum(['Essential','Loan','Family','Subscription','Flexible','Income']).default('Essential'),active:z.boolean().default(true),settled:z.array(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).max(120).default([]),reserve_minor:z.number().int().min(0).max(999999999999).default(0),savings_pct:z.number().min(0).max(100).default(0),rule_version:z.string().max(20).default('1.0')}).refine(d=>!d.end_date||(/^\d{4}-\d{2}-\d{2}$/.test(d.end_date)&&!isNaN(Date.parse(d.end_date))&&new Date(d.end_date).toISOString().startsWith(d.end_date)&&d.end_date>=d.date),'End date must be valid and after the start date'),
  task:z.object({title,body,priority:z.enum(['high','normal','low']),status:z.enum(['open','done']),due:optionalDate,area:z.enum(['Personal','Work','Money','Health','Family']).default('Personal')}),
  memory:z.object({title,body:z.string().trim().min(1).max(8000),source:z.enum(['owner','inferred']),category:z.enum(['Preference','Goal','Fact','Decision','Lesson']).default('Fact')}),
  transaction:z.object({title,amount_minor:z.number().int().positive().max(999999999999),direction:z.enum(['income','expense']),currency,date:z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(s=>!isNaN(Date.parse(s)) && new Date(s).toISOString().startsWith(s),'Invalid date'),category:z.string().trim().min(1).max(60),body}),
