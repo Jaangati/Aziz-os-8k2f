@@ -1,4 +1,5 @@
 import {createClient} from 'npm:@supabase/supabase-js@2.119.0';
+import {validateNetworkLinks} from './network.mjs';
 import {validateSave,settingsSchema} from './contracts.ts';
 const cors={'Access-Control-Allow-Origin':'https://jaangati.github.io','Access-Control-Allow-Headers':'authorization, apikey, content-type, x-client-info','Access-Control-Allow-Methods':'POST, OPTIONS','Vary':'Origin'};
 Deno.serve(async(req:Request)=>{const reply=(data:unknown,status=200)=>Response.json(data,{status,headers:{...cors,'Cache-Control':'no-store'}});if(req.method==='OPTIONS')return new Response(null,{headers:cors});if(req.method!=='POST')return reply({error:'Method not allowed'},405);
@@ -12,6 +13,6 @@ Deno.serve(async(req:Request)=>{const reply=(data:unknown,status=200)=>Response.
  if(input.route==='vault'){const r=await fetch(url+'/functions/v1/atlas-pages-vault',{method:'POST',headers:{apikey:key,Authorization:req.headers.get('Authorization')||'','Content-Type':'application/json'},body:JSON.stringify(input.payload)});return reply(await r.json(),r.status);}
  if(input.route!=='action')return reply({error:'Unsupported route'},400);
  const {action}=input.payload;let payload=input.payload.payload||{};
- if(action==='save'){payload=validateSave(payload);if(payload.kind==='document')throw Error('Use the upload flow.');}else if(action==='settings')payload=settingsSchema.parse(payload);else if(action==='delete'){if(typeof payload.id!=='string'||!Number.isInteger(payload.version))throw Error('Invalid deletion.');const state=await rpc('state');if(state.entries.some((e:any)=>e.id===payload.id&&e.kind==='document'))throw Error('Use document deletion.');}else if(action!=='read')throw Error('Unsupported action');
+ if(action==='save'){payload=validateSave(payload);if(payload.kind==='document')throw Error('Use the upload flow.');if(payload.kind==='person'){const state=await rpc('export');const entries=state.entries||[];validateNetworkLinks(entries.filter((e:any)=>e.kind==='person'),payload.id,payload.data.introduced_by);if(payload.data.card_id&&!entries.some((e:any)=>e.id===payload.data.card_id&&e.kind==='document'&&!e.data.deletion_pending))throw Error('Business card is unavailable.');}}else if(action==='settings')payload=settingsSchema.parse(payload);else if(action==='delete'){if(typeof payload.id!=='string'||!Number.isInteger(payload.version))throw Error('Invalid deletion.');const state=await rpc('state');if(state.entries.some((e:any)=>e.id===payload.id&&e.kind==='document'))throw Error('Use document deletion.');}else if(action!=='read')throw Error('Unsupported action');
  return reply(await rpc(action,payload));
  }catch(error){return reply({error:error instanceof Error?error.message:'Request failed'},400);}});
