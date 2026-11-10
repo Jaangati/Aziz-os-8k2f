@@ -1,0 +1,16 @@
+import {createClient} from 'npm:@supabase/supabase-js@2.119.0';
+import {validateSave,settingsSchema} from './contracts.ts';
+const cors={'Access-Control-Allow-Origin':'https://jaangati.github.io','Access-Control-Allow-Headers':'authorization, apikey, content-type, x-client-info','Access-Control-Allow-Methods':'POST, OPTIONS','Vary':'Origin'};
+Deno.serve(async(req:Request)=>{const reply=(data:unknown,status=200)=>Response.json(data,{status,headers:{...cors,'Cache-Control':'no-store'}});if(req.method==='OPTIONS')return new Response(null,{headers:cors});if(req.method!=='POST')return reply({error:'Method not allowed'},405);
+ try{const url=Deno.env.get('SUPABASE_URL')!,key=Deno.env.get('SUPABASE_ANON_KEY')!;const db=createClient(url,key,{global:{headers:{Authorization:req.headers.get('Authorization')||''}},auth:{persistSession:false}});const {data:{user},error}=await db.auth.getUser();if(error||!user||!user.email_confirmed_at||user.email?.toLowerCase()!=='krimi.aziz@gmail.com')return reply({error:'Sign in to your private workspace.'},401);
+ const raw=await req.text();if(raw.length>32768)return reply({error:'Request too large'},413);const input=JSON.parse(raw),subject='supabase:'+user.id;
+ const rpc=async(action:string,payload:unknown={})=>{const {data,error}=await db.rpc(action==='export'?'atlas_export':'atlas_gateway',{p_key:'',p_subject:subject,...(action==='export'?{}:{p_action:action,p_payload:payload})});if(error)throw Error(error.code==='40001'?'Record changed. Refresh before editing.':'Database request failed.');return data;};
+ if(input.route==='state')return reply({...await rpc('state'),capabilities:{ai:false,external_notifications:false,vault:true},user:{name:'Aziz',email:user.email}});
+ if(input.route==='export')return reply(await rpc('export'));
+ if(input.route==='assistant')return reply({error:'AI is not connected. No paid service has been enabled.'},503);
+ if(input.route==='vault'){const r=await fetch(url+'/functions/v1/atlas-pages-vault',{method:'POST',headers:{apikey:key,Authorization:req.headers.get('Authorization')||'','Content-Type':'application/json'},body:JSON.stringify(input.payload)});return reply(await r.json(),r.status);}
+ if(input.route!=='action')return reply({error:'Unsupported route'},400);
+ const {action}=input.payload;let payload=input.payload.payload||{};
+ if(action==='save'){payload=validateSave(payload);if(payload.kind==='document')throw Error('Use the upload flow.');}else if(action==='settings')payload=settingsSchema.parse(payload);else if(action==='delete'){if(typeof payload.id!=='string'||!Number.isInteger(payload.version))throw Error('Invalid deletion.');const state=await rpc('state');if(state.entries.some((e:any)=>e.id===payload.id&&e.kind==='document'))throw Error('Use document deletion.');}else if(action!=='read')throw Error('Unsupported action');
+ return reply(await rpc(action,payload));
+ }catch(error){return reply({error:error instanceof Error?error.message:'Request failed'},400);}});
