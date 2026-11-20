@@ -50,6 +50,7 @@
     "outputs",
     "work",
     "supabase/vault",
-    "supabase/pages-api"
+    "supabase/pages-api",
+    "supabase/receipt-ingest"
   ]
 }

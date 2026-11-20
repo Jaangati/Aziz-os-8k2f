@@ -1,0 +1,32 @@
+begin;
+do $$
+declare uid uuid;subj text;receipt uuid;movement uuid;again jsonb;fixture jsonb;token text:=repeat('a',64);other_uid uuid;
+begin
+ select id into uid from auth.users where lower(email)='krimi.aziz@gmail.com'and email_confirmed_at is not null;
+ if uid is null then raise exception 'Verified owner missing';end if;
+ perform set_config('request.jwt.claims',jsonb_build_object('sub',uid,'role','authenticated')::text,true);subj:='supabase:'||uid;
+ perform public.atlas_finance('token',jsonb_build_object('token',token,'auto_import',false));
+ fixture:='{"title":"Synthetic cafe fixture","body":"Synthetic test only","source":"gmail","source_id":"abcdef012345","sender":"cbqsms@cbq.com.qa","received_at":"2026-11-20T10:00:00Z","status":"pending","amount_minor":5300,"currency":"QAR","date":"2026-11-20","direction":"expense","treatment":"normal","category":"Dining","card_last4":"1234","confidence":"parsed","parser_version":"test","transaction_id":""}'::jsonb;
+ receipt:=(public.atlas_receipt_ingest(token,fixture)->>'receipt_id')::uuid;
+ again:=public.atlas_receipt_ingest(token,fixture);if not(again->>'duplicate')::boolean then raise exception 'Receipt dedupe failed';end if;
+ movement:=(public.atlas_finance('approve',jsonb_build_object('id',receipt,'version',1,'data',fixture))->>'id')::uuid;
+ again:=public.atlas_finance('approve',jsonb_build_object('id',receipt,'version',1,'data',fixture));if(again->>'id')::uuid<>movement then raise exception 'Approval not idempotent';end if;
+ if(select count(*)from atlas_private.entries where subject=subj and kind='transaction'and data->>'receipt_id'=receipt::text)<>1 then raise exception 'Transaction duplicated';end if;
+ if not exists(select from jsonb_array_elements(public.atlas_export('',subj)->'entries')e where e->>'id'=receipt::text)then raise exception 'Receipt missing from export';end if;
+ perform public.atlas_finance('token',jsonb_build_object('token',token,'auto_import',true));
+ fixture:=fixture||jsonb_build_object('source_id','abcdef012346','title','Synthetic auto-import fixture');
+ again:=public.atlas_receipt_ingest(token,fixture);
+ if not coalesce((again->>'recorded')::boolean,false) then raise exception 'Parsed purchase not automatically recorded';end if;
+ receipt:=(again->>'receipt_id')::uuid;
+ fixture:=fixture||jsonb_build_object('source_id','abcdef012347');
+ again:=public.atlas_receipt_ingest(token,fixture);
+ if not coalesce((again->>'review_required')::boolean,false) or not coalesce((again->>'possible_duplicate')::boolean,false) then raise exception 'Possible duplicate was not held for review';end if;
+ fixture:=fixture||jsonb_build_object('source_id','abcdef012348','title','Synthetic unknown alert','confidence','review','amount_minor',0,'date','');
+ again:=public.atlas_receipt_ingest(token,fixture);
+ if not coalesce((again->>'review_required')::boolean,false) then raise exception 'Unknown format was auto-imported';end if;
+ perform public.atlas_finance('disconnect','{}');
+ begin perform public.atlas_receipt_ingest(token,fixture);raise exception 'Revoked connector accepted';exception when invalid_authorization_specification then null;end;
+ perform set_config('request.jwt.claims',jsonb_build_object('sub',gen_random_uuid(),'role','authenticated')::text,true);
+ begin perform public.atlas_finance('status','{}');raise exception 'Non-owner accepted';exception when invalid_authorization_specification then null;end;
+end $$;
+rollback;

@@ -5,10 +5,17 @@ const cors={'Access-Control-Allow-Origin':'https://jaangati.github.io','Access-C
 Deno.serve(async(req:Request)=>{const reply=(data:unknown,status=200)=>Response.json(data,{status,headers:{...cors,'Cache-Control':'no-store'}});if(req.method==='OPTIONS')return new Response(null,{headers:cors});if(req.method!=='POST')return reply({error:'Method not allowed'},405);
  try{const url=Deno.env.get('SUPABASE_URL')!,key=Deno.env.get('SUPABASE_ANON_KEY')!;const db=createClient(url,key,{global:{headers:{Authorization:req.headers.get('Authorization')||''}},auth:{persistSession:false}});const {data:{user},error}=await db.auth.getUser();if(error||!user||!user.email_confirmed_at||user.email?.toLowerCase()!=='krimi.aziz@gmail.com')return reply({error:'Sign in to your private workspace.'},401);
  const raw=await req.text();if(raw.length>32768)return reply({error:'Request too large'},413);const input=JSON.parse(raw),subject='supabase:'+user.id;
- const rpc=async(action:string,payload:unknown={})=>{const {data,error}=await db.rpc(action==='export'?'atlas_export':'atlas_gateway',{p_key:'',p_subject:subject,...(action==='export'?{}:{p_action:action,p_payload:payload})});if(error)throw Error(error.code==='40001'?'Record changed. Refresh before editing.':'Database request failed.');return data;};
+ const rpc=async(action:string,payload:unknown={})=>{const {data,error}=await db.rpc(action==='export'?'atlas_export':'atlas_gateway',{p_key:'',p_subject:subject,...(action==='export'?{}:{p_action:action,p_payload:payload})});if(error)throw Error(error.code==='40001'?'Record changed. Refresh before editing.':error.code==='23505'?'This record or receipt already exists. Check your saved records.':'Database request failed.');return data;};
  if(input.route==='state')return reply({...await rpc('state'),capabilities:{ai:false,external_notifications:false,vault:true},user:{name:'Aziz',email:user.email}});
  if(input.route==='restore'){const entry=input.payload?.entry;const validated=validateSave({kind:entry?.kind,data:entry?.data});if(validated.kind==='document')throw Error('Restore document binaries through the vault.');if(!/^[0-9a-f-]{36}$/i.test(entry.id))throw Error('Invalid record ID');const {data,error}=await db.rpc('atlas_restore_entry',{p_entry:{id:entry.id,...validated}});if(error)throw Error(error.message.includes('conflict')?'Restore conflict: existing record differs':'Record restore failed');return reply(data);}
  if(input.route==='export')return reply(await rpc('export'));
+ if(input.route==='finance'){
+ const p=input.payload||{};if(!['status','token','disconnect','approve'].includes(p.action))throw Error('Unsupported finance action');
+ let token='';if(p.action==='token'){token=Array.from(crypto.getRandomValues(new Uint8Array(32))).map(n=>n.toString(16).padStart(2,'0')).join('');p.token=token;}
+ if(p.action==='approve')p.data=validateSave({kind:'transaction',data:p.data}).data;
+ const{data,error}=await db.rpc('atlas_finance',{p_action:p.action,p_payload:p});if(error)throw Error(error.message.includes('Receipt')?error.message:'Finance request failed');
+ return reply({...data,...(token?{token,ingest_url:url+'/functions/v1/atlas-receipt-ingest'}:{})});
+ }
  if(input.route==='assistant')return reply({error:'AI is not connected. No paid service has been enabled.'},503);
  if(input.route==='vault'){const r=await fetch(url+'/functions/v1/atlas-pages-vault',{method:'POST',headers:{apikey:key,Authorization:req.headers.get('Authorization')||'','Content-Type':'application/json'},body:JSON.stringify(input.payload)});return reply(await r.json(),r.status);}
  if(input.route!=='action')return reply({error:'Unsupported route'},400);
