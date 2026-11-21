@@ -361,8 +361,9 @@ h1,h2,h3,.money-snapshot strong,.cumulative-value strong,.briefing-cards strong{
 }
 
 /* Shared Atlas density and components. Long user content can still grow naturally. */
-.shell{
- --atlas-gap:12px;--atlas-pad:15px;--atlas-control:35px;--atlas-control-radius:10px;
+:root{
+ --atlas-gap:12px;--atlas-pad:15px;--atlas-control:36px;--atlas-control-radius:10px;--atlas-radius:16px;
+ --atlas-graphite:#17171b;--atlas-surface:#fff;--atlas-input:#fcfcfd;--atlas-secondary:#55515b;
  --atlas-icon:34px;--atlas-icon-radius:9px;
  --atlas-wash:#f6f4f8;--atlas-selected:#eee7f7;--atlas-selected-ink:#422a62;
  --atlas-hairline:#e4dfe8;
@@ -382,7 +383,7 @@ h1,h2,h3,.money-snapshot strong,.cumulative-value strong,.briefing-cards strong{
 .shell .briefing-heading time{display:block;margin-bottom:4px;font-size:12px}
 .shell .content :is(.page-head,.guardian-head,.connections-head,.finance-heading) p{margin:4px 0 0;color:var(--atlas-muted);font-size:12px;line-height:1.45}
 .shell .content :is(.panel,.finance-panel,.guardian-panel,.network-map,.record-card,.dropzone,.connection-card,.connection-profile,.briefing-cards article){
- border-radius:var(--atlas-radius);border:1px solid var(--atlas-hairline);box-shadow:0 1px 2px #17131d08
+ border-radius:var(--atlas-radius);border:1px solid var(--atlas-hairline);box-shadow:none
 }
 .shell .content .panel-header{min-height:0;padding:12px var(--atlas-pad) 9px;gap:8px}
 .shell .content .panel-header h2{font-size:15px;font-weight:650;line-height:1.25}
@@ -395,19 +396,48 @@ h1,h2,h3,.money-snapshot strong,.cumulative-value strong,.briefing-cards strong{
  width:var(--atlas-icon);height:var(--atlas-icon);border-radius:var(--atlas-icon-radius);background:var(--atlas-wash);
  color:#503b67;border:1px solid #eae4ef;box-shadow:none
 }
-.shell .content :is(.record-icon,.activity-icon,.finance-movement-icon) svg{width:17px;height:17px;stroke-width:1.75}
+.shell .content :is(.record-icon,.activity-icon,.finance-movement-icon) svg{width:18px;height:18px;stroke-width:1.75}
 .shell .content :is(.stack,.cards,.grid-main,.settings-grid,.guardian-grid,.connections-grid,.money-overview-body,.money-side){gap:var(--atlas-gap)}
-.shell .content .button{min-height:var(--atlas-control);padding:7px 12px;font-size:12px;line-height:1.3}
-.shell .content .button:disabled{opacity:.58;cursor:not-allowed}
-.shell .content :is(.connections-tabs,.finance-tabs){display:inline-flex;max-width:100%;flex-wrap:wrap;align-items:center;gap:3px;padding:3px;border:1px solid #e5e1e8;border-radius:13px;background:var(--atlas-wash)}
-.shell .content :is(.connections-tabs,.finance-tabs) button{
- min-height:31px;padding:5px 10px;gap:6px;background:transparent;border:1px solid transparent;border-radius:9px;color:#49444e;font-size:12px;line-height:1.25
+ :is(.shell .content,.atlas-login,.modal,.finance-backdrop .finance-dialog,.connection-editor) .button{
+ min-height:var(--atlas-control);padding:7px 12px;font-size:12px;line-height:1.3;
+ border-radius:var(--atlas-control-radius);box-shadow:none;
 }
-.shell .content :is(.connections-tabs,.finance-tabs) button.active{
+:is(.shell .content,.atlas-login,.modal,.finance-backdrop .finance-dialog,.connection-editor) .button:not(.secondary,.danger){
+ background:var(--atlas-graphite);border-color:var(--atlas-graphite);color:white
+}
+:is(.shell .content,.atlas-login,.modal,.finance-backdrop .finance-dialog,.connection-editor) .button:not(.secondary,.danger):hover:enabled{
+ background:#343439;border-color:#343439
+}
+:is(.shell .content,.atlas-login,.modal,.finance-backdrop .finance-dialog,.connection-editor) .button.secondary{
+ background:var(--atlas-surface);color:var(--atlas-graphite);border-color:var(--atlas-hairline)
+}
+:is(.shell .content,.atlas-login,.modal,.finance-backdrop .finance-dialog,.connection-editor) .button.secondary:hover:enabled{background:var(--atlas-wash)}
+.shell .content .briefing-iris>button{background:#262629;border-color:#707075;color:white}
+:is(.modal,.finance-backdrop .finance-dialog,.connection-editor){
+ background:var(--atlas-surface);color:var(--atlas-graphite);border:1px solid var(--atlas-hairline);
+ border-radius:var(--atlas-radius);box-shadow:0 16px 42px #17131d24
+}
+:is(.modal,.finance-backdrop .finance-dialog,.connection-editor) :is(.modal-head,header){
+ background:var(--atlas-surface);border-color:var(--atlas-hairline)
+}
+:is(.shell .content .field,.modal,.finance-backdrop .finance-dialog,.connection-editor) :is(input:not([type=checkbox],[type=radio],[type=range]),textarea,select){
+ background:var(--atlas-input);color:var(--atlas-graphite);border:1px solid var(--atlas-hairline);
+ border-radius:var(--atlas-control-radius);color-scheme:light
+}
+:is(.modal,.finance-backdrop .finance-dialog,.connection-editor) :is(.field,label,p,.icon-button){color:var(--atlas-secondary)}
+:is(.modal,.finance-backdrop .finance-dialog,.connection-editor) .button.danger{background:#793e37;border-color:#793e37;color:white}
+:is(.shell .content,.modal,.finance-dialog,.connection-editor) .button>svg{width:16px;height:16px;stroke-width:1.75}
+
+.shell .content .button:disabled{opacity:.58;cursor:not-allowed}
+.shell .content :is(.connections-tabs,.finance-tabs,.tabs){display:inline-flex;max-width:100%;flex-wrap:wrap;align-items:center;gap:3px;padding:3px;border:1px solid #e5e1e8;border-radius:13px;background:var(--atlas-wash)}
+.shell .content :is(.connections-tabs,.finance-tabs,.tabs) button{
+ min-height:31px;padding:5px 10px;gap:6px;background:transparent;border:1px solid transparent;border-radius:var(--atlas-control-radius);color:#49444e;font-size:12px;line-height:1.25
+}
+.shell .content :is(.connections-tabs,.finance-tabs,.tabs) button.active{
  background:var(--atlas-selected);border-color:#e1d5ed;color:var(--atlas-selected-ink);box-shadow:none;font-weight:650
 }
-.shell .content :is(.connections-tabs,.finance-tabs) button:hover:not(.active){background:#ece8f1}
-.shell .content :is(.connections-tabs,.finance-tabs) svg{width:15px;height:15px;stroke-width:1.75}
+.shell .content :is(.connections-tabs,.finance-tabs,.tabs) button:hover:not(.active){background:#ece8f1}
+.shell .content :is(.connections-tabs,.finance-tabs,.tabs) svg{width:15px;height:15px;stroke-width:1.75}
 .shell .content .connections-tabs{margin-bottom:10px}
 .shell .content :is(.connection-tools select,.guardian-head select,.finance-period input,.finance-period select,.activity-controls select,.activity-search,.connection-search){
  min-height:var(--atlas-control);border-radius:var(--atlas-control-radius);border-color:#ded9e5;background:#fcfcfd;color:#242127
@@ -497,8 +527,8 @@ h1,h2,h3,.money-snapshot strong,.cumulative-value strong,.briefing-cards strong{
 @media(max-width:650px){
  .shell .content{padding:13px 13px calc(70px + env(safe-area-inset-bottom))}
  .shell .topbar{height:44px}
- .shell .content .button{min-height:40px}
- .shell .content :is(.connections-tabs,.finance-tabs) button{min-height:36px}
+ :root{--atlas-control:40px}
+ .shell .content :is(.connections-tabs,.finance-tabs,.tabs) button{min-height:36px}
  .shell .briefing-layout .briefing-iris{min-height:162px}
  .shell .content .briefing-layout .briefing-cards article{padding:9px}
  .assistant-modes{grid-template-columns:1fr}
@@ -506,3 +536,21 @@ h1,h2,h3,.money-snapshot strong,.cumulative-value strong,.briefing-cards strong{
  .assistant-modes small{display:none}
  .shell .content .network-map .network-svg{height:clamp(180px,37vh,248px)}
 }
+
+@media(prefers-reduced-motion:reduce){
+ .shell :is(.wallet-front,.network-map *,.briefing-iris *, .record-card,.button){animation:none;transition:none}
+}
+
+.shell .content .finance-module .money-snapshot .snapshot-balance{
+ background:var(--atlas-selected);border:1px solid #e1d5ed;border-radius:var(--atlas-radius);
+ box-shadow:none;transform:none;color:var(--atlas-selected-ink)
+}
+.shell .content .finance-module .snapshot-balance :is(div,strong,small,button){color:var(--atlas-selected-ink)}
+.shell .content .finance-module .snapshot-facts{border-radius:var(--atlas-radius);padding-block:0;overflow:hidden}
+.shell .content .finance-module .snapshot-facts article:last-child{background:transparent;border-radius:0}
+.shell .content .finance-module .snapshot-facts article:last-child strong{color:var(--atlas-graphite)}
+.shell .content .empty{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 10px;min-height:0}
+.shell .content .empty>svg{width:18px;height:18px;margin:0}
+.shell .content .empty :is(p,strong){margin:0}
+.shell .content .empty .button{margin:0}
+.shell .content .cumulative-plot{cursor:crosshair}

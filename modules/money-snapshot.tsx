@@ -9,7 +9,7 @@ export function MoneySnapshot({entries,currency,period,open}:{entries:Entry[];cu
  const accountBalances=entries.filter(e=>e.kind==='receipt'&&e.data.balance_kind==='cash'&&e.data.balance_currency===currency&&Number.isSafeInteger(e.data.reported_balance_minor)&&e.data.payment_channel==='account'&&e.data.bank_status==='posted'&&e.data.status!=='duplicate'&&e.data.status!=='ignored'&&e.data.date&&e.data.date<period+'-01').sort((a,b)=>b.data.date.localeCompare(a.data.date)||String(b.data.occurred_at||b.data.received_at||'').localeCompare(String(a.data.occurred_at||a.data.received_at||'')));
  const salaryAccount=accountBalances.find(e=>e.data.event_type==='salary'&&e.data.account_key)?.data.account_key;
  const openingBalance=salaryAccount?accountBalances.find(e=>e.data.account_key===salaryAccount):accountBalances[0];
- const monthly=salaries.filter(e=>e.data.date.startsWith(period));
+ const lastSalary=salaries.find(e=>e.data.date.slice(0,7)<=period);
  const date=(value:string)=>value?new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}).format(new Date(value.slice(0,10)+'T00:00:00Z')):'';
  const money=(amount:number)=>new Intl.NumberFormat('en',{style:'currency',currency}).format(amount/100);
  return <section className="money-snapshot" aria-label="Money at a glance">
@@ -25,9 +25,9 @@ export function MoneySnapshot({entries,currency,period,open}:{entries:Entry[];cu
    <small>{openingBalance?[openingBalance.data.account_key,date(openingBalance.data.date)].filter(Boolean).join(' · '):'No earlier account balance reported'}</small>
   </article>
   <article>
-   <div><ArrowDownLeft size={17}/> Salary received</div>
-   <strong>{monthly.length?money(monthly.reduce((total,e)=>total+e.data.amount_minor,0)):'No salary recorded'}</strong>
-   <small>{monthly.length?date(monthly[0].data.date):salaries.length?'Last: '+money(salaries[0].data.amount_minor)+' · '+date(salaries[0].data.date):'No salary credit found'}</small>
+   <div><ArrowDownLeft size={17}/> Last salary credit</div>
+   <strong>{lastSalary?money(lastSalary.data.amount_minor):'Unavailable'}</strong>
+   <small>{lastSalary?'Credited '+date(lastSalary.data.date):'No salary credit found'}</small>
   </article>
   <article>
    <div><ArrowUpRight size={17}/> Recorded spending</div>
