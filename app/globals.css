@@ -108,3 +108,69 @@ body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
  .money-snapshot article>div{font-size:12px}
 }
 @media(prefers-reduced-motion:reduce){.atlas-screen,.atlas-screen *{animation:none!important;transition:none!important}}
+
+/* A shared work surface, with graphite reserved for navigation and focus areas. */
+.shell{
+ --workspace:#e9e7e2;--surface:#fbfaf7;--surface-alt:#f0eeea;
+ --surface-edge:#d2cec7;--text-main:#222321;--text-muted:#565650;
+ --card-shadow:0 2px 6px #312a2010;--card-radius:15px;
+ background:#222320;gap:14px;padding:12px;
+}
+.shell .main{background:var(--workspace);border-radius:18px;color:var(--text-main);min-width:0}
+.shell .topbar{position:sticky;top:0;z-index:10;background:#e9e7e2f5;border-bottom:1px solid var(--surface-edge);height:54px;border-radius:18px 18px 0 0}
+.shell .topbar :is(.breadcrumb,.breadcrumb b,.breadcrumb svg,.status-text,.icon-button){color:#42433e}
+.shell .top-actions .icon-button,.shell .mobile-menu{background:#f8f6f2;border-color:var(--surface-edge)}
+.shell .content{max-width:1536px;margin:0 auto;padding:clamp(12px,2vw,25px)}
+.shell .sidebar{top:12px;height:calc(100dvh - 24px);overflow-y:auto;scrollbar-width:thin}
+.shell .sidebar .nav-item{min-height:32px}
+.shell .page-head h1,.shell .page-head .eyebrow,.shell .footer-note,.shell .overview-meta,.shell .section-tools>small{color:var(--text-main)}
+.shell .page-head p,.shell .overview-meta button{color:var(--text-muted)}
+.shell .content :is(.panel,.record-card,.dropzone,.week-card,.goal-progress-card,.metrics,.metric):not(.finance-panel){
+ background:var(--surface);border:1px solid var(--surface-edge);color:var(--text-main);box-shadow:var(--card-shadow)
+}
+.shell .content :is(.panel,.record-card,.dropzone,.week-card,.goal-progress-card,.metrics,.metric):not(.finance-panel) :is(h2,h3,strong,.task-title,.text-button){color:var(--text-main)}
+.shell .content :is(.panel,.record-card,.dropzone,.week-card,.goal-progress-card,.metrics,.metric):not(.finance-panel) :is(p,small,.quiet,.metric-label,.week-legend,.week-days span,.progress-caption){color:var(--text-muted)}
+.shell .content :is(.record-card,.panel) :is(.pill,.row-meta){color:#42433e}
+.shell .content :is(.record-card,.panel) .pill{background:#ebe9e3}
+.shell .content :is(.record-card,.panel) .pill.high{background:#f1e1cf;color:#694619}
+.shell .content :is(.record-card,.panel) .pill.green{background:#e4eae2;color:#34553e}
+.shell .content :is(.record-card,.panel) :is(.card-footer,.task-row,.activity-row){border-color:var(--surface-edge)}
+.shell .content :is(.record-card,.panel,.dropzone) .button.secondary{color:#30312d;background:#f0eeea;border-color:#ccc8bf}
+.shell .content :is(.search,.capture,.tabs){background:var(--surface);border-color:var(--surface-edge)}
+.shell .content :is(.search input,.capture input,.capture button,.tabs button){color:var(--text-main)}
+.shell .content .tabs button.active{background:#343531;color:#fff}
+.shell .content .progress{background:#e4e1d9}
+.shell .content .progress>span{background:#585951}
+.shell .content .goal-ring>div{background:var(--surface);border-color:var(--surface-edge);box-shadow:none}
+.shell .content .check{border-color:#7a7c73}
+.shell .content .check.done{background:#414840}
+.shell .content .record-card{border-radius:var(--card-radius);padding:16px;display:flex;flex-direction:column;min-height:155px}
+.shell .content .card-top{gap:8px;justify-content:flex-start}
+.shell .content .card-footer{margin-top:auto}
+.record-icon,.activity-icon{width:35px;height:35px;display:inline-grid;place-items:center;background:#eeebe4;color:#464640;border-radius:10px;flex:none}
+.shell .content .card-actions button{color:#383934}
+.shell .content .cards{gap:12px}
+.shell .content .overview-grid{gap:12px}
+.shell .atlas-command-hero{min-height:220px}
+@media(max-width:650px){
+ .shell{padding:0}
+ .shell .main,.shell .topbar{border-radius:0}
+ .shell .sidebar{top:8px;height:calc(100dvh - 16px)}
+ .shell .content{padding:12px}
+ .shell .atlas-command-hero{min-height:206px}
+}
+.shell .content :is(.guardian-head,.connections-head) :is(h1,p,.module-kicker){color:var(--text-main)}
+.shell .content :is(.guardian-head,.connections-head){margin-bottom:14px}
+.shell .content .connection-card{background:var(--surface);border-color:var(--surface-edge);border-radius:var(--card-radius);color:var(--text-main);padding:15px;min-height:150px}
+.shell .content .connection-card :is(p,.contact-org,.connection-card-bottom){color:var(--text-muted)}
+.shell .content .connection-card h3{margin:10px 0 4px}
+.shell .content .connection-card-bottom{margin-top:12px}
+.shell .content .goal-ring strong{color:#30312d}
+.shell .content .week-days .selected{background:#363733;color:#fff}
+.shell .content .week-chart .line-main{stroke:#444640}
+.shell .content .dropzone{margin-bottom:12px}
+.shell .content .panel :is(.field,.section-tools>small){color:var(--text-muted)}
+.shell .content .panel :is(.field input,.field textarea,.field select){background:var(--surface-alt);border-color:var(--surface-edge);color:var(--text-main);color-scheme:light}
+.shell .content .panel .button:not(.secondary){background:#31322d;color:#fff;border-color:#31322d}
+.shell .content .panel .button.danger{background:#793e37;color:#fff;border-color:#793e37}
+.shell .content .record-card .card-footer{padding-top:10px}
