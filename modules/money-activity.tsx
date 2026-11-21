@@ -6,11 +6,11 @@ const filters=[['all','All activity'],['pending','Needs review'],['expense','Mon
 const dayLabel=(day:string)=>/^\d{4}-\d{2}-\d{2}$/.test(day)&&Number.isFinite(Date.parse(day))?new Intl.DateTimeFormat('en-GB',{weekday:'long',day:'numeric',month:'short',timeZone:'UTC'}).format(new Date(day+'T00:00:00Z')):'Date unavailable';
 const sourceLabel=(entry:Entry)=>entry.data.source==='gmail'?'Gmail':entry.data.source==='sms'?'Bank SMS':'Pasted alert';
 
-export function MoneyActivity({transactions,receipts,period,currency,zone,busy,onEdit,onRemove,onReview,onIgnore,onExport,children}:{
- transactions:Entry[];receipts:Entry[];period:string;currency:string;zone:string;busy:boolean;
- onEdit:(entry:Entry)=>void;onRemove:(entry:Entry)=>void;onReview:(entry:Entry)=>void;onIgnore:(entry:Entry)=>void;onExport:(entries:Entry[])=>void;children:ReactNode;
+export function MoneyActivity({transactions,receipts,period,currency,zone,onSelect,onExport,initialFilter,children}:{
+ transactions:Entry[];receipts:Entry[];period:string;currency:string;zone:string;initialFilter?:string;
+ onSelect:(entry:Entry,source?:Entry)=>void;onExport:(entries:Entry[])=>void;children:ReactNode;
 }){
- const [filter,setFilter]=useState('all'),[query,setQuery]=useState(''),[category,setCategory]=useState(''),[limit,setLimit]=useState(24);
+ const [filter,setFilter]=useState(initialFilter||'all'),[query,setQuery]=useState(''),[category,setCategory]=useState(''),[limit,setLimit]=useState(24);
  const receiptById=new Map(receipts.map(receipt=>[receipt.id,receipt]));
  const receiptByTransaction=new Map(receipts.filter(r=>r.data.status==='imported'&&r.data.transaction_id).map(r=>[r.data.transaction_id,r]));
  const posted=transactions.filter(entry=>entry.kind==='transaction'&&entry.data.bank_status!=='excluded');
@@ -24,7 +24,7 @@ export function MoneyActivity({transactions,receipts,period,currency,zone,busy,o
   return Number.isFinite(+received)?localDay.format(received):'';
  }
  const selectedMoneyRows=moneyRows.filter(row=>row.entry.data.currency===currency&&row.day.startsWith(period));
- const alertRows=receipts.filter(receipt=>receipt.data.currency===currency&&!linkedIds.has(receipt.id)&&!(receipt.data.status==='imported'&&postedIds.has(receipt.data.transaction_id))).map(entry=>({entry,source:entry,day:receiptDay(entry)})).filter(row=>row.day.startsWith(period));
+ const alertRows=receipts.filter(receipt=>receipt.data.currency===currency&&!linkedIds.has(receipt.id)&&!(receipt.data.status==='imported'&&postedIds.has(receipt.data.transaction_id))).map(entry=>({entry,source:entry,day:receiptDay(entry)})).filter(row=>row.day.startsWith(period)||(filter==='pending'&&row.entry.data.status==='pending'));
  const money=new Intl.NumberFormat('en',{style:'currency',currency});
  const search=query.trim().toLowerCase();
  const visible=[...selectedMoneyRows,...alertRows].filter(({entry,source})=>{
@@ -32,7 +32,7 @@ export function MoneyActivity({transactions,receipts,period,currency,zone,busy,o
   if(category&&d.category!==category)return false;
   if(search&&![d.title,d.category,d.card_last4,d.reference,d.body,source?.data.body].join(' ').toLowerCase().includes(search))return false;
   const archived=['ignored','duplicate'].includes(d.status);
-  if(filter==='all')return !archived;
+  if(filter==='all')return entry.kind==='transaction'||d.status==='pending';
   if(filter==='archived')return entry.kind==='receipt'&&archived;
   if(filter==='pending'||filter==='observed')return entry.kind==='receipt'&&d.status===filter;
   return entry.kind==='transaction'&&(filter==='refund'||filter==='transfer'?d.treatment===filter:d.direction===filter&&!['refund','transfer'].includes(d.treatment));
@@ -55,16 +55,13 @@ export function MoneyActivity({transactions,receipts,period,currency,zone,busy,o
     const Icon=d.event_type==='cheque'?Banknote:incoming?ArrowDownLeft:d.card_last4?CreditCard:posted?ArrowUpRight:Receipt;
     const SourceIcon=source?.data.source==='gmail'?Mail:source?.data.source==='sms'?MessageSquare:Receipt;
     const status=posted?'Recorded':d.status==='pending'?'Needs review':d.status==='duplicate'?'Duplicate':d.status==='ignored'?'Ignored':d.bank_status==='failed'?'Failed / returned':'Bank notice';
-    return <article key={entry.id} className="activity-card">
-     <div className="activity-card-top"><span className="activity-icon"><Icon size={19}/></span><span className={'activity-status '+(d.status==='pending'?'review':'')}>{status}</span></div>
-     <h3>{d.title}</h3>
-     <p className="activity-meta">{[d.category,d.card_last4?'Card ••'+d.card_last4:''].filter(Boolean).join(' · ')}</p>
-     <strong className="activity-amount">{d.amount_minor?((posted?incoming?'+':'−':'')+money.format(d.amount_minor/100)):'Amount unavailable'}</strong>
-     <div className="activity-card-footer">
-      {source?<details className="activity-source"><summary><SourceIcon size={15}/>{sourceLabel(source)}<ChevronDown size={14}/></summary><p>{source.data.body||'No source text saved.'}</p>{source.data.source==='gmail'&&/^[a-f0-9]+$/i.test(source.data.source_id)&&<a href={'https://mail.google.com/mail/u/0/#all/'+source.data.source_id} target="_blank" rel="noopener noreferrer">Open original email ↗</a>}</details>:<small>Manual entry</small>}
-      {posted?<div className="activity-actions"><button onClick={()=>onEdit(entry)}>Edit</button><button aria-label={'Delete '+d.title} onClick={()=>onRemove(entry)}>Delete</button></div>:d.status==='pending'&&<div className="activity-actions"><button disabled={busy} onClick={()=>onReview(entry)}>Review</button><button disabled={busy} onClick={()=>onIgnore(entry)}>Ignore</button></div>}
-     </div>
-    </article>;
+    return <button type="button" key={entry.id} className="activity-row-button" onClick={()=>onSelect(entry,source)}>
+     <span className="activity-icon"><Icon size={18}/></span>
+     <span className="activity-copy"><strong>{d.title}</strong><small>{[d.category,status!=='Recorded'?status:'',d.card_last4?'Card ••'+d.card_last4:''].filter(Boolean).join(' · ')}</small></span>
+     {source&&<span className="activity-origin" aria-label={sourceLabel(source)} title={sourceLabel(source)}><SourceIcon size={16}/></span>}
+     <strong className="activity-row-amount">{d.amount_minor?((posted?incoming?'+':'−':'')+money.format(d.amount_minor/100)):'—'}</strong>
+     <ChevronDown size={15} className="activity-arrow"/>
+    </button>;
    })}</div>
   </section>)}
   {!visible.length&&<div className="finance-panel finance-empty"><Receipt size={24}/><strong>No matching activity</strong><p>Try another month or clear the filters.</p></div>}

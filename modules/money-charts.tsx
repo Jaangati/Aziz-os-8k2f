@@ -1,41 +1,33 @@
 import {useState} from 'react';
-import {BarChart3,ChartNoAxesColumnIncreasing} from 'lucide-react';
+import {ChartNoAxesCombined} from 'lucide-react';
 
 type Day={date:string;spent:number;income:number};
 export function MoneyCharts({days,categories,currency}:{days:Day[];categories:[string,number][];currency:string}){
- const [selected,setSelected]=useState<string|null>(null);
- const active=days.find(day=>day.date===selected)||days.reduce<Day|undefined>((largest,day)=>!largest||Math.max(Math.abs(day.spent),day.income)>Math.max(Math.abs(largest.spent),largest.income)?day:largest,undefined);
- const value=new Intl.NumberFormat('en',{style:'currency',currency});
- const axis=new Intl.NumberFormat('en',{notation:'compact',maximumFractionDigits:1});
- const peak=Math.max(1,...days.flatMap(day=>[Math.abs(day.spent),day.income]))/100;
- const magnitude=10**Math.floor(Math.log10(peak));
- const step=Math.max(1,Math.ceil(peak/(magnitude*4))*magnitude);
- const ceiling=step*4;
+ const [selected,setSelected]=useState<number|null>(null);
+ const values=days.map(day=>day.spent);
+ const cumulative=values.map((_,i)=>values.slice(0,i+1).reduce((sum,n)=>sum+n,0));
+ const last=Math.max(0,values.findLastIndex(amount=>amount!==0));
+ const active=Math.min(selected??last,Math.max(0,days.length-1));
+ const maximum=Math.max(1,...cumulative),minimum=Math.min(0,...cumulative),range=maximum-minimum;
+ const point=(i:number)=>[i/Math.max(1,cumulative.length-1)*400,132-(cumulative[i]-minimum)/range*116];
+ const path=cumulative.map((_,i)=>point(i).join(',')).join(' ');
+ const [x,y]=point(active);
+ const fmt=new Intl.NumberFormat('en',{style:'currency',currency});
  const date=(iso:string)=>new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short',timeZone:'UTC'}).format(new Date(iso+'T00:00:00Z'));
  const positive=categories.filter(([,amount])=>amount>0);
- const total=positive.reduce((sum,[,amount])=>sum+amount,0);
- return <div className="money-charts">
-  <article className="finance-panel money-chart">
-   <header><span className="activity-icon"><BarChart3 size={18}/></span><div><h2>Daily cash flow</h2><small>{currency} · {active?date(active.date):'Selected month'}</small></div></header>
-   <div className="chart-readout"><span><i/>Net spending <strong>{value.format((active?.spent||0)/100)}</strong></span><span><i/>Income <strong>{value.format((active?.income||0)/100)}</strong></span></div>
-   <div className="chart-area">
-    <div className="chart-scale" aria-hidden="true">{[4,3,2,1,0].map(i=><span key={i}>{axis.format(i*step)}</span>)}</div>
-    <div className="chart-plot">
-     <div className="chart-gridlines" aria-hidden="true">{[4,3,2,1,0].map(i=><i key={i}/>)}</div>
-     <div className="chart-days" style={{gridTemplateColumns:'repeat('+days.length+',minmax(0,1fr))'}}>{days.map(day=><button type="button" key={day.date} className={day.date===active?.date?'selected':''} onClick={()=>setSelected(day.date)} onFocus={()=>setSelected(day.date)} onMouseEnter={()=>setSelected(day.date)} aria-label={date(day.date)+', net spending '+value.format(day.spent/100)+', income '+value.format(day.income/100)} title={date(day.date)+' · '+value.format(day.spent/100)}>
-      <i className={day.spent<0?'refund':''} style={{height:Math.abs(day.spent)/ceiling+'%'}}/><i style={{height:day.income/ceiling+'%'}}/>
-     </button>)}</div>
-     <div className="chart-dates" aria-hidden="true">{[1,5,10,15,20,25,days.length].map(day=><span key={day}>{day}</span>)}</div>
-    </div>
-   </div>
-  </article>
-  <article className="finance-panel money-chart">
-   <header><span className="activity-icon"><ChartNoAxesColumnIncreasing size={18}/></span><div><h2>Spending by category</h2><small>Top categories</small></div></header>
-   <div className="chart-ranking">{positive.slice(0,5).map(([category,amount])=><div key={category}>
-    <div><span>{category}</span><strong>{value.format(amount/100)}</strong></div>
-    <div className="chart-track" aria-label={Math.round(amount/total*100)+' percent of positive category spending'}><i style={{width:amount/total*100+'%'}}/></div>
-   </div>)}</div>
-   {!positive.length&&<p>No spending recorded for this month.</p>}
-  </article>
- </div>;
+ return <article className="finance-panel money-chart cumulative-chart">
+  <header><span className="activity-icon"><ChartNoAxesCombined size={18}/></span><div><h2>Spending this month</h2><small>Running total after refunds</small></div></header>
+  {days.length>0&&<><div className="cumulative-value"><strong>{fmt.format(cumulative[active]/100)}</strong><small>Through {date(days[active].date)}</small></div>
+   <svg viewBox="0 0 400 140" preserveAspectRatio="none" role="img" aria-label={'Cumulative spending: '+fmt.format((cumulative.at(-1)||0)/100)} className="cumulative-plot">
+    <defs><linearGradient id="spend-shade" x2="0%" y2="100%"><stop stopColor="#8d794f" stopOpacity=".26"/><stop offset="100%" stopColor="#8d794f" stopOpacity="0"/></linearGradient></defs>
+    {[20,56,94,132].map(v=><line key={v} x1="0" x2="400" y1={v} y2={v} stroke="#dfdbd1"/>)}
+    <polygon points={'0,140 '+path+' 400,140'} fill="url(#spend-shade)"/>
+    <polyline points={path} fill="none" stroke="#665534" strokeWidth="2.5" vectorEffect="non-scaling-stroke" strokeLinejoin="round"/>
+    <line x1={x} x2={x} y1={y} y2="140" stroke="#928268" strokeDasharray="3 4"/>
+    <circle cx={x} cy={y} r="4" fill="#665534"/>
+   </svg>
+   <input type="range" aria-label="Day of month for spending total" aria-valuetext={date(days[active].date)+' · '+fmt.format(cumulative[active]/100)} min="1" max={days.length} value={active+1} onChange={e=>setSelected(Number(e.target.value)-1)}/>
+   <div className="cumulative-dates"><span>{date(days[0].date)}</span><span>{date(days.at(-1)!.date)}</span></div></>}
+  {positive.length>0&&<details className="spending-breakdown"><summary>Spending by category</summary><ul>{positive.slice(0,5).map(([category,amount])=><li key={category}>{category}<strong>{fmt.format(amount/100)}</strong></li>)}</ul></details>}
+ </article>;
 }
