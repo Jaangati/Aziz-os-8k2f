@@ -1,3 +1,4 @@
+import {activityTime,paymentLabel} from './money-details';
 import {useState,type ReactNode} from 'react';
 import {ArrowDownLeft,ArrowUpRight,Banknote,CalendarDays,ChevronDown,CreditCard,Download,Mail,MessageSquare,Receipt,Search} from 'lucide-react';
 import type {Entry} from '../lib/contracts';
@@ -31,7 +32,7 @@ export function MoneyActivity({transactions,receipts,period,currency,zone,onSele
   const d=entry.data;
   if(card&&d.card_last4!==card&&source?.data.card_last4!==card)return false;
   if(category&&d.category!==category)return false;
-  if(search&&![d.title,d.category,d.card_last4,d.reference,d.body,source?.data.body].join(' ').toLowerCase().includes(search))return false;
+  if(search&&![paymentLabel(entry),d.title,d.category,d.card_last4,d.reference,d.body,source?.data.body].join(' ').toLowerCase().includes(search))return false;
   const archived=['ignored','duplicate'].includes(d.status);
   if(filter==='all')return entry.kind==='transaction'||d.status==='pending';
   if(filter==='archived')return entry.kind==='receipt'&&archived;
@@ -42,6 +43,7 @@ export function MoneyActivity({transactions,receipts,period,currency,zone,onSele
  for(const row of visible.slice(0,limit)){const group=groups.get(row.day);if(group)group.push(row);else groups.set(row.day,[row]);}
  const reviewed=alertRows.filter(row=>row.entry.data.status==='pending').length;
  return <section className="money-activity" aria-label="Money activity">
+  <h2 id="money-activity-heading" tabIndex={-1}>Activity</h2>
   <div className="activity-controls">
    <label className="activity-search"><Search size={17}/><input aria-label="Search activity" placeholder="Search activity" value={query} onChange={e=>{setQuery(e.target.value);setLimit(24);}}/></label>
    <select aria-label="Filter activity" value={filter} onChange={e=>{setFilter(e.target.value);setLimit(24);}}>{filters.map(([id,label])=><option key={id} value={id}>{label}{id==='pending'&&reviewed?' ('+reviewed+')':''}</option>)}</select>
@@ -57,9 +59,10 @@ export function MoneyActivity({transactions,receipts,period,currency,zone,onSele
     const Icon=d.event_type==='cheque'?Banknote:incoming?ArrowDownLeft:d.card_last4?CreditCard:posted?ArrowUpRight:Receipt;
     const SourceIcon=source?.data.source==='gmail'?Mail:source?.data.source==='sms'?MessageSquare:Receipt;
     const status=posted?'Recorded':d.status==='pending'?'Needs review':d.status==='duplicate'?'Duplicate':d.status==='ignored'?'Ignored':d.bank_status==='failed'?'Failed / returned':'Bank notice';
-    return <button type="button" key={entry.id} className="activity-row-button" onClick={()=>onSelect(entry,source)}>
+    return <button type="button" key={entry.id} className="activity-row-button" data-tone={d.bank_status==='failed'?'failed':posted?(incoming?'income':'expense'):'notice'} onClick={()=>onSelect(entry,source)}>
      <span className="activity-icon"><Icon size={18}/></span>
-     <span className="activity-copy"><strong>{d.title}</strong><small>{[d.category,status!=='Recorded'?status:'',d.card_last4?'Card ••'+d.card_last4:''].filter(Boolean).join(' · ')}</small></span>
+     <span className="activity-copy"><strong>{paymentLabel(entry)}</strong><small>{[d.category,status!=='Recorded'?status:'',d.card_last4?'Card ••'+d.card_last4:''].filter(Boolean).join(' · ')}</small></span>
+     <time className="activity-time" title="Local time in your Atlas timezone">{activityTime(entry,source,zone)||'—'}</time>
      {source&&<span className="activity-origin" aria-label={sourceLabel(source)} title={sourceLabel(source)}><SourceIcon size={16}/></span>}
      <strong className="activity-row-amount">{d.amount_minor?((posted?incoming?'+':'−':'')+money.format(d.amount_minor/100)):'—'}</strong>
      <ChevronDown size={15} className="activity-arrow"/>
