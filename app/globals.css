@@ -302,11 +302,16 @@ h1,h2,h3,.money-snapshot strong,.cumulative-value strong,.briefing-cards strong{
 @keyframes atlas-reveal{from{opacity:0;translate:0 5px}to{opacity:1;translate:0 0}}
 @keyframes atlas-sheet-enter{from{opacity:.4;translate:12px 0}to{opacity:1;translate:0 0}}
 @keyframes atlas-overlay-enter{from{opacity:0}to{opacity:1}}
-.shell .atlas-screen{animation:atlas-reveal .22s ease-out}
-:is(.finance-backdrop,.modal-backdrop,.connection-editor-backdrop){animation:atlas-overlay-enter .16s ease-out}
-:is(.modal,.finance-dialog,.connection-editor){animation:atlas-reveal .2s ease-out}
-.activity-detail-backdrop .finance-dialog{animation:atlas-sheet-enter .22s ease-out}
-.shell .button:active{transform:translateY(1px)}
+:root {
+ --atlas-motion-quick:120ms;
+ --atlas-motion-panel:200ms;
+ --atlas-motion-ease:cubic-bezier(.2,.75,.25,1);
+}
+.shell .atlas-screen{animation:atlas-reveal var(--atlas-motion-panel) var(--atlas-motion-ease)}
+:is(.finance-backdrop,.modal-backdrop,.connection-editor-backdrop){animation:atlas-overlay-enter var(--atlas-motion-quick) ease-out}
+:is(.modal,.finance-dialog,.connection-editor){animation:atlas-reveal var(--atlas-motion-panel) var(--atlas-motion-ease)}
+.activity-detail-backdrop .finance-dialog{animation:atlas-sheet-enter var(--atlas-motion-panel) var(--atlas-motion-ease)}
+.shell .button:active:enabled{transform:translateY(1px)}
 .shell .briefing-iris .iris-core{animation-duration:32s}
 @media(max-width:940px) and (min-width:651px){.shell{grid-template-columns:178px minmax(0,1fr)}.shell .sidebar{width:178px}}
 @media(max-width:650px){
@@ -554,3 +559,56 @@ h1,h2,h3,.money-snapshot strong,.cumulative-value strong,.briefing-cards strong{
 .shell .content .empty :is(p,strong){margin:0}
 .shell .content .empty .button{margin:0}
 .shell .content .cumulative-plot{cursor:crosshair}
+
+/* Shared interaction states and responsive reading rhythm. */
+:root{
+ --atlas-text-danger:#862f36;--atlas-pale-danger:#fbeef0;--atlas-edge-danger:#ebc9cb;
+ --atlas-text-warning:#674416;--atlas-pale-warning:#fcf4e8;--atlas-edge-warning:#ebd6b7;
+ --atlas-elevation-overlay:0 16px 42px #17131d24;
+}
+.shell .atlas-screen :is(button,a),.shell .grouped-navigation button{
+ transition:background-color var(--atlas-motion-quick) ease,color var(--atlas-motion-quick) ease,border-color var(--atlas-motion-quick) ease;
+}
+.shell .atlas-screen :is(.wallet-front,.money-overview-body,.money-activity){
+ animation-duration:var(--atlas-motion-panel);animation-timing-function:var(--atlas-motion-ease)
+}
+.shell .content .notice{
+ background:var(--atlas-pale-warning);border:1px solid var(--atlas-edge-warning);
+ color:var(--atlas-text-warning);border-radius:var(--atlas-control-radius);padding:9px 12px;margin-bottom:var(--atlas-gap)
+}
+.shell .content .notice p{margin:2px 0 0;color:inherit}
+.shell .banner{
+ border-radius:var(--atlas-control-radius);background:var(--atlas-graphite);
+ border:1px solid var(--atlas-graphite);color:white;box-shadow:var(--atlas-elevation-overlay)
+}
+.shell .banner.error{
+ background:var(--atlas-pale-danger);border-color:var(--atlas-edge-danger);color:var(--atlas-text-danger)
+}
+.shell .banner button{color:inherit}
+.shell .notification-panel{
+ background:var(--atlas-surface);border:1px solid var(--atlas-hairline);border-radius:var(--atlas-radius);
+ color:var(--atlas-graphite);box-shadow:var(--atlas-elevation-overlay)
+}
+.shell .notification-panel :is(button,p,small){color:var(--atlas-secondary)}
+.shell .notification-panel .notification-item{border-color:var(--atlas-hairline)}
+.shell .content :is(.briefing-cards,.money-snapshot,.cumulative-value,.guardian-metrics) strong,
+.shell .content :is(.activity-amount,.finance-movement b){font-variant-numeric:tabular-nums}
+.shell .content :is(.briefing-next h2,.briefing-cash strong,.record-card h3){overflow-wrap:anywhere}
+.shell .content .record-card :is(h3,p){line-height:1.4}
+.shell .content .record-card .card-footer{margin-top:auto}
+.shell .content .section-tools>label{min-width:0}
+.shell .briefing-layout .briefing-iris{margin-bottom:0}
+.shell .content .money-chart header{align-items:center}
+.shell .content .cumulative-dates{padding-top:4px}
+@media(max-width:650px){
+ .shell .content :is(.page-head,.briefing-heading,.guardian-head,.connections-head,.finance-heading){margin-bottom:var(--atlas-gap)}
+ .shell .content :is(.finance-toolbar,.section-tools){flex-wrap:wrap;row-gap:8px}
+ .shell .content .activity-row-button{min-height:48px}
+ .shell .sidebar:not(.open){visibility:hidden}
+ .shell .atlas-mobile-nav button{min-height:44px;border-radius:var(--atlas-control-radius)}
+ .shell .banner{bottom:calc(64px + env(safe-area-inset-bottom));max-width:calc(100vw - 24px)}
+}
+@media(max-width:380px){
+ .shell .content .finance-module .snapshot-facts{grid-template-columns:1fr}
+ .shell .content .finance-module .snapshot-facts article+article{border-left:0;border-top:1px solid var(--atlas-hairline)}
+}
