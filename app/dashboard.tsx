@@ -26,13 +26,43 @@ function Empty({title,body,action}: {title:string;body:string;action?:()=>void})
 function Panel({title,sub,action,children}:{title:string;sub?:string;action?:ReactNode;children:ReactNode}){return <section className="panel"><div className="panel-header"><div><h2>{title}</h2>{sub&&<small>{sub}</small>}</div>{action}</div><div className="panel-body">{children}</div></section>}
 function Metric({label,value,sub,icon:Icon}:{label:string;value:ReactNode;sub:string;icon:any}){return <div className="metric"><div className="metric-label">{label}<Icon size={15}/></div><strong>{value}</strong><small>{sub}</small></div>}
 
+type AtlasLocation = {page:string; moneyTab:string};
+
+function readAtlasLocation():AtlasLocation{
+ const params=new URLSearchParams(window.location.search);
+ const requested=params.get('page');
+ const page=sections.find(([id])=>id===requested)?.[0]??'today';
+ const tab=params.get('tab');
+ return {page,moneyTab:page==='receipt'?'review':page==='transaction'&&(tab==='ledger'||tab==='connection')?tab:'overview'};
+}
+
 export default function Dashboard(){
- const [state,setState]=useState<AtlasState|null>(null),[page,setPage]=useState('today'),[search,setSearch]=useState(''),[filter,setFilter]=useState('Open'),[mobile,setMobile]=useState(false),[notices,setNotices]=useState(false),[modal,setModal]=useState<{kind:Kind;entry?:Entry}|null>(null),[remove,setRemove]=useState<Entry|null>(null),[banner,setBanner]=useState<{text:string;error?:boolean}|null>(null),[busy,setBusy]=useState(false),[loadError,setLoadError]=useState(''),[capture,setCapture]=useState(''),[uploading,setUploading]=useState(false);
+ const [state,setState]=useState<AtlasState|null>(null),[location,setLocation]=useState<AtlasLocation>({page:'today',moneyTab:'overview'}),[search,setSearch]=useState(''),[filter,setFilter]=useState('Open'),[mobile,setMobile]=useState(false),[notices,setNotices]=useState(false),[modal,setModal]=useState<{kind:Kind;entry?:Entry}|null>(null),[remove,setRemove]=useState<Entry|null>(null),[banner,setBanner]=useState<{text:string;error?:boolean}|null>(null),[busy,setBusy]=useState(false),[loadError,setLoadError]=useState(''),[capture,setCapture]=useState(''),[uploading,setUploading]=useState(false);
  const latest=useRef(0);const notice=(text:string,error=false)=>setBanner({text,error});
  const reload=useCallback(async()=>{const generation=++latest.current;try{const result=await api('state');if(generation===latest.current){setState(result);setLoadError('');}}catch(error){if(generation===latest.current)setLoadError((error as Error).message);}},[]);
  useEffect(()=>{reload();const timer=setInterval(()=>{if(document.visibilityState==='visible')reload();},30000);const onFocus=()=>reload();window.addEventListener('focus',onFocus);return()=>{clearInterval(timer);window.removeEventListener('focus',onFocus);};},[reload]);
  useEffect(()=>{if(!banner)return;const timer=setTimeout(()=>setBanner(null),7000);return()=>clearTimeout(timer);},[banner]);
- const navigate=(next:string)=>{setPage(next);setSearch('');setMobile(false);setNotices(false);window.scrollTo({top:0});};
+ const {page,moneyTab}=location;
+ useEffect(()=>{
+  function syncLocation(){
+   setLocation(readAtlasLocation());
+   setSearch('');setMobile(false);setNotices(false);
+  }
+  syncLocation();
+  window.addEventListener('popstate',syncLocation);
+  return ()=>window.removeEventListener('popstate',syncLocation);
+ },[]);
+ function navigate(next:string,tab='overview'){
+  const url=new URL(window.location.href);
+  if(next==='today')url.searchParams.delete('page');
+  else url.searchParams.set('page',next);
+  if(next==='transaction'&&tab!=='overview')url.searchParams.set('tab',tab);
+  else url.searchParams.delete('tab');
+  if(url.href!==window.location.href)window.history.pushState(window.history.state,'',url);
+  setLocation(readAtlasLocation());
+  if(next!==page){setSearch('');window.scrollTo({top:0});}
+  setMobile(false);setNotices(false);
+ }
  async function act(action:string,payload:unknown,message='Saved'){setBusy(true);try{await api('action',{action,payload});await reload();notice(message);return true;}catch(error){notice((error as Error).message,true);return false;}finally{setBusy(false);}}
  async function toggle(entry:Entry){await act('save',{...entry,data:{...entry.data,status:entry.data.status==='done'?'open':'done'}},entry.data.status==='done'?'Task reopened':'Task completed');}
  async function quickCapture(event:FormEvent){event.preventDefault();if(!capture.trim())return;const ok=await act('save',{kind:'task',data:{...defaults.task,title:capture.trim()}},'Task captured');if(ok)setCapture('');}
@@ -73,7 +103,7 @@ export default function Dashboard(){
  {page==='guardian'&&<Guardian state={state} api={api} reload={reload} notify={notice}/>}
  {page==='person'&&<Connections state={state} api={api} reload={reload} notify={notice}/>}
  {['task','memory','goal','note'].includes(page)&&<><div className="section-tools"><label className="search"><Search size={15}/><input aria-label="Search records" placeholder={'Search '+(sections.find(s=>s[0]===page)?.[1].toLowerCase())+'…'} value={search} onChange={e=>setSearch(e.target.value)}/></label>{page==='task'&&<div className="tabs">{['Open','Done','All'].map(label=><button className={filter===label?'active':''} aria-pressed={filter===label} key={label} onClick={()=>setFilter(label)}>{label}</button>)}</div>}<small>{filtered.length} record{filtered.length===1?'':'s'}</small></div>{page==='task'?<Panel title="Tasks" sub={'Dates shown in '+zone}>{filtered.length?filtered.map(taskRow):<Empty title={search?'No matching tasks':'No tasks'} body="Add a task or change the filter."/>}{quickForm}</Panel>:<div className="cards">{filtered.length?filtered.map(e=><article className="record-card" key={e.id}><div className="card-top"><span className="record-icon">{e.kind==='goal'?<Target size={19}/>:e.kind==='memory'?<Brain size={19}/>:<BookOpen size={19}/>}</span><span className="pill">{e.data.category||e.data.area||e.data.relationship||singular[e.kind]}</span>{e.kind==='memory'&&<span className={'pill '+(e.data.source==='owner'?'green':'wine')}>{e.data.source==='owner'?'You confirmed':'AI inference'}</span>}</div><h3>{e.data.title}</h3><p>{e.data.body}</p>{e.kind==='person'&&<div className="row-meta long-text">{e.data.email&&<span>{e.data.email}</span>}{e.data.phone&&<span>{e.data.phone}</span>}</div>}{e.kind==='goal'&&<><div className="progress"><span style={{width:e.data.progress+'%'}}/></div><div className="card-top"><small>{e.data.progress}% complete</small><small>{e.data.due?dateLabel(e.data.due,zone,false):'No deadline'}</small></div></>}<div className="card-footer"><small>Updated {dateLabel(e.updated_at,zone,false)}</small><div className="card-actions"><button aria-label={'Edit '+e.data.title} onClick={()=>setModal({kind:e.kind,entry:e})}><Pencil/></button><button aria-label={'Delete '+e.data.title} onClick={()=>setRemove(e)}><Trash2/></button></div></div></article>):<div className="panel full-span"><Empty title={search?'No matching records':'No records'} body="Add a record to get started." action={()=>setModal({kind:page as Kind})}/></div>}</div>}</>}
- {['transaction','receipt'].includes(page)&&<Finance state={state} api={api} reload={reload} notify={notice} initialTab={page==='receipt'?'review':'overview'} navigate={navigate}/>}
+ {['transaction','receipt'].includes(page)&&<Finance state={state} api={api} reload={reload} notify={notice} initialTab={moneyTab} onTabChange={tab=>navigate('transaction',tab)} navigate={navigate}/>}
  {page==='document'&&<><div className="dropzone"><UploadCloud size={28}/><h3>{uploading?'Saving your document…':'Upload documents'}</h3><p>PDF, JPG, PNG, TXT and DOCX · up to 10 MB each</p><label className="button secondary upload-label"><Plus size={14}/>{uploading?'Uploading…':'Choose a document'}<input className="sr-only" type="file" disabled={uploading} accept=".pdf,.jpg,.jpeg,.png,.txt,.docx" onChange={e=>{const file=e.target.files?.[0];if(file)upload(file);e.target.value='';}}/></label></div><div className="cards">{entries.filter(e=>e.kind==='document').map(e=><article className="record-card" key={e.id}><span className="record-icon"><FileText size={19}/></span><h3>{e.data.title}</h3><p>{e.data.deletion_pending?'Deletion pending · retry Delete to finish cleanup':(e.data.size/1024/1024).toFixed(2)+' MB · private file'}</p><div className="card-footer"><small>{dateLabel(e.created_at,zone,false)}</small><div className="card-actions"><button aria-label={'Download '+e.data.title} onClick={()=>download(e)}><Download/></button><button aria-label={'Delete '+e.data.title} onClick={()=>setRemove(e)}><Trash2/></button></div></div></article>)}</div></>}
  {page==='assistant'&&<Assistant state={state} reload={reload} notify={notice} onSaveNote={(answer:string)=>setModal({kind:'note',entry:{id:'',kind:'note',version:0,created_at:'',updated_at:'',data:{title:'Assistant reflection',body:answer,category:'Review'}}})}/>}
  {page==='settings'&&<div className="settings-grid"><div className="stack"><PreferencesForm settings={state.settings} save={async(s)=>{await act('settings',s,'Preferences saved');}} busy={busy}/>{import.meta.env.VITE_ATLAS_PAGES==='true'&&<BackupPanel reload={reload} notify={notice}/>}<Panel title="Data export"><p className="quiet">Download your records, preferences, and activity as JSON. Document files are downloaded individually from Documents.</p><button className="button secondary" style={{marginTop:18}} onClick={exportData}><Download size={14}/>Export my records</button></Panel></div><div className="stack"><Panel title="Connections" sub="Live connection status"><Engine title="Database" body={loadError?'Last refresh failed; displayed records may be stale':'Records and documents'} status={loadError?'Refresh failed':'Connected'} good={!loadError}/><Engine title="Routine coordinator" body={state.heartbeat?'Last check '+dateLabel(state.heartbeat,zone):'Waiting for first check'} status={state.settings.paused?'Paused':engineHealthy?'Online':'Check needed'} good={engineHealthy&&!state.settings.paused}/><Engine title="AI reasoning" body="Planner, financial analyst and memory reviewer" status={state.capabilities.ai?'Configured':'Not connected'} good={state.capabilities.ai}/><Engine title="Phone notifications" body="Briefings currently appear inside Atlas" status="Not connected"/><Engine title="Bank & social accounts" body="No account access has been granted" status="Not connected"/><Engine title="Device control" body="No device commands are enabled" status="Not connected"/></Panel><Panel title="Recent activity">{state.activity.length?state.activity.slice(0,8).map(a=><div className="activity-row" key={a.id}><span>{a.action}</span><small>{dateLabel(a.created_at,zone)}</small></div>):<p className="quiet">No activity.</p>}</Panel></div></div>}

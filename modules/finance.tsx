@@ -12,10 +12,11 @@ import{MoneyActivity}from'./money-activity';
 import{MoneyCharts}from'./money-charts';
 import{MoneySnapshot}from'./money-snapshot';
 import{MoneyCards}from'./money-cards';
-type Props={state:AtlasState;api:(path:string,body?:any)=>Promise<any>;reload:()=>Promise<void>;notify:(message:string,error?:boolean)=>void;initialTab:string;navigate:(page:string)=>void};
-export default function Finance({state,api,reload,notify,initialTab,navigate}:Props){
- const[tab,setTab]=useState(initialTab==='review'?'ledger':initialTab),[selectedCard,setSelectedCard]=useState(''),[currency,setCurrency]=useState(state.settings.currency),[period,setPeriod]=useState(monthKey(new Date(),state.settings.timezone)),[editor,setEditor]=useState<any>(null),[detail,setDetail]=useState<{entry:Entry;source?:Entry}|null>(null),[busy,setBusy]=useState(false),[paste,setPaste]=useState(''),[remove,setRemove]=useState<Entry|null>(null),[sync,setSync]=useState<any>(null),[script,setScript]=useState(''),[setup,setSetup]=useState(false),[auto,setAuto]=useState(false),[budgetEdit,setBudgetEdit]=useState(false);
- useEffect(()=>setTab(initialTab==='review'?'ledger':initialTab),[initialTab]);
+type Props={state:AtlasState;api:(path:string,body?:any)=>Promise<any>;reload:()=>Promise<void>;notify:(message:string,error?:boolean)=>void;initialTab:string;onTabChange:(tab:string)=>void;navigate:(page:string)=>void};
+export default function Finance({state,api,reload,notify,initialTab,onTabChange:setTab,navigate}:Props){
+ const tab=initialTab==='review'?'ledger':initialTab;
+ const [selectedCard,setSelectedCard]=useState(''),[currency,setCurrency]=useState(state.settings.currency),[period,setPeriod]=useState(monthKey(new Date(),state.settings.timezone)),[editor,setEditor]=useState<any>(null),[detail,setDetail]=useState<{entry:Entry;source?:Entry}|null>(null),[busy,setBusy]=useState(false),[paste,setPaste]=useState(''),[remove,setRemove]=useState<Entry|null>(null),[sync,setSync]=useState<any>(null),[script,setScript]=useState(''),[setup,setSetup]=useState(false),[auto,setAuto]=useState(false),[budgetEdit,setBudgetEdit]=useState(false);
+
  const summary=summarizeFinance(state.entries,currency,period),series=dailySeries(state.entries,currency,period),allReceipts=state.entries.filter((e:any)=>e.kind==='receipt'),pending=allReceipts.filter((e:any)=>e.data.status==='pending');const rows=[...summary.rows].sort((a,b)=>b.data.date.localeCompare(a.data.date));
  const cash=(v:number)=>new Intl.NumberFormat('en',{style:'currency',currency,maximumFractionDigits:2}).format(v/100);const budget=currency===state.settings.currency?state.settings.monthly_budget_minor:0;const today=new Intl.DateTimeFormat('en-CA',{timeZone:state.settings.timezone}).format(new Date());
  const loadSync=async()=>{try{const status=await api('finance',{action:'status'});setSync(status);setAuto(status.auto_import||false);}catch(e){setSync({error:(e as Error).message});}};useEffect(()=>{loadSync();},[]);
