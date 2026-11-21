@@ -260,3 +260,30 @@
 .wallet-controls button{display:grid;place-items:center;min-width:34px;min-height:34px;border:1px solid #ded6e8;border-radius:50%;background:#f6f1fb;color:#53366e;cursor:pointer}
 .wallet-controls button:hover{background:#eee2f7}
 .wallet-front{animation:atlas-reveal .22s ease-out}
+
+/* Use the supplied card proportions and let the next face show through the stack. */
+.wallet-credit{--wallet-art:url('../assets/cbq-credit.webp');--wallet-ink:#263666}
+.wallet-debit{--wallet-art:url('../assets/cbq-debit.webp');--wallet-ink:#920530}
+.atlas-wallet .wallet-stack{max-width:360px}
+.atlas-wallet.compact .wallet-stack{max-width:276px}
+.atlas-wallet .wallet-stack .wallet-front{
+ aspect-ratio:824/520;
+ display:flex;
+ flex-direction:column;
+ align-items:stretch;
+ justify-content:space-between;
+ gap:6px;
+ padding:5% 7%;
+ border-radius:clamp(8px,1.2vw,15px);
+ background:var(--wallet-art,none) center/cover no-repeat var(--wallet-ink,#282135);
+ border:1px solid #ffffff29;
+ text-align:left;
+ color:#fff;
+}
+.atlas-wallet .wallet-credit::after,.atlas-wallet .wallet-debit::after{content:none}
+.atlas-wallet .wallet-layer{background:var(--wallet-art,none) center top/cover no-repeat var(--wallet-ink,#746684);border-color:#ffffff38;border-radius:14px}
+.atlas-wallet .wallet-card-top{align-self:flex-start;font-weight:650;text-shadow:0 1px 3px #0009}
+.atlas-wallet .wallet-debit .wallet-card-top{opacity:0}
+.atlas-wallet .wallet-identity{display:grid;gap:3px;align-self:flex-start;text-shadow:0 1px 4px #000b}
+.atlas-wallet .wallet-card-pan{font-size:clamp(13px,1.3vw,19px);line-height:1.1}
+.atlas-wallet .wallet-holder{font-size:clamp(9px,.85vw,12px);font-weight:650;letter-spacing:.08em;text-transform:uppercase}

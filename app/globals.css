@@ -359,3 +359,150 @@ h1,h2,h3,.money-snapshot strong,.cumulative-value strong,.briefing-cards strong{
  .atlas-orb-brand .atlas-brand>svg{width:49px;height:49px}
  .atlas-orb-brand .atlas-brand>span{font-size:15px}
 }
+
+/* Shared Atlas density and components. Long user content can still grow naturally. */
+.shell{
+ --atlas-gap:12px;--atlas-pad:15px;--atlas-control:35px;--atlas-control-radius:10px;
+ --atlas-icon:34px;--atlas-icon-radius:9px;
+ --atlas-wash:#f6f4f8;--atlas-selected:#eee7f7;--atlas-selected-ink:#422a62;
+ --atlas-hairline:#e4dfe8;
+}
+.shell .content{padding:clamp(15px,2vw,24px) clamp(16px,2.6vw,30px) 18px}
+.shell .topbar{height:48px}
+.shell .footer-note{margin-top:11px;font-size:10px;line-height:1.2}
+.shell .sidebar>.brand{padding-bottom:12px}
+.shell .grouped-navigation .nav-item{min-height:34px}
+.shell .page-head,.shell .briefing-heading,.shell .content :is(.guardian-head,.connections-head),.shell .finance-heading{
+ min-height:0;margin:0 0 13px;align-items:center;gap:10px;flex-wrap:wrap
+}
+.shell .content :is(.page-head,.briefing-heading,.guardian-head,.connections-head,.finance-heading) h1{
+ font-family:"Host Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+ font-size:clamp(25px,2.5vw,34px);font-weight:670;line-height:1.12;letter-spacing:-.045em;margin:0
+}
+.shell .briefing-heading time{display:block;margin-bottom:4px;font-size:12px}
+.shell .content :is(.page-head,.guardian-head,.connections-head,.finance-heading) p{margin:4px 0 0;color:var(--atlas-muted);font-size:12px;line-height:1.45}
+.shell .content :is(.panel,.finance-panel,.guardian-panel,.network-map,.record-card,.dropzone,.connection-card,.connection-profile,.briefing-cards article){
+ border-radius:var(--atlas-radius);border:1px solid var(--atlas-hairline);box-shadow:0 1px 2px #17131d08
+}
+.shell .content .panel-header{min-height:0;padding:12px var(--atlas-pad) 9px;gap:8px}
+.shell .content .panel-header h2{font-size:15px;font-weight:650;line-height:1.25}
+.shell .content .panel-header small{font-size:12px;line-height:1.4}
+.shell .content .panel-body{padding:0 var(--atlas-pad) var(--atlas-pad)}
+.shell .content :is(.guardian-panel,.connection-profile,.finance-panel,.record-card){padding:var(--atlas-pad)}
+.shell .content .record-card{min-height:125px}
+.shell .content .record-card h3{margin-top:8px}
+.shell .content :is(.record-icon,.activity-icon,.finance-movement-icon,.contact-avatar:not(.large)){
+ width:var(--atlas-icon);height:var(--atlas-icon);border-radius:var(--atlas-icon-radius);background:var(--atlas-wash);
+ color:#503b67;border:1px solid #eae4ef;box-shadow:none
+}
+.shell .content :is(.record-icon,.activity-icon,.finance-movement-icon) svg{width:17px;height:17px;stroke-width:1.75}
+.shell .content :is(.stack,.cards,.grid-main,.settings-grid,.guardian-grid,.connections-grid,.money-overview-body,.money-side){gap:var(--atlas-gap)}
+.shell .content .button{min-height:var(--atlas-control);padding:7px 12px;font-size:12px;line-height:1.3}
+.shell .content .button:disabled{opacity:.58;cursor:not-allowed}
+.shell .content :is(.connections-tabs,.finance-tabs){display:inline-flex;max-width:100%;flex-wrap:wrap;align-items:center;gap:3px;padding:3px;border:1px solid #e5e1e8;border-radius:13px;background:var(--atlas-wash)}
+.shell .content :is(.connections-tabs,.finance-tabs) button{
+ min-height:31px;padding:5px 10px;gap:6px;background:transparent;border:1px solid transparent;border-radius:9px;color:#49444e;font-size:12px;line-height:1.25
+}
+.shell .content :is(.connections-tabs,.finance-tabs) button.active{
+ background:var(--atlas-selected);border-color:#e1d5ed;color:var(--atlas-selected-ink);box-shadow:none;font-weight:650
+}
+.shell .content :is(.connections-tabs,.finance-tabs) button:hover:not(.active){background:#ece8f1}
+.shell .content :is(.connections-tabs,.finance-tabs) svg{width:15px;height:15px;stroke-width:1.75}
+.shell .content .connections-tabs{margin-bottom:10px}
+.shell .content :is(.connection-tools select,.guardian-head select,.finance-period input,.finance-period select,.activity-controls select,.activity-search,.connection-search){
+ min-height:var(--atlas-control);border-radius:var(--atlas-control-radius);border-color:#ded9e5;background:#fcfcfd;color:#242127
+}
+.shell .content .connection-tools{gap:7px;margin-bottom:10px}
+.shell .content .connection-search{padding-inline:10px}
+.shell .content .connection-search input{color:#242127;padding-block:7px!important;font-size:13px}
+.shell .content :is(input,textarea)::placeholder{color:#685f70;opacity:1}
+.shell .content .empty{padding:10px 8px}
+.shell .content .dropzone{padding:14px;margin-bottom:12px}
+.shell .content .dropzone svg{margin-bottom:5px}
+.shell .content .dropzone p{margin:4px 0 8px}
+.shell .content .section-tools{margin-bottom:10px}
+.shell .content .task-row{padding-block:8px}
+.shell .content .capture input{min-height:34px}
+.shell .content .finance-toolbar{margin-bottom:10px;padding-bottom:7px}
+.shell .content .money-snapshot{margin-bottom:12px}
+.shell .content .money-snapshot :is(article,.snapshot-facts){min-height:0}
+.shell .content .money-snapshot .snapshot-balance{padding:12px 15px}
+.shell .content .finance-module .money-snapshot article strong{margin:6px 0 2px;font-size:clamp(17px,2vw,25px)}
+.shell .content .cumulative-plot{height:108px}
+.shell .content .finance-movement{min-height:0;padding-block:7px}
+.shell .content .activity-row-button{min-height:47px;padding-block:5px}
+.shell .content .activity-day{margin-bottom:10px}
+.shell .content .atlas-wallet.compact .wallet-front{min-height:87px}
+.shell .content .wallet-controls{margin-top:7px}
+.shell .briefing-layout{gap:9px;margin-bottom:10px;grid-auto-rows:auto}
+.shell .briefing-layout .briefing-iris{min-height:228px;border-radius:var(--atlas-radius)}
+.shell .briefing-layout .briefing-cards article{padding:11px 13px;gap:4px}
+.shell .briefing-layout .briefing-cash{background:#fff;color:#141314;border-color:var(--atlas-hairline)}
+.shell .content .briefing-cash :is(span,strong,button){color:#141314}
+.shell .content .briefing-cash small{color:#5c5c5c}
+.shell .briefing-layout .briefing-cash strong{font-size:clamp(20px,2.6vw,32px)}
+.shell .briefing-layout .briefing-next h2{font-size:18px}
+.shell .briefing-layout .briefing-spent strong{font-size:18px}
+.today-empty{font-size:13px;color:#5c5c5c;margin:0 0 8px}
+.atlas-inline-status{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:36px;padding:7px 10px;background:#f5eff9;border:1px solid #e7dbef;border-radius:10px;color:#4f3866;font-size:12px}
+.atlas-inline-status .text-button{margin-left:auto;color:#4f3866}
+.assistant-workspace{display:grid;gap:10px}
+.assistant-modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.assistant-modes button{display:flex;gap:8px;align-items:center;border:1px solid #e5e0e8;border-radius:10px;padding:7px;min-width:0;background:#fbfafc;color:#252128;text-align:left;font:inherit;cursor:pointer}
+.assistant-modes button[aria-pressed=true]{border-color:#cfc0de;background:#f1eafa;color:#422a62}
+.assistant-modes :is(strong,small){display:block}
+.assistant-modes strong{font-size:12px}
+.assistant-modes small{font-size:11px}
+.shell .assistant-compose{padding:9px 0 0}
+.shell .assistant-compose textarea{background:#fcfcfd;border:1px solid #ded9e5;color:#171319;border-radius:10px;min-height:90px;padding:9px;font-size:13px}
+.shell .compose-footer{align-items:center;gap:8px;margin-top:6px}
+.compose-footer>span{color:#5c5c5c;font-size:12px}
+.assistant-history summary{list-style:none;display:flex;align-items:center;gap:7px;min-height:43px;padding:8px 13px;font-weight:650;cursor:pointer}
+.assistant-history summary span{margin-left:auto;color:#5c5c5c;font-size:12px;font-weight:450}
+.assistant-history[open] summary svg:last-child{transform:rotate(90deg)}
+.shell .content .guardian-metrics{gap:8px;margin:0 0 10px;grid-template-columns:minmax(0,1.3fr) repeat(2,minmax(0,1fr))}
+.shell .content .guardian-metrics article,.shell .content .guardian-metrics .guardian-safe{
+ padding:12px var(--atlas-pad);min-height:0;border-radius:var(--atlas-radius);border:1px solid var(--atlas-hairline);background:#fff;color:#232126
+}
+.shell .content .guardian-metrics .guardian-safe{background:#f5eff9}
+.shell .content .guardian-metrics small{display:flex;gap:6px;align-items:center;color:#554962;font-size:12px;letter-spacing:0;text-transform:none}
+.shell .content .guardian-metrics strong{font-size:clamp(17px,2.2vw,27px);margin:7px 0 3px;color:#221a2b}
+.shell .content .guardian-metrics p{margin:3px 0;color:#5c5c5c;font-size:12px}
+.shell .content .guardian-safe button,.shell .content .guardian-panel a{color:#533a70}
+.shell .content .guardian-panel{margin-bottom:10px}
+.shell .content .guardian-panel h2{margin-bottom:6px}
+.shell .content .guardian-panel p{line-height:1.45;margin:4px 0}
+.shell .content .guardian-panel svg:not(.lucide){height:112px}
+.shell .content .guardian-panel svg polyline{stroke:#7658a3}
+.shell .content .guardian-result,.shell .content .guardian-alert{color:#4c345f;background:#f5eff9;border-color:#e5dbed}
+.shell .content .network-map{
+ background:#faf8fc;color:#3a2d46;min-height:0;overflow:hidden
+}
+.shell .content .network-map .network-svg{display:block;min-height:0;width:100%;height:clamp(190px,40vh,330px)}
+.shell .content .network-map :is(.map-label,.map-legend){color:#554763;font-size:11px;letter-spacing:0;padding:8px 12px}
+.shell .content .map-legend i{background:#8f75ae}
+.shell .content .map-legend i.target{background:#665574}
+.shell .content .network-map text,.shell .content .network-map :is(.node-company,.center-name){fill:#3e304c}
+.shell .content .network-map .map-orbit{stroke:#857392;stroke-opacity:.38}
+.shell .content .network-map line{stroke:#776189;stroke-opacity:.58;animation:none}
+.shell .content .network-node circle{fill:#f2ebf7;stroke:#8d74a4}
+.shell .content .network-node.selected circle,.shell .content .network-map g[role=button]:focus circle{fill:#e3d5ef;stroke:#654982}
+.shell .content .network-node.target circle{fill:#efeaf3;stroke:#726180}
+.shell .content .network-map .map-empty{color:#4c4058}
+@media(max-width:850px){
+ .shell .briefing-layout .briefing-iris{min-height:199px}
+ .shell .content .guardian-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .shell .content .guardian-safe{grid-column:1/-1}
+}
+@media(max-width:650px){
+ .shell .content{padding:13px 13px calc(70px + env(safe-area-inset-bottom))}
+ .shell .topbar{height:44px}
+ .shell .content .button{min-height:40px}
+ .shell .content :is(.connections-tabs,.finance-tabs) button{min-height:36px}
+ .shell .briefing-layout .briefing-iris{min-height:162px}
+ .shell .content .briefing-layout .briefing-cards article{padding:9px}
+ .assistant-modes{grid-template-columns:1fr}
+ .assistant-modes button{min-height:42px}
+ .assistant-modes small{display:none}
+ .shell .content .network-map .network-svg{height:clamp(180px,37vh,248px)}
+}
