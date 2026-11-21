@@ -210,3 +210,152 @@ body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
  .atlas-mobile-nav button[aria-current=page]{background:#e6e3dc;color:#222320;font-weight:700}
 }
 .shell{backdrop-filter:none}
+
+/* Approved Atlas system: paper workspace, restrained graphite, shared controls. */
+:root{
+ --atlas-base:#fcfcfd;--atlas-subtle:#f4f3f4;--atlas-text:#141314;
+ --atlas-secondary:#454545;--atlas-muted:#5c5c5c;--atlas-border:#ddd;
+ --atlas-primary:#111113;--atlas-focus:#436453;--atlas-radius:16px;
+ --ink:var(--atlas-text);--paper:var(--atlas-base);--line:var(--atlas-border);
+ --muted:var(--atlas-muted);--wine:var(--atlas-primary);--soft:var(--atlas-subtle);
+ color-scheme:light;
+}
+html,body{background:var(--atlas-base);color:var(--atlas-text)}
+body{font-family:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px}
+h1,h2,h3,.money-snapshot strong,.cumulative-value strong,.briefing-cards strong{font-family:"Host Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif}
+.shell{
+ --workspace:var(--atlas-base);--surface:#fff;--surface-alt:var(--atlas-subtle);
+ --surface-edge:var(--atlas-border);--text-main:var(--atlas-text);--text-muted:var(--atlas-muted);
+ --card-shadow:0 1px 3px #1814180a;--card-radius:var(--atlas-radius);
+ grid-template-columns:218px minmax(0,1fr);gap:0;padding:0;background:var(--atlas-base)
+}
+.shell .main{border-radius:0}
+.shell .sidebar{width:218px;top:0;height:100dvh;margin:0;padding:22px 13px 12px;border-radius:0;border:0;border-right:1px solid #e5e3e6;background:#f7f6f7;color:#454545;box-shadow:none}
+.shell .sidebar>.brand{padding:0 8px 16px}
+.shell .sidebar .atlas-brand,.atlas-login .atlas-brand{color:#171719}
+.shell .sidebar .atlas-brand>svg,.atlas-login .atlas-brand>svg{background:#171719;color:#fff;padding:5px;border-radius:10px;width:34px;height:34px}
+.shell .sidebar .atlas-brand small,.atlas-login .atlas-brand small{display:none}
+.shell .sidebar .atlas-brand>span,.atlas-login .atlas-brand>span{letter-spacing:-.045em;font-weight:680}
+.shell .grouped-navigation .nav-item{font-size:13px;min-height:37px;border-radius:9px}
+.shell .grouped-navigation .nav-item:not(.active){color:#414145}
+.shell .grouped-navigation .nav-item:not(.active):hover{color:#141314;background:#efedef}
+.shell .grouped-navigation .nav-item.active,.shell .grouped-navigation .nav-item.active:hover{background:#e8e6e9;color:#161617;font-weight:650}
+.shell .grouped-navigation .nav-item.active svg{color:#29282b}
+.shell .navigation-modules{border:0;margin-left:0;padding-left:0}
+.shell .navigation-group-heading{color:#5c5c5c;font-size:10px;letter-spacing:.06em;padding-top:13px}
+.shell .sidebar-bottom{border-color:#e5e3e6}
+.shell .owner strong,.shell .owner small,.shell .sidebar-bottom .icon-button{color:#4d4d50}
+.shell .avatar{background:#e7e5e8;color:#333237}
+.shell .topbar{height:52px;background:#fcfcfdf5;border-color:#e8e6e8;border-radius:0;padding-inline:clamp(16px,3vw,32px)}
+.shell .content{max-width:1200px;padding:clamp(16px,3vw,32px)}
+.shell .page-head,.shell .briefing-heading{margin-bottom:20px}
+.shell .page-head h1,.shell .briefing-heading h1{font-size:clamp(28px,3vw,39px);letter-spacing:-.045em}
+.shell .page-head .eyebrow{font-size:10px;color:#5c5c5c}
+.shell .button,.atlas-login .button,.finance-backdrop .finance-dialog .button,.connection-editor .button{
+ border-radius:99px;font-weight:620;min-height:38px;background:#111113;border-color:#111113;color:#fcfcfd;box-shadow:none
+}
+.shell .button:hover,.atlas-login .button:hover,.finance-backdrop .finance-dialog .button:hover{background:#333336;border-color:#333336;color:#fff}
+.shell .button.secondary,.atlas-login .button.secondary,.finance-backdrop .finance-dialog .button.secondary{background:#fcfcfd;border-color:#d6d4d6;color:#141314}
+.shell .button.secondary:hover,.finance-backdrop .finance-dialog .button.secondary:hover{background:#efedef;color:#141314}
+.shell .button.danger{background:#793e37;border-color:#793e37;color:#fff}
+.shell .icon-button{color:#454545;border-radius:9px}
+.shell .icon-button:hover{background:#efedef;color:#141314}
+.shell :is(.field input,.field textarea,.field select,.search,.capture,.connection-search),.atlas-login :is(input,textarea),.modal :is(input,textarea,select),.connection-editor :is(input,textarea,select){
+ background:#fcfcfd;border-color:#d6d4d6;color:#141314;color-scheme:light;border-radius:9px
+}
+:is(.shell,.atlas-login,.modal,.finance-dialog,.connection-editor) :is(button,a,input,textarea,select,summary):focus-visible{
+ outline:2px solid var(--atlas-focus);outline-offset:3px
+}
+.shell .content :is(.panel,.record-card,.dropzone,.money-chart,.finance-panel,.guardian-panel,.connection-card,.connection-profile){
+ border-radius:var(--atlas-radius);border-color:#ddd;box-shadow:0 1px 3px #1814180a
+}
+.shell .briefing-cards article{background:#fff;border-color:#ddd;box-shadow:0 1px 3px #1814180a}
+.shell .briefing-cards .briefing-cash,.shell .briefing-iris{background:#1a1a1d;border-color:#353537;box-shadow:inset 0 1px 0 #ffffff20,0 3px 8px #11111115}
+.shell .briefing-iris>button{background:#262629;color:#fcfcfd;border-color:#707075}
+.shell .content .briefing-cash :is(span,strong,button){color:#fcfcfd}
+.shell .content .briefing-cash small{color:#d4d2d6}
+.shell .briefing-attention{background:#f4f3f4}
+.shell .content :is(.guardian,.connections-module){--wine:#232324;--ink:#141314;color:#141314}
+.shell .content :is(.guardian-panel,.connection-profile,.network-results,.connection-empty){background:#fff;border-color:#ddd;color:#141314}
+.shell .content :is(.guardian-panel,.connection-profile,.network-results,.connection-empty) :is(h2,h3,strong){color:#141314}
+.shell .content :is(.guardian-panel,.connection-profile,.network-results,.connection-empty) :is(p,small,label,.quiet){color:#5c5c5c}
+.shell .content :is(.guardian-grid,.connections-grid,.settings-grid,.grid-main){gap:12px}
+.shell .content .network-map{border-radius:16px}
+.shell .content :is(.connections-tabs button,.profile-actions button,.guardian-head select){
+ background:#fff;border-color:#d6d4d6;color:#454545;border-radius:9px
+}
+.shell .content .connections-tabs button.active{background:#1b1b1e;color:#fcfcfd}
+:where(.modal-backdrop,.finance-backdrop,.connection-editor-backdrop){backdrop-filter:none}
+.modal,.connection-editor,.finance-backdrop .finance-dialog{
+ background:#fcfcfd;color:#141314;color-scheme:light;border:1px solid #ddd;border-radius:18px;box-shadow:0 16px 42px #11111333
+}
+:is(.modal,.connection-editor,.finance-backdrop .finance-dialog) :is(.field,.quiet,.modal-head h2){color:#454545}
+:is(.modal,.connection-editor,.finance-backdrop .finance-dialog) .icon-button{color:#454545}
+.finance-backdrop .finance-dialog>header{background:#fcfcfd}
+.atlas-login{background:#f4f3f4}
+.atlas-login>.panel{background:#fcfcfd;color:#141314;border:1px solid #ddd;border-radius:18px;box-shadow:0 6px 24px #11111312}
+.atlas-login :is(.quiet,label,.text-button){color:#454545}
+.atlas-login h1{color:#141314;letter-spacing:-.04em}
+.atlas-loading-line{display:block;height:5px;border-radius:99px;background:#e6e3e6;overflow:hidden}
+.atlas-loading-line::before{content:"";display:block;width:35%;height:100%;background:#858387;border-radius:99px;animation:atlas-progress 1s ease-in-out infinite alternate}
+@keyframes atlas-progress{from{transform:translateX(0)}to{transform:translateX(180%)}}
+@keyframes atlas-reveal{from{opacity:0;translate:0 5px}to{opacity:1;translate:0 0}}
+@keyframes atlas-sheet-enter{from{opacity:.4;translate:12px 0}to{opacity:1;translate:0 0}}
+@keyframes atlas-overlay-enter{from{opacity:0}to{opacity:1}}
+.shell .atlas-screen{animation:atlas-reveal .22s ease-out}
+:is(.finance-backdrop,.modal-backdrop,.connection-editor-backdrop){animation:atlas-overlay-enter .16s ease-out}
+:is(.modal,.finance-dialog,.connection-editor){animation:atlas-reveal .2s ease-out}
+.activity-detail-backdrop .finance-dialog{animation:atlas-sheet-enter .22s ease-out}
+.shell .button:active{transform:translateY(1px)}
+.shell .briefing-iris .iris-core{animation-duration:32s}
+@media(max-width:940px) and (min-width:651px){.shell{grid-template-columns:178px minmax(0,1fr)}.shell .sidebar{width:178px}}
+@media(max-width:650px){
+ .shell .sidebar{top:0;left:0;width:min(272px,86vw);height:100dvh;box-shadow:0 6px 20px #11111320}
+ .shell .content{padding:16px 16px calc(74px + env(safe-area-inset-bottom))}
+ .shell .topbar{padding-inline:16px}
+ .shell .atlas-mobile-nav{background:#fcfcfd;border-color:#ddd}
+ .shell .atlas-mobile-nav button[aria-current=page]{background:#eeecef;color:#141314}
+ .shell .button{min-height:44px}
+ .activity-detail-backdrop .finance-dialog{animation:atlas-reveal .2s ease-out;border-radius:18px 18px 0 0}
+}
+@media(prefers-reduced-motion:reduce){
+ :is(.shell,.atlas-login,.finance-backdrop,.modal-backdrop,.connection-editor-backdrop),:is(.shell,.atlas-login,.finance-backdrop,.modal-backdrop,.connection-editor-backdrop) *,:is(.shell,.atlas-login) *::before{
+  animation:none!important;transition:none!important;scroll-behavior:auto!important
+ }
+ .shell .button:active{transform:none}
+}
+
+/* Quiet lavender framing and a focused, central assistant on Today. */
+:root{--atlas-lavender:#eee7f7;--atlas-violet:#624287;--atlas-radius:20px;--atlas-focus:#674d8d}
+.shell .topbar{border-color:#e9e6ec}
+.shell .grouped-navigation .nav-item.active,.shell .grouped-navigation .nav-item.active:hover{background:#eee7f7;color:#422a62}
+.shell .atlas-mobile-nav button[aria-current=page]{background:#eee7f7;color:#422a62}
+.shell .briefing-layout{
+ display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.65fr) minmax(0,1fr);
+ grid-template-areas:"next orb cash" "attention orb cash";grid-auto-rows:minmax(0,1fr);gap:12px
+}
+.briefing-layout .briefing-cards{display:contents}
+.briefing-layout .briefing-next{grid-area:next}
+.briefing-layout .briefing-cash{grid-area:cash;justify-content:center}
+.briefing-layout .briefing-attention{grid-area:attention;position:static;padding:14px}
+.briefing-layout .briefing-spent{position:static;text-align:left;max-width:none}
+.briefing-layout .briefing-spent strong{font-size:20px}
+.shell .briefing-layout .briefing-attention{background:#f4eff9}
+.shell .briefing-layout .briefing-iris{grid-area:orb;position:relative;isolation:isolate;overflow:hidden;min-height:320px;background:radial-gradient(ellipse at 50% 47%,#1e1711,#121114 68%);border-radius:24px}
+.atlas-particles{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
+.atlas-orb-brand{position:absolute;top:49%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+.atlas-orb-brand .atlas-brand{color:#fcfcfd;filter:drop-shadow(0 2px 10px #080809);gap:4px;flex-direction:column}
+.atlas-orb-brand .atlas-brand>svg{color:#f4eeee;width:72px;height:72px}
+.atlas-orb-brand .atlas-brand>span{font-size:20px;letter-spacing:.19em}
+.atlas-orb-brand .atlas-brand small{display:none}
+.shell .briefing-iris>button{z-index:1;background:#201f23e8;border-color:#77707c}
+@media(max-width:1050px){
+ .shell .briefing-layout{grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);grid-template-areas:"next orb" "cash orb" "attention attention";grid-auto-rows:auto}
+ .shell .briefing-layout .briefing-iris{min-height:278px}
+}
+@media(max-width:650px){
+ .shell .briefing-layout{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"orb orb" "next cash" "attention attention";gap:9px}
+ .shell .briefing-layout .briefing-iris{min-height:200px;border-radius:19px}
+ .atlas-orb-brand .atlas-brand>svg{width:49px;height:49px}
+ .atlas-orb-brand .atlas-brand>span{font-size:15px}
+}

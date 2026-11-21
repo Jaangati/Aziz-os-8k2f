@@ -6,8 +6,8 @@ const filters=[['all','All activity'],['pending','Needs review'],['expense','Mon
 const dayLabel=(day:string)=>/^\d{4}-\d{2}-\d{2}$/.test(day)&&Number.isFinite(Date.parse(day))?new Intl.DateTimeFormat('en-GB',{weekday:'long',day:'numeric',month:'short',timeZone:'UTC'}).format(new Date(day+'T00:00:00Z')):'Date unavailable';
 const sourceLabel=(entry:Entry)=>entry.data.source==='gmail'?'Gmail':entry.data.source==='sms'?'Bank SMS':'Pasted alert';
 
-export function MoneyActivity({transactions,receipts,period,currency,zone,onSelect,onExport,initialFilter,children}:{
- transactions:Entry[];receipts:Entry[];period:string;currency:string;zone:string;initialFilter?:string;
+export function MoneyActivity({transactions,receipts,period,currency,zone,onSelect,onExport,initialFilter,card,onClearCard,children}:{
+ transactions:Entry[];receipts:Entry[];period:string;currency:string;zone:string;initialFilter?:string;card?:string;onClearCard?:()=>void;
  onSelect:(entry:Entry,source?:Entry)=>void;onExport:(entries:Entry[])=>void;children:ReactNode;
 }){
  const [filter,setFilter]=useState(initialFilter||'all'),[query,setQuery]=useState(''),[category,setCategory]=useState(''),[limit,setLimit]=useState(24);
@@ -29,6 +29,7 @@ export function MoneyActivity({transactions,receipts,period,currency,zone,onSele
  const search=query.trim().toLowerCase();
  const visible=[...selectedMoneyRows,...alertRows].filter(({entry,source})=>{
   const d=entry.data;
+  if(card&&d.card_last4!==card&&source?.data.card_last4!==card)return false;
   if(category&&d.category!==category)return false;
   if(search&&![d.title,d.category,d.card_last4,d.reference,d.body,source?.data.body].join(' ').toLowerCase().includes(search))return false;
   const archived=['ignored','duplicate'].includes(d.status);
@@ -47,6 +48,7 @@ export function MoneyActivity({transactions,receipts,period,currency,zone,onSele
    <select aria-label="Transaction category" value={category} onChange={e=>{setCategory(e.target.value);setLimit(24);}}><option value="">All categories</option>{[...new Set([...selectedMoneyRows,...alertRows].map(row=>row.entry.data.category).filter(Boolean))].sort().map(c=><option key={c}>{c}</option>)}</select>
    <button className="button secondary" onClick={()=>onExport(visible.flatMap(row=>row.entry.kind==='transaction'?[row.entry]:[]))}><Download size={16}/> Export CSV</button>
   </div>
+  {card&&<button className="button secondary card-filter" onClick={onClearCard}>Card ••{card} ×</button>}
   {children}
   {[...groups].map(([day,rows])=><section className="activity-day" key={day}>
    <h2><CalendarDays size={15}/>{dayLabel(day)}</h2>

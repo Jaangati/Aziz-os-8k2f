@@ -1,5 +1,6 @@
 'use client';
 import Brand from './brand';
+import AtlasParticles from './atlas-particles';
 import Navigation,{sectionFor} from './navigation';
 import {useEffect,useRef,useState,useCallback,type ReactNode,type FormEvent} from 'react';
 import {ArrowUpRight,ArrowRight,ArrowUp,Plus,LayoutDashboard,Check,CheckCircle2,Brain,Wallet,FolderLock,Users,BookOpen,Target,Sparkles,Settings,Search,Bell,Menu,X,RefreshCw,Clock,ShieldCheck,Trash2,Pencil,Download,UploadCloud,ChevronRight,Activity,Pause,Play,LogOut,FileText,AlertCircle,Compass} from 'lucide-react';
@@ -57,7 +58,8 @@ export default function Dashboard(){
  <div className="briefing-heading"><div><time>{new Intl.DateTimeFormat('en-GB',{timeZone:zone,weekday:'long',day:'numeric',month:'long'}).format(new Date())}</time><h1>Hi, {settings?.name?.split(' ')[0]||'Aziz'}.</h1></div><button className="button" onClick={()=>setModal({kind:'task'})}><Plus size={16}/> Add task</button></div>
  <div className="briefing-layout">
   <section className="atlas-command-hero briefing-iris">
-   <div className="atlas-iris" aria-hidden="true"><div className="iris-orbit orbit-one"/><div className="iris-orbit orbit-two"/><div className="iris-core"><i/></div></div>
+   <AtlasParticles/>
+   <div className="atlas-orb-brand"><Brand/></div>
    <button onClick={()=>navigate('assistant')}><Sparkles size={16}/> Open Assistant <ArrowUpRight size={15}/></button>
   </section>
   <section className="briefing-cards" aria-label="Today at a glance">

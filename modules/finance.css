@@ -191,3 +191,72 @@
  .activity-detail-backdrop{place-items:end stretch;padding:0}
  .activity-detail-backdrop .finance-dialog{width:100%;max-width:none;max-height:84dvh;border-radius:18px 18px 0 0;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
 }
+
+.finance-module .money-snapshot{grid-template-columns:minmax(220px,1fr) minmax(0,1.65fr);gap:11px}
+.finance-module .money-snapshot .snapshot-balance{background:#1a1a1d;border-color:#353537;box-shadow:inset 0 1px 0 #ffffff22,0 3px 8px #11111115;padding:16px 18px}
+.finance-module .snapshot-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;padding:8px 0;background:white;border:1px solid #ddd;border-radius:16px}
+.finance-module .snapshot-facts article,.finance-module .snapshot-facts article:hover{background:transparent;transform:none;border:0;border-radius:0;box-shadow:none;min-height:0;padding:7px 12px}
+.finance-module .snapshot-facts article+article{border-left:1px solid #e9e6e9}
+.finance-module .snapshot-facts article>div{font-size:12px}
+.finance-module .snapshot-facts strong{font-size:clamp(16px,2vw,24px)}
+.finance-module .finance-tabs{background:#f4f3f4;border:1px solid #e5e3e5}
+.finance-module .finance-tabs button.active{background:white;color:#141314;box-shadow:0 1px 3px #11111320}
+.finance-module :is(.finance-panel,.activity-grid){background:white;border-color:#ddd}
+.finance-module .activity-row-button+.activity-row-button{border-color:#eceaec}
+.finance-module .activity-row-button:hover{background:#f6f5f6}
+.finance-module .activity-row-button .activity-icon{background:#f1eff1;border:1px solid #e8e6e8;box-shadow:none}
+.finance-module :is(.activity-import textarea,.activity-controls select,.activity-search,.finance-period input,.finance-period select){background:#fcfcfd;border-color:#ddd}
+.money-side{display:grid;gap:12px;min-width:0}
+.finance-module .card-filter{margin:8px 0 0}
+.atlas-wallet{padding:14px 16px;min-width:0}
+.atlas-wallet>header{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:12px}
+.atlas-wallet>header h2{font-size:16px;margin:0}
+.atlas-wallet>header .finance-link{display:inline-flex;align-items:center;gap:4px}
+.wallet-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:14px}
+.wallet-card{
+ position:relative;isolation:isolate;overflow:hidden;display:grid;gap:13px;min-height:140px;
+ align-content:space-between;text-align:left;padding:14px 15px;border:1px solid #53525b;border-radius:16px;
+ background:#26252c;color:#fcfcfd;box-shadow:inset 0 1px 0 #ffffff29,0 3px 0 #16151a,0 7px 15px #17161f24;
+ transition:transform .18s ease,box-shadow .18s ease
+}
+.wallet-card::after{content:"";position:absolute;z-index:-1;inset:-65% -22% 22% 50%;border-radius:50%;border:1px solid #ffffff24;box-shadow:0 0 0 13px #ffffff0a,0 0 0 32px #ffffff08;transform:rotate(-18deg)}
+.wallet-card.tone-1{background:#373241;border-color:#5c526b}
+.wallet-card.tone-2{background:#303b37;border-color:#55645c}
+.wallet-card-top,.wallet-card-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:#efedf1}
+.wallet-card-pan{font-size:23px;letter-spacing:.10em;font-variant-numeric:tabular-nums}
+.wallet-card-foot{font-size:11px}
+.compact .wallet-card{min-height:107px;padding:11px 13px;gap:7px}
+.compact .wallet-card-pan{font-size:20px}
+.wallet-empty{display:flex;align-items:center;gap:8px;font-size:13px}
+@media(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){.wallet-card:hover{transform:translateY(-2px);box-shadow:inset 0 1px 0 #ffffff29,0 4px 0 #16151a,0 9px 17px #17161f30}}
+@keyframes atlas-chart-in{from{opacity:.3;clip-path:inset(0 100% 0 0)}to{opacity:1;clip-path:inset(0)}}
+.cumulative-plot :is(polyline,polygon){animation:atlas-chart-in .42s ease-out}
+.finance-module .money-activity,.finance-module .money-overview-body,.finance-module> .atlas-wallet{animation:atlas-reveal .2s ease-out}
+@media(max-width:940px){.finance-module .money-snapshot{grid-template-columns:1fr}}
+@media(max-width:650px){.finance-module .snapshot-facts article{padding:7px 8px}.finance-module .snapshot-facts article>div svg{display:none}.finance-module .snapshot-facts small{font-size:11px}.finance-module .snapshot-facts strong{overflow-wrap:anywhere}.wallet-cards{grid-template-columns:1fr}}
+.chart-axis-frame{display:grid;grid-template-columns:34px minmax(0,1fr);gap:5px}
+.chart-axis-labels{position:relative;font-size:10px;color:#5c5c5c;font-variant-numeric:tabular-nums}
+.chart-axis-labels span{position:absolute;right:3px;transform:translateY(-50%)}
+.cumulative-chart input,.cumulative-dates{margin-left:39px;width:calc(100% - 39px)}
+
+.finance-module .snapshot-facts article:last-child{background:#f3edf9;border-radius:0 16px 16px 0}
+.finance-module .snapshot-facts article:last-child strong{color:#4b3168}
+.finance-module .finance-tabs button.active{background:#f0e7f8;color:#4b3168}
+.finance-module .cumulative-chart input{accent-color:#7658a3}
+.finance-module .chart-axis-frame{border-radius:10px}
+.finance-module .chart-axis-labels,.finance-module .cumulative-dates{color:#574e61}
+.finance-module .cumulative-value strong{color:#342344}
+.wallet-stack{position:relative;min-width:0;max-width:470px;margin-inline:auto;padding-top:0}
+.wallet-stack[data-layers="2"]{padding-top:12px}
+.wallet-stack[data-layers="3"]{padding-top:23px}
+.wallet-layer{position:absolute;display:block;top:0;bottom:8px;border:1px solid #aea0c2;border-radius:20px 20px 17px 17px}
+.wallet-layer-back{left:16px;right:16px;background:#e7dcf2;border-color:#dfd1eb}
+.wallet-layer-middle{top:10px;left:8px;right:8px;background:#bca1d9;border-color:#ab8dcc}
+.wallet-stack[data-layers="2"] .wallet-layer-middle{top:0}
+.wallet-stack .wallet-front{width:100%;min-height:150px;position:relative;border-radius:19px;color:#fff;background:#282135;border-color:#5f506e}
+.wallet-stack .wallet-front.tone-1{background:#473858}.wallet-stack .wallet-front.tone-2{background:#4b4160}
+.compact .wallet-stack .wallet-front{min-height:104px}
+.wallet-controls{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:11px;font-size:12px;color:#544b5d}
+.wallet-controls button{display:grid;place-items:center;min-width:34px;min-height:34px;border:1px solid #ded6e8;border-radius:50%;background:#f6f1fb;color:#53366e;cursor:pointer}
+.wallet-controls button:hover{background:#eee2f7}
+.wallet-front{animation:atlas-reveal .22s ease-out}

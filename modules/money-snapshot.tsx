@@ -18,6 +18,7 @@ export function MoneySnapshot({entries,currency,period,open}:{entries:Entry[];cu
    <strong>{latestBalance?money(latestBalance.data.reported_balance_minor):'Unavailable'}</strong>
    <small>{latestBalance?[latestBalance.data.account_key,date(latestBalance.data.date)].filter(Boolean).join(' · '):'No bank balance received'}</small>
   </article>
+  <div className="snapshot-facts">
   <article>
    <div><Wallet size={17}/> Opening balance</div>
    <strong>{openingBalance?money(openingBalance.data.reported_balance_minor):'Unavailable'}</strong>
@@ -33,5 +34,6 @@ export function MoneySnapshot({entries,currency,period,open}:{entries:Entry[];cu
    <strong>{money(spent)}</strong>
    <small>{new Intl.DateTimeFormat('en-GB',{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(period+'-01T00:00:00Z'))} · {rows.length} movements</small>
   </article>
+  </div>
  </section>;
 }
