@@ -6,6 +6,9 @@ export function MoneySnapshot({entries,currency,period,open}:{entries:Entry[];cu
  const {latestBalance}=summarizeBank(entries,currency,period);
  const {rows,spent}=summarizeFinance(entries,currency,period);
  const salaries=entries.filter(e=>e.kind==='transaction'&&e.data.direction==='income'&&e.data.currency===currency&&e.data.bank_status!=='excluded'&&(e.data.event_type==='salary'||e.data.category==='Salary')).sort((a,b)=>b.data.date.localeCompare(a.data.date));
+ const accountBalances=entries.filter(e=>e.kind==='receipt'&&e.data.balance_kind==='cash'&&e.data.balance_currency===currency&&Number.isSafeInteger(e.data.reported_balance_minor)&&e.data.payment_channel==='account'&&e.data.bank_status==='posted'&&e.data.status!=='duplicate'&&e.data.status!=='ignored'&&e.data.date&&e.data.date<period+'-01').sort((a,b)=>b.data.date.localeCompare(a.data.date)||String(b.data.occurred_at||b.data.received_at||'').localeCompare(String(a.data.occurred_at||a.data.received_at||'')));
+ const salaryAccount=accountBalances.find(e=>e.data.event_type==='salary'&&e.data.account_key)?.data.account_key;
+ const openingBalance=salaryAccount?accountBalances.find(e=>e.data.account_key===salaryAccount):accountBalances[0];
  const monthly=salaries.filter(e=>e.data.date.startsWith(period));
  const date=(value:string)=>value?new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}).format(new Date(value.slice(0,10)+'T00:00:00Z')):'';
  const money=(amount:number)=>new Intl.NumberFormat('en',{style:'currency',currency}).format(amount/100);
@@ -14,6 +17,11 @@ export function MoneySnapshot({entries,currency,period,open}:{entries:Entry[];cu
    <div><Wallet size={17}/> Latest reported balance {open&&<button onClick={open} aria-label="Open Money"><ArrowUpRight size={17}/></button>}</div>
    <strong>{latestBalance?money(latestBalance.data.reported_balance_minor):'Unavailable'}</strong>
    <small>{latestBalance?[latestBalance.data.account_key,date(latestBalance.data.date)].filter(Boolean).join(' · '):'No bank balance received'}</small>
+  </article>
+  <article>
+   <div><Wallet size={17}/> Opening balance</div>
+   <strong>{openingBalance?money(openingBalance.data.reported_balance_minor):'Unavailable'}</strong>
+   <small>{openingBalance?[openingBalance.data.account_key,date(openingBalance.data.date)].filter(Boolean).join(' · '):'No earlier account balance reported'}</small>
   </article>
   <article>
    <div><ArrowDownLeft size={17}/> Salary received</div>

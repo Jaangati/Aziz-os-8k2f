@@ -93,7 +93,7 @@ body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
 .atlas-screen :is(.panel,.record-card,.finance-panel,.money-snapshot article){transition:border-color .2s,box-shadow .2s}
 .atlas-screen :is(.panel,.record-card,.finance-panel,.money-snapshot article):hover{border-color:#929292}
 .atlas-screen button{transition:background-color .18s,color .18s,border-color .18s}
-.money-snapshot{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:12px;margin:0 0 18px}
+.money-snapshot{display:grid;grid-template-columns:1.15fr repeat(3,minmax(0,1fr));gap:12px;margin:0 0 18px}
 .money-snapshot article{min-width:0;padding:18px 20px;min-height:122px;border-radius:15px;background:#f4f3f0;color:#202020;border:1px solid #dcdad6}
 .money-snapshot .snapshot-balance{background:linear-gradient(120deg,#202020,#353535);border-color:#424242;color:#fafafa}
 .money-snapshot article>div{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
@@ -102,10 +102,9 @@ body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
 .money-snapshot small{font-size:12px;color:#555}
 .money-snapshot .snapshot-balance small{color:#ccc}
 .screen-today .money-snapshot{margin-top:16px}
-@media(max-width:650px){
+@media(max-width:950px){
  .money-snapshot{grid-template-columns:1fr 1fr;gap:8px}
  .money-snapshot article{padding:12px;min-height:105px}
  .money-snapshot article>div{font-size:12px}
- .money-snapshot .snapshot-balance{grid-column:1/-1}
 }
 @media(prefers-reduced-motion:reduce){.atlas-screen,.atlas-screen *{animation:none!important;transition:none!important}}
